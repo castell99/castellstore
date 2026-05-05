@@ -136,6 +136,12 @@ function renderVentas() {
           style="${esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : ''}">
           ${esF ? '📋 Cuotas' : '💳 Financiar'}
         </button>
+        ${v.estado === 'Completada'
+          ? `<button class="btn sm" onclick="generarRecibo('venta',${v.id})"
+              style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">
+              📄 Paz y Salvo
+            </button>`
+          : ''}
         <button class="btn sm" onclick="editarVenta(${v.id})">✏️</button>
         <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
       </td>
