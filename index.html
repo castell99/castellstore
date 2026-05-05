@@ -1,248 +1,11 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TechStore</title>
+<title>CastellStore</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:       #101f2b;
-  --bg2:      #152535;
-  --bg3:      #1a2e3d;
-  --bg4:      #1f3548;
-  --border:   #1e3347;
-  --border2:  #2a4560;
-  --text:     #e8f0f5;
-  --text2:    #8a9aa1;
-  --text3:    #4a6070;
-  --green:    #a4d65e;
-  --green-dk: #7db843;
-  --green-bg: rgba(164,214,94,0.10);
-  --green-bd: rgba(164,214,94,0.22);
-  --red:      #f06b6b;
-  --red-bg:   rgba(240,107,107,0.10);
-  --amber:    #f5b847;
-  --amber-bg: rgba(245,184,71,0.10);
-  --blue:     #5ba3c9;
-  --blue-bg:  rgba(91,163,201,0.10);
-  --muted:    #8a9aa1;
-  --radius:   10px;
-  --radius-sm:6px;
-  --shadow:   0 8px 32px rgba(0,0,0,0.45);
-  --font:     'Outfit',sans-serif;
-  --mono:     'JetBrains Mono',monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-
-/* ── NAV ── */
-.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:60;gap:12px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.4px;flex-shrink:0}
-.brand-dot{width:10px;height:10px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green)}
-.nav-actions{display:flex;align-items:center;gap:8px}
-.nav-btn{padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:var(--font);font-weight:500;transition:all .2s;white-space:nowrap}
-.nav-btn:hover{background:var(--bg3);color:var(--text)}
-.nav-btn.active{background:var(--green);border-color:var(--green);color:var(--bg)}
-.nav-btn.admin-btn{border-color:var(--border2)}
-.hamburger{display:none;flex-direction:column;gap:4px;cursor:pointer;padding:6px;border:none;background:none}
-.hamburger span{width:20px;height:2px;background:var(--text2);border-radius:2px;transition:all .2s}
-
-/* ── LOGIN OVERLAY ── */
-.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-box{width:100%;max-width:380px;animation:fadeUp .3s ease}
-.login-logo{text-align:center;margin-bottom:32px}
-.login-logo .dot{width:48px;height:48px;background:var(--green);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;box-shadow:0 0 24px rgba(164,214,94,0.3)}
-.login-logo h1{font-size:24px;font-weight:700;letter-spacing:-.5px}
-.login-logo p{color:var(--text2);font-size:13px;margin-top:4px}
-.login-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px}
-.login-error{background:var(--red-bg);border:1px solid rgba(240,107,107,.25);color:var(--red);padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:16px;display:none}
-
-/* ── VIEWS ── */
-.view{display:none}
-.view.active{display:block}
-
-/* ── SIDEBAR ── */
-.admin-layout{display:flex;min-height:calc(100vh - 54px)}
-.sidebar{width:210px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 10px;flex-shrink:0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;transition:transform .3s}
-.sidebar-section{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.9px;text-transform:uppercase;padding:14px 10px 6px}
-.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border:none;background:none;width:100%;text-align:left;font-family:var(--font);font-weight:500}
-.sidebar-item:hover{background:var(--bg3);color:var(--text)}
-.sidebar-item.active{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
-.sidebar-item .ico{font-size:15px;width:18px;text-align:center}
-.main{flex:1;padding:24px;overflow-x:hidden;min-width:0}
-
-/* ── SECTIONS ── */
-.section{display:none}
-.section.active{display:block;animation:fadeUp .2s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* ── PAGE HEADER ── */
-.page-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;gap:12px;flex-wrap:wrap}
-.page-title{font-size:20px;font-weight:700;letter-spacing:-.5px}
-.page-sub{font-size:12px;color:var(--text2);margin-top:2px}
-
-/* ── STATS ── */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden}
-.stat-accent{position:absolute;top:0;left:0;right:0;height:2px}
-.stat-accent.green{background:linear-gradient(90deg,var(--green),var(--blue))}
-.stat-accent.blue{background:linear-gradient(90deg,var(--blue),#3a7fa5)}
-.stat-accent.amber{background:linear-gradient(90deg,var(--amber),#e07b20)}
-.stat-accent.red{background:linear-gradient(90deg,var(--red),#c04040)}
-.stat-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px}
-.stat-value{font-size:22px;font-weight:700;letter-spacing:-.5px;font-family:var(--mono)}
-.stat-icon{position:absolute;right:14px;top:14px;font-size:18px;opacity:.25}
-
-/* ── CARDS ── */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px}
-.card-title{font-size:13px;font-weight:600;color:var(--text)}
-
-/* ── TABLE ── */
-.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:500px}
-thead{background:var(--bg3)}
-th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
-td{padding:10px 14px;border-top:1px solid var(--border);vertical-align:middle}
-tr:hover td{background:rgba(255,255,255,.015)}
-.empty-row td{text-align:center;color:var(--text3);padding:36px;font-size:13px}
-
-/* ── BADGES ── */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
-.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.badge.green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}.badge.green::before{background:var(--green)}
-.badge.red{background:var(--red-bg);color:var(--red)}.badge.red::before{background:var(--red)}
-.badge.amber{background:var(--amber-bg);color:var(--amber)}.badge.amber::before{background:var(--amber)}
-.badge.blue{background:var(--blue-bg);color:var(--blue)}.badge.blue::before{background:var(--blue)}
-.badge.muted{background:rgba(138,154,161,.1);color:var(--muted)}.badge.muted::before{background:var(--muted)}
-
-/* ── BUTTONS ── */
-.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:var(--font);font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn:hover{background:var(--bg4);border-color:var(--border2)}
-.btn.primary{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:600}
-.btn.primary:hover{background:var(--green-dk)}
-.btn.danger{background:var(--red-bg);border-color:transparent;color:var(--red);padding:4px 9px;font-size:12px}
-.btn.sm{padding:5px 10px;font-size:12px}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-.icon-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:15px;padding:4px 6px;border-radius:4px;transition:color .15s;font-family:var(--font)}
-.icon-btn:hover{color:var(--red)}
-
-/* ── FORMS ── */
-.form-group{margin-bottom:14px}
-label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500}
-input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg3);color:var(--text);font-family:var(--font);transition:border-color .2s}
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(164,214,94,.1)}
-input::placeholder{color:var(--text3)}
-select option{background:var(--bg3);color:var(--text)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-
-/* ── MODAL ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
-.overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);animation:fadeUp .2s ease}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.modal-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
-.close-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:22px;padding:0;line-height:1;transition:color .15s}
-.close-btn:hover{color:var(--text)}
-.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);flex-wrap:wrap}
-
-/* ── ALERTS ── */
-.alert{padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:14px;display:flex;align-items:flex-start;gap:8px;line-height:1.4}
-.alert.info{background:var(--blue-bg);border:1px solid rgba(91,163,201,.2);color:#93c5e8}
-.alert.success{background:var(--green-bg);border:1px solid var(--green-bd);color:var(--green)}
-.alert.warning{background:var(--amber-bg);border:1px solid rgba(245,184,71,.2);color:var(--amber)}
-.alert.error{background:var(--red-bg);border:1px solid rgba(240,107,107,.2);color:var(--red)}
-
-/* ── TOAST ── */
-.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:8px;max-width:300px}
-.toast{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:11px 16px;font-size:13px;box-shadow:var(--shadow);animation:fadeUp .25s ease;display:flex;align-items:center;gap:10px}
-.toast.ok{border-left:3px solid var(--green)}
-.toast.err{border-left:3px solid var(--red)}
-.toast.inf{border-left:3px solid var(--blue)}
-
-/* ── FINANCING ── */
-.fin-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-top:14px}
-.fin-hero{background:linear-gradient(135deg,rgba(164,214,94,.12),rgba(91,163,201,.08));border-bottom:1px solid var(--border);padding:18px;text-align:center}
-.fin-amount{font-size:26px;font-weight:700;color:var(--green);font-family:var(--mono);letter-spacing:-.5px}
-.fin-lbl{font-size:11px;color:var(--text2);margin-top:4px}
-
-/* ── ABONOS ── */
-.abono-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.abono-row input{flex:1}
-.progress-bar{background:var(--bg3);border-radius:20px;height:8px;overflow:hidden;margin:6px 0}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:20px;transition:width .4s ease}
-.abono-list{margin-top:8px}
-.abono-item{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:4px;font-size:12px}
-.abono-fecha{color:var(--text3);font-size:11px}
-
-/* ── PUBLIC CATALOG ── */
-.pub-wrap{min-height:calc(100vh - 54px)}
-.pub-hero{background:linear-gradient(160deg,var(--bg2) 0%,var(--bg3) 100%);border-bottom:1px solid var(--border);padding:48px 24px 40px;text-align:center;position:relative;overflow:hidden}
-.pub-hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(164,214,94,.08) 0%,transparent 70%);pointer-events:none}
-.pub-hero h1{font-size:clamp(24px,5vw,40px);font-weight:700;letter-spacing:-1px;margin-bottom:8px}
-.pub-hero h1 span{color:var(--green)}
-.pub-hero p{color:var(--text2);font-size:15px;max-width:480px;margin:0 auto}
-.pub-content{padding:24px 20px;max-width:1200px;margin:0 auto}
-.filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.pill{padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:var(--font);font-weight:500;transition:all .2s}
-.pill:hover{border-color:var(--green);color:var(--green)}
-.pill.active{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:600}
-.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-.prod-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
-.prod-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.35);border-color:var(--border2)}
-.prod-card.agotado{opacity:.55}
-.prod-img{height:120px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;border-bottom:1px solid var(--border)}
-.stock-tag{position:absolute;top:8px;right:8px}
-.prod-body{padding:14px}
-.prod-cat{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.7px;text-transform:uppercase;margin-bottom:3px}
-.prod-name{font-size:14px;font-weight:600;margin-bottom:6px;letter-spacing:-.2px;line-height:1.3}
-.prod-price{font-size:18px;font-weight:700;color:var(--green);font-family:var(--mono);letter-spacing:-.5px;margin-bottom:10px}
-.config-box{background:var(--bg3);border-radius:var(--radius-sm);padding:10px;margin-bottom:10px;border:1px solid var(--border)}
-.config-box-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:7px}
-.config-box label{font-size:11px;color:var(--text2);margin-top:5px;margin-bottom:3px}
-.config-box select{font-size:12px;padding:5px 8px;background:var(--bg2)}
-.consultar-btn{width:100%;background:var(--green);border:none;color:var(--bg);font-family:var(--font);font-weight:600;font-size:13px;padding:9px;border-radius:var(--radius-sm);cursor:pointer;transition:background .2s}
-.consultar-btn:hover{background:var(--green-dk)}
-.consultar-btn:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed}
-
-/* ── VARIANTES BUILDER ── */
-.var-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px}
-.var-opt-row{display:flex;gap:6px;align-items:center;margin-bottom:5px}
-.var-opt-row input{font-size:12px}
-
-/* ── STATUS SELECT ── */
-.status-sel{font-size:12px;padding:5px 8px;width:auto;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);font-family:var(--font)}
-
-/* ── RESPONSIVE ── */
-@media(max-width:900px){
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:700px){
-  .sidebar{position:fixed;top:54px;left:0;bottom:0;z-index:55;transform:translateX(-100%);width:220px}
-  .sidebar.open{transform:translateX(0)}
-  .main{padding:16px}
-  .admin-layout{display:block}
-  .hamburger{display:flex}
-  .form-row,.form-row-3{grid-template-columns:1fr}
-  .page-header{flex-direction:column;align-items:flex-start}
-  .stats-grid{grid-template-columns:1fr 1fr}
-  table{min-width:420px}
-  .modal{padding:18px}
-  .pub-hero{padding:32px 16px 28px}
-  .prod-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-  .nav-btn span{display:none}
-}
-@media(max-width:420px){
-  .stats-grid{grid-template-columns:1fr}
-  .prod-grid{grid-template-columns:1fr 1fr}
-}
-</style>
+<link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -250,18 +13,18 @@ select option{background:var(--bg3);color:var(--text)}
 <nav class="nav">
   <div class="brand">
     <div class="brand-dot"></div>
-    TechStore
+    CastellStore
   </div>
   <div class="nav-actions">
     <button class="nav-btn active" id="btn-pub" onclick="goPublic()">🛍 Catálogo</button>
-    <button class="nav-btn admin-btn" id="btn-adm" onclick="goAdmin()">⚙️ Admin</button>
-    <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menú" style="display:none">
+    <button class="nav-btn" id="btn-adm" onclick="goAdmin()">⚙️ Admin</button>
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()" style="display:none">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- ── TOAST ── -->
+<!-- ── TOASTS ── -->
 <div class="toast-wrap" id="toasts"></div>
 
 <!-- ══════════ LOGIN ══════════ -->
@@ -269,7 +32,7 @@ select option{background:var(--bg3);color:var(--text)}
   <div class="login-box">
     <div class="login-logo">
       <div class="dot">🖥️</div>
-      <h1>TechStore Admin</h1>
+      <h1>CastellStore Admin</h1>
       <p>Ingresa tus credenciales para continuar</p>
     </div>
     <div class="login-card">
@@ -290,7 +53,7 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
 </div>
 
-<!-- ══════════ PUBLIC VIEW ══════════ -->
+<!-- ══════════ VISTA PÚBLICA ══════════ -->
 <div id="view-public" class="view active">
   <div class="pub-wrap">
     <div class="pub-hero">
@@ -312,9 +75,11 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
 </div>
 
-<!-- ══════════ ADMIN VIEW ══════════ -->
+<!-- ══════════ VISTA ADMIN ══════════ -->
 <div id="view-admin" class="view">
   <div class="admin-layout">
+
+    <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-section">Principal</div>
       <button class="sidebar-item active" onclick="showSec('dashboard',this)"><span class="ico">📊</span> Dashboard</button>
@@ -324,7 +89,7 @@ select option{background:var(--bg3);color:var(--text)}
       <button class="sidebar-item" onclick="showSec('inventario',this)"><span class="ico">📦</span> Productos</button>
       <div class="sidebar-section">Herramientas</div>
       <button class="sidebar-item" onclick="showSec('financiamiento',this)"><span class="ico">🧮</span> Financiamiento</button>
-      <div style="padding:16px 10px 0;border-top:1px solid var(--border);margin-top:auto">
+      <div style="padding:16px 10px 0;border-top:1px solid var(--border);margin-top:16px">
         <button class="sidebar-item" onclick="logout()" style="color:var(--red)"><span class="ico">🚪</span> Cerrar sesión</button>
       </div>
     </div>
@@ -344,8 +109,10 @@ select option{background:var(--bg3);color:var(--text)}
         </div>
         <div class="card">
           <div class="card-header"><div class="card-title">Últimas transacciones</div></div>
-          <div class="table-wrap"><table><thead><tr><th>Tipo</th><th>Fecha</th><th>Cliente</th><th>Detalle</th><th>Valor</th><th>Estado</th></tr></thead>
-          <tbody id="dash-tb"></tbody></table></div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Tipo</th><th>Fecha</th><th>Cliente</th><th>Detalle</th><th>Valor</th><th>Estado</th></tr></thead>
+            <tbody id="dash-tb"></tbody></table>
+          </div>
         </div>
       </div>
 
@@ -353,10 +120,10 @@ select option{background:var(--bg3);color:var(--text)}
       <div id="sec-ventas" class="section">
         <div class="page-header">
           <div><div class="page-title">Ventas</div><div class="page-sub">Registro, control y abonos</div></div>
-          <button class="btn primary" onclick="openModal('modal-venta')">+ Nueva venta</button>
+          <button class="btn primary" onclick="abrirNuevaVenta()">+ Nueva venta</button>
         </div>
         <div class="table-wrap card" style="padding:0">
-          <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Pago</th><th>Abonado</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
+          <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Total</th><th>Pago</th><th>Abonado</th><th>Saldo</th><th>Estado</th><th>Acciones</th></tr></thead>
           <tbody id="tb-ventas"></tbody></table>
         </div>
       </div>
@@ -365,10 +132,10 @@ select option{background:var(--bg3);color:var(--text)}
       <div id="sec-tecnicos" class="section">
         <div class="page-header">
           <div><div class="page-title">Servicios Técnicos</div><div class="page-sub">Control de equipos en reparación</div></div>
-          <button class="btn primary" onclick="openModal('modal-tecnico')">+ Nuevo servicio</button>
+          <button class="btn primary" onclick="abrirNuevoTecnico()">+ Nuevo servicio</button>
         </div>
         <div class="table-wrap card" style="padding:0">
-          <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Equipo</th><th>Diagnóstico</th><th>Costo</th><th>Abonado</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
+          <table><thead><tr><th>Fecha</th><th>Cliente</th><th>Equipo</th><th>Diagnóstico</th><th>Costo</th><th>Abonado</th><th>Saldo</th><th>Estado</th><th>Acciones</th></tr></thead>
           <tbody id="tb-tecnicos"></tbody></table>
         </div>
       </div>
@@ -377,10 +144,10 @@ select option{background:var(--bg3);color:var(--text)}
       <div id="sec-inventario" class="section">
         <div class="page-header">
           <div><div class="page-title">Productos e Inventario</div><div class="page-sub">Catálogo y stock</div></div>
-          <button class="btn primary" onclick="openModal('modal-producto')">+ Agregar producto</button>
+          <button class="btn primary" onclick="abrirNuevoProducto()">+ Agregar producto</button>
         </div>
         <div class="table-wrap card" style="padding:0">
-          <table><thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th></th></tr></thead>
+          <table><thead><tr><th>Producto</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead>
           <tbody id="tb-inv"></tbody></table>
         </div>
       </div>
@@ -398,7 +165,10 @@ select option{background:var(--bg3);color:var(--text)}
             <div class="form-group"><label>Cuota inicial (COP $) — opcional</label><input type="number" id="fin-i" placeholder="0" oninput="calcFin()"></div>
             <div class="alert info">💡 Interés compuesto: P×r(1+r)ⁿ / ((1+r)ⁿ−1)</div>
           </div>
-          <div class="card"><div class="card-title" style="margin-bottom:14px">Plan de cuotas</div><div id="fin-out"><p style="color:var(--text3);font-size:13px">Ingresa el precio para ver el plan.</p></div></div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:14px">Plan de cuotas</div>
+            <div id="fin-out"><p style="color:var(--text3);font-size:13px">Ingresa el precio para ver el plan.</p></div>
+          </div>
         </div>
       </div>
 
@@ -409,16 +179,33 @@ select option{background:var(--bg3);color:var(--text)}
 <!-- ══ MODAL VENTA ══ -->
 <div class="overlay" id="modal-venta">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title">💰 Nueva Venta</div><button class="close-btn" onclick="closeModal('modal-venta')">×</button></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-venta-title">💰 Nueva Venta</div>
+      <button class="close-btn" onclick="closeModal('modal-venta')">×</button>
+    </div>
     <div class="form-group"><label>Cliente *</label><input id="v-cli" placeholder="Nombre completo"></div>
-    <div class="form-group"><label>Producto *</label><select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar...</option></select></div>
-    <div class="form-row">
-      <div class="form-group"><label>Precio de venta (COP $) *</label><input type="number" id="v-precio" placeholder="0" oninput="previewFinV()"></div>
-      <div class="form-group"><label>Método de pago</label><select id="v-pago"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Financiado</option></select></div>
+    <div class="form-group" id="v-prod-group">
+      <label>Producto *</label>
+      <select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar...</option></select>
+      <input id="v-prod-txt" placeholder="Nombre del producto" style="display:none;margin-top:6px">
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Cuotas (financiado)</label><select id="v-cuotas" onchange="previewFinV()"><option value="0">No aplica</option><option value="2">2 meses</option><option value="3">3 meses</option><option value="4">4 meses</option><option value="5">5 meses</option><option value="6">6 meses</option></select></div>
-      <div class="form-group"><label>Estado</label><select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select></div>
+      <div class="form-group"><label>Precio de venta (COP $) *</label><input type="number" id="v-precio" placeholder="0" oninput="previewFinV()"></div>
+      <div class="form-group"><label>Método de pago</label>
+        <select id="v-pago"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Financiado</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cuotas (financiado)</label>
+        <select id="v-cuotas" onchange="previewFinV()">
+          <option value="0">No aplica</option><option value="2">2 meses</option>
+          <option value="3">3 meses</option><option value="4">4 meses</option>
+          <option value="5">5 meses</option><option value="6">6 meses</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Estado</label>
+        <select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select>
+      </div>
     </div>
     <div id="v-fin-prev" style="display:none"></div>
     <div class="modal-footer">
@@ -437,7 +224,7 @@ select option{background:var(--bg3);color:var(--text)}
       <div class="form-group"><label>Monto del abono (COP $) *</label><input type="number" id="av-monto" placeholder="0"></div>
       <div class="form-group"><label>Observación</label><input id="av-obs" placeholder="Ej: Pago cuota 2"></div>
     </div>
-    <div class="abono-list" id="av-lista"></div>
+    <div id="av-lista"></div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-abono-v')">Cerrar</button>
       <button class="btn primary" onclick="guardarAbonoV()">Registrar abono</button>
@@ -454,7 +241,7 @@ select option{background:var(--bg3);color:var(--text)}
       <div class="form-group"><label>Monto del abono (COP $) *</label><input type="number" id="at-monto" placeholder="0"></div>
       <div class="form-group"><label>Observación</label><input id="at-obs" placeholder="Ej: Abono inicial"></div>
     </div>
-    <div class="abono-list" id="at-lista"></div>
+    <div id="at-lista"></div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-abono-t')">Cerrar</button>
       <button class="btn primary" onclick="guardarAbonoT()">Registrar abono</button>
@@ -465,7 +252,10 @@ select option{background:var(--bg3);color:var(--text)}
 <!-- ══ MODAL TÉCNICO ══ -->
 <div class="overlay" id="modal-tecnico">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title">🔧 Nuevo Servicio Técnico</div><button class="close-btn" onclick="closeModal('modal-tecnico')">×</button></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-tec-title">🔧 Nuevo Servicio Técnico</div>
+      <button class="close-btn" onclick="closeModal('modal-tecnico')">×</button>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>Cliente *</label><input id="t-cli" placeholder="Nombre completo"></div>
       <div class="form-group"><label>Equipo *</label><input id="t-equipo" placeholder="Ej: Laptop HP, iPhone 13"></div>
@@ -473,7 +263,12 @@ select option{background:var(--bg3);color:var(--text)}
     <div class="form-group"><label>Diagnóstico / Falla</label><input id="t-diag" placeholder="Descripción del problema"></div>
     <div class="form-row">
       <div class="form-group"><label>Costo estimado (COP $)</label><input type="number" id="t-costo" placeholder="0"></div>
-      <div class="form-group"><label>Estado</label><select id="t-estado"><option>Recibido</option><option>En diagnóstico</option><option>En reparación</option><option>Listo para entrega</option><option>Entregado</option></select></div>
+      <div class="form-group"><label>Estado</label>
+        <select id="t-estado">
+          <option>Recibido</option><option>En diagnóstico</option>
+          <option>En reparación</option><option>Listo para entrega</option><option>Entregado</option>
+        </select>
+      </div>
     </div>
     <div class="form-group"><label>Observaciones</label><input id="t-obs" placeholder="Notas adicionales..."></div>
     <div class="modal-footer">
@@ -486,10 +281,19 @@ select option{background:var(--bg3);color:var(--text)}
 <!-- ══ MODAL PRODUCTO ══ -->
 <div class="overlay" id="modal-producto">
   <div class="modal">
-    <div class="modal-header"><div class="modal-title">📦 Agregar Producto</div><button class="close-btn" onclick="closeModal('modal-producto')">×</button></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modal-prod-title">📦 Agregar Producto</div>
+      <button class="close-btn" onclick="closeModal('modal-producto')">×</button>
+    </div>
     <div class="form-group"><label>Nombre del producto *</label><input id="p-nom" placeholder="Ej: Laptop Dell Inspiron 15"></div>
     <div class="form-row">
-      <div class="form-group"><label>Categoría</label><select id="p-cat" onchange="toggleVar()"><option value="Computador">💻 Computador</option><option value="Teléfono">📱 Teléfono</option><option value="Accesorio">🎧 Accesorio</option><option value="Servicio">🔧 Servicio</option><option value="Otro">📦 Otro</option></select></div>
+      <div class="form-group"><label>Categoría</label>
+        <select id="p-cat" onchange="toggleVar()">
+          <option value="Computador">💻 Computador</option><option value="Teléfono">📱 Teléfono</option>
+          <option value="Accesorio">🎧 Accesorio</option><option value="Servicio">🔧 Servicio</option>
+          <option value="Otro">📦 Otro</option>
+        </select>
+      </div>
       <div class="form-group"><label>Emoji / Ícono</label><input id="p-emoji" placeholder="💻" maxlength="2"></div>
     </div>
     <div class="form-row">
@@ -498,7 +302,10 @@ select option{background:var(--bg3);color:var(--text)}
     </div>
     <div id="sec-var" style="display:none;border-top:1px solid var(--border);padding-top:16px;margin-top:4px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div><div style="font-size:13px;font-weight:600">Variantes de precio</div><div style="font-size:11px;color:var(--text3);margin-top:1px">Características que varían el precio</div></div>
+        <div>
+          <div style="font-size:13px;font-weight:600">Variantes de precio</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:1px">Características que varían el precio</div>
+        </div>
         <button class="btn sm" onclick="addVar()">+ Variante</button>
       </div>
       <div id="var-list"></div>
@@ -510,591 +317,27 @@ select option{background:var(--bg3);color:var(--text)}
   </div>
 </div>
 
+<!-- ══ SCRIPTS — orden importa ══ -->
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/ventas.js"></script>
+<script src="js/tecnicos.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/financiamiento.js"></script>
+<script src="js/catalogo.js"></script>
 <script>
-// ═══════════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════════
-const SUPA = 'https://inlejbenzupcgpkuiqzj.supabase.co';
-const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlubGVqYmVuenVwY2dwa3VpcXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NzE1ODYsImV4cCI6MjA5MjQ0NzU4Nn0.PAovGQ51-cVmOsxcb9fG26kYTArzjQVbS0718-krHuQ';
-const HDR  = {'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'return=representation'};
-
-// Credenciales admin — puedes cambiarlas aquí
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'techstore2025';
-
-// ═══════════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════════
-let productos=[], ventas=[], tecnicos=[], abonos=[];
-let varTemp=[], abonoCtx={tipo:'',id:null};
-let isAdmin=false, pubFilter='';
-
-// ═══════════════════════════════════════════
-//  SUPABASE HELPER
-// ═══════════════════════════════════════════
-async function sb(table,method='GET',body=null,qs=''){
-  const url=`${SUPA}/rest/v1/${table}${qs}`;
-  const o={method,headers:{...HDR}};
-  if(body) o.body=JSON.stringify(body);
-  const r=await fetch(url,o);
-  if(!r.ok){ const e=await r.text(); throw new Error(e); }
-  const t=await r.text();
-  return t?JSON.parse(t):[];
-}
-
-// ═══════════════════════════════════════════
-//  AUTH
-// ═══════════════════════════════════════════
-function goAdmin(){
-  if(isAdmin){ showAdminView(); return; }
-  document.getElementById('login-overlay').style.display='flex';
-}
-function doLogin(){
-  const u=document.getElementById('l-user').value.trim();
-  const p=document.getElementById('l-pass').value;
-  if(u===ADMIN_USER && p===ADMIN_PASS){
-    isAdmin=true;
-    document.getElementById('login-overlay').style.display='none';
-    document.getElementById('l-pass').value='';
-    showAdminView();
-  } else {
-    document.getElementById('login-error').style.display='flex';
-    document.getElementById('l-pass').value='';
+  // ── Utilidad compartida ──
+  function setSelectVal(id, val) {
+    const s = document.getElementById(id);
+    if (!s) return;
+    for (let o of s.options) { if (o.value === val || o.text === val) { s.value = o.value; break; } }
   }
-}
-function logout(){
-  isAdmin=false;
-  goPublic();
-  toast('Sesión cerrada','inf');
-}
-function showAdminView(){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-admin').classList.add('active');
-  document.getElementById('btn-adm').classList.add('active');
-  document.getElementById('btn-pub').classList.remove('active');
-  const hb=document.getElementById('hamburger');
-  if(hb) hb.style.display='flex';
-  loadAll().then(()=>{ renderVentas();renderTecnicos();renderInventario();renderDashboard(); });
-}
-function goPublic(){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-public').classList.add('active');
-  document.getElementById('btn-pub').classList.add('active');
-  document.getElementById('btn-adm').classList.remove('active');
-  const hb=document.getElementById('hamburger');
-  if(hb) hb.style.display='none';
-  closeSidebar();
-  renderPublic();
-}
-
-// ═══════════════════════════════════════════
-//  SIDEBAR (mobile)
-// ═══════════════════════════════════════════
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-}
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-}
-
-// ═══════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════
-const fmt=n=>new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:0}).format(n||0);
-const today=()=>new Date().toLocaleDateString('es-CO');
-
-function toast(msg,type='ok'){
-  const t=document.createElement('div');
-  t.className=`toast ${type}`;
-  const ic={ok:'✓',err:'✕',inf:'ℹ'};
-  t.innerHTML=`<span>${ic[type]||'ℹ'}</span> ${msg}`;
-  document.getElementById('toasts').appendChild(t);
-  setTimeout(()=>t.style.opacity='0',3000);
-  setTimeout(()=>t.remove(),3400);
-}
-
-function setBtn(id,loading,label='Guardar'){
-  const b=document.getElementById(id);
-  if(!b)return;
-  b.disabled=loading;
-  b.textContent=loading?'Guardando...':label;
-}
-
-function openModal(id){ document.getElementById(id).classList.add('open'); if(id==='modal-venta')fillProdSel(); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-
-function showSec(s,el){
-  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item').forEach(x=>x.classList.remove('active'));
-  document.getElementById('sec-'+s).classList.add('active');
-  if(el) el.classList.add('active');
-  closeSidebar();
-  if(s==='ventas') renderVentas();
-  if(s==='tecnicos') renderTecnicos();
-  if(s==='inventario') renderInventario();
-  if(s==='dashboard') renderDashboard();
-}
-
-// ═══════════════════════════════════════════
-//  DATA LOAD
-// ═══════════════════════════════════════════
-async function loadAll(){
-  try{
-    [productos,ventas,tecnicos,abonos]=await Promise.all([
-      sb('productos','GET',null,'?order=id.desc'),
-      sb('ventas','GET',null,'?order=id.desc'),
-      sb('tecnicos','GET',null,'?order=id.desc'),
-      sb('abonos','GET',null,'?order=id.desc'),
-    ]);
-    if(!Array.isArray(productos))productos=[];
-    if(!Array.isArray(ventas))ventas=[];
-    if(!Array.isArray(tecnicos))tecnicos=[];
-    if(!Array.isArray(abonos))abonos=[];
-  }catch(e){
-    toast('Error cargando datos','err');
-    productos=[];ventas=[];tecnicos=[];abonos=[];
-  }
-}
-
-function abonadoPor(tipo,id){
-  return abonos.filter(a=>a.tipo===tipo&&a.ref_id===id).reduce((s,a)=>s+parseFloat(a.monto||0),0);
-}
-function saldoPendiente(tipo,id,total){
-  return Math.max(0, parseFloat(total||0) - abonadoPor(tipo,id));
-}
-
-// ═══════════════════════════════════════════
-//  DASHBOARD
-// ═══════════════════════════════════════════
-function renderDashboard(){
-  const totV=ventas.filter(v=>v.estado==='Completada'||v.estado==='Financiada').reduce((s,v)=>s+parseFloat(v.precio||0),0);
-  const actTec=tecnicos.filter(t=>t.estado!=='Entregado').length;
-
-  // Saldo por cobrar: ventas financiadas + técnicos no completamente pagados
-  let saldoCobrar=0;
-  ventas.filter(v=>v.estado==='Financiada').forEach(v=>{saldoCobrar+=saldoPendiente('venta',v.id,v.precio);});
-  tecnicos.filter(t=>t.estado!=='Entregado').forEach(t=>{const s=saldoPendiente('tecnico',t.id,t.costo);if(s>0)saldoCobrar+=s;});
-
-  document.getElementById('d-v').textContent=fmt(totV);
-  document.getElementById('d-p').textContent=productos.length;
-  document.getElementById('d-ta').textContent=actTec;
-  document.getElementById('d-sc').textContent=fmt(saldoCobrar);
-
-  const rows=[
-    ...ventas.slice(0,4).map(v=>({tipo:'Venta',c:'green',fecha:v.fecha,cli:v.cliente,det:v.producto,val:v.precio,est:v.estado})),
-    ...tecnicos.slice(0,4).map(t=>({tipo:'Técnico',c:'blue',fecha:t.fecha,cli:t.cliente,det:t.equipo,val:t.costo,est:t.estado}))
-  ].sort((a,b)=>b.fecha>a.fecha?1:-1).slice(0,6);
-
-  document.getElementById('dash-tb').innerHTML=rows.length
-    ?rows.map(r=>`<tr>
-      <td><span class="badge ${r.c}">${r.tipo}</span></td>
-      <td style="color:var(--text3);font-size:11px">${r.fecha}</td>
-      <td><strong>${r.cli}</strong></td>
-      <td style="color:var(--text2)">${r.det}</td>
-      <td style="font-family:var(--mono);font-weight:600">${fmt(r.val)}</td>
-      <td><span class="badge ${r.est==='Completada'||r.est==='Entregado'?'green':r.est==='Cancelada'?'red':'amber'}">${r.est}</span></td>
-    </tr>`).join('')
-    :'<tr class="empty-row"><td colspan="6">Sin transacciones aún</td></tr>';
-}
-
-// ═══════════════════════════════════════════
-//  VENTAS
-// ═══════════════════════════════════════════
-function fillProdSel(){
-  const s=document.getElementById('v-prod');
-  s.innerHTML='<option value="">Seleccionar producto...</option>';
-  productos.filter(p=>p.stock>0).forEach(p=>{
-    s.innerHTML+=`<option value="${p.id}" data-p="${p.precio}">${p.emoji||''} ${p.nombre} — ${fmt(p.precio)}</option>`;
-  });
-}
-function fillVPrecio(){
-  const o=document.getElementById('v-prod').selectedOptions[0];
-  if(o&&o.dataset.p){ document.getElementById('v-precio').value=o.dataset.p; previewFinV(); }
-}
-function previewFinV(){
-  const c=parseInt(document.getElementById('v-cuotas').value)||0;
-  const p=parseFloat(document.getElementById('v-precio').value)||0;
-  const el=document.getElementById('v-fin-prev');
-  if(c>0&&p>0){
-    const cuota=calcCuota(p,3.5,c);
-    el.style.display='block';
-    el.innerHTML=`<div class="alert info">🧮 <strong>${c} meses</strong> · Cuota: <strong>${fmt(Math.round(cuota))}/mes</strong> · Total: <strong>${fmt(Math.round(cuota*c))}</strong></div>`;
-  } else el.style.display='none';
-}
-async function guardarVenta(){
-  const cli=document.getElementById('v-cli').value.trim();
-  const pid=document.getElementById('v-prod').value;
-  const precio=parseFloat(document.getElementById('v-precio').value)||0;
-  if(!cli||!pid||!precio){toast('Completa los campos requeridos','err');return;}
-  const prod=productos.find(x=>x.id==pid);
-  setBtn('btn-sv',true,'Guardar venta');
-  try{
-    const [v]=await sb('ventas','POST',{
-      fecha:today(),cliente:cli,producto:prod.nombre,precio,
-      pago:document.getElementById('v-pago').value,
-      cuotas:parseInt(document.getElementById('v-cuotas').value)||0,
-      estado:document.getElementById('v-estado').value
-    });
-    ventas.unshift(v);
-    if(prod.stock>0){
-      await sb('productos','PATCH',{stock:prod.stock-1},`?id=eq.${prod.id}`);
-      prod.stock--;
-    }
-    closeModal('modal-venta');
-    renderVentas();renderDashboard();renderInventario();
-    toast('Venta registrada ✓');
-  }catch(e){toast('Error: '+e.message,'err');}
-  setBtn('btn-sv',false,'Guardar venta');
-}
-function renderVentas(){
-  const tb=document.getElementById('tb-ventas');
-  if(!ventas.length){tb.innerHTML='<tr class="empty-row"><td colspan="9">No hay ventas registradas</td></tr>';return;}
-  tb.innerHTML=ventas.map(v=>{
-    const ab=abonadoPor('venta',v.id);
-    const sal=saldoPendiente('venta',v.id,v.precio);
-    const pct=Math.min(100,Math.round((ab/parseFloat(v.precio||1))*100));
-    const esFinanciada=v.cuotas>0||v.estado==='Financiada';
-    return `<tr>
-      <td style="font-size:11px;color:var(--text3)">${v.fecha}</td>
-      <td><strong>${v.cliente}</strong></td>
-      <td style="color:var(--text2)">${v.producto}</td>
-      <td style="font-family:var(--mono);font-weight:600">${fmt(v.precio)}</td>
-      <td><span class="badge blue">${v.pago}${v.cuotas>0?' ·'+v.cuotas+'m':''}</span></td>
-      <td style="font-family:var(--mono);color:var(--green)">${fmt(ab)}
-        ${esFinanciada?`<div class="progress-bar" style="width:80px"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}</td>
-      <td style="font-family:var(--mono);color:${sal>0?'var(--amber)':'var(--green)'}">${fmt(sal)}</td>
-      <td><span class="badge ${v.estado==='Completada'?'green':v.estado==='Cancelada'?'red':v.estado==='Financiada'?'amber':'muted'}">${v.estado}</span></td>
-      <td style="white-space:nowrap">
-        ${esFinanciada?`<button class="btn sm" onclick="openAbonoV(${v.id})" style="margin-right:4px">+ Abono</button>`:''}
-        <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-let abonoVId=null;
-function openAbonoV(id){
-  abonoVId=id;
-  const v=ventas.find(x=>x.id===id);
-  const ab=abonadoPor('venta',id);
-  const sal=saldoPendiente('venta',id,v.precio);
-  const pct=Math.min(100,Math.round((ab/parseFloat(v.precio||1))*100));
-  document.getElementById('abono-v-info').innerHTML=`
-    <div class="alert info" style="flex-direction:column;align-items:flex-start;gap:6px">
-      <div><strong>${v.cliente}</strong> — ${v.producto}</div>
-      <div>Total: <strong>${fmt(v.precio)}</strong> · Abonado: <strong style="color:var(--green)">${fmt(ab)}</strong> · Saldo: <strong style="color:var(--amber)">${fmt(sal)}</strong></div>
-      <div class="progress-bar" style="width:100%"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div style="font-size:11px;color:var(--text2)">${pct}% pagado</div>
-    </div>`;
-  renderAbonoLista('venta',id,'av-lista');
-  openModal('modal-abono-v');
-}
-async function guardarAbonoV(){
-  const monto=parseFloat(document.getElementById('av-monto').value)||0;
-  const obs=document.getElementById('av-obs').value;
-  if(!monto){toast('Ingresa un monto válido','err');return;}
-  const v=ventas.find(x=>x.id===abonoVId);
-  const sal=saldoPendiente('venta',abonoVId,v?.precio||0);
-  if(monto>sal+0.01){toast(`El abono supera el saldo (${fmt(sal)})`, 'err');return;}
-  try{
-    const [a]=await sb('abonos','POST',{tipo:'venta',ref_id:abonoVId,monto,obs,fecha:today()});
-    abonos.push(a);
-    document.getElementById('av-monto').value='';
-    document.getElementById('av-obs').value='';
-    // Si saldo queda en 0 marcar completada
-    const nuevoSal=saldoPendiente('venta',abonoVId,v?.precio||0);
-    if(nuevoSal<=0){
-      await sb('ventas','PATCH',{estado:'Completada'},`?id=eq.${abonoVId}`);
-      const vr=ventas.find(x=>x.id===abonoVId);
-      if(vr)vr.estado='Completada';
-    }
-    openAbonoV(abonoVId);
-    renderVentas();renderDashboard();
-    toast('Abono registrado ✓');
-  }catch(e){toast('Error: '+e.message,'err');}
-}
-async function delVenta(id){
-  if(!confirm('¿Eliminar esta venta?'))return;
-  try{
-    await sb('ventas','DELETE',null,`?id=eq.${id}`);
-    await sb('abonos','DELETE',null,`?tipo=eq.venta&ref_id=eq.${id}`);
-    ventas=ventas.filter(v=>v.id!==id);
-    abonos=abonos.filter(a=>!(a.tipo==='venta'&&a.ref_id===id));
-    renderVentas();renderDashboard();toast('Venta eliminada');
-  }catch(e){toast('Error','err');}
-}
-
-// ═══════════════════════════════════════════
-//  TÉCNICOS
-// ═══════════════════════════════════════════
-async function guardarTecnico(){
-  const cli=document.getElementById('t-cli').value.trim();
-  const eq=document.getElementById('t-equipo').value.trim();
-  if(!cli||!eq){toast('Completa los campos requeridos','err');return;}
-  setBtn('btn-st',true,'Guardar servicio');
-  try{
-    const [t]=await sb('tecnicos','POST',{
-      fecha:today(),cliente:cli,equipo:eq,
-      diagnostico:document.getElementById('t-diag').value,
-      costo:parseFloat(document.getElementById('t-costo').value)||0,
-      estado:document.getElementById('t-estado').value,
-      obs:document.getElementById('t-obs').value
-    });
-    tecnicos.unshift(t);
-    closeModal('modal-tecnico');
-    renderTecnicos();renderDashboard();
-    toast('Servicio registrado ✓');
-  }catch(e){toast('Error: '+e.message,'err');}
-  setBtn('btn-st',false,'Guardar servicio');
-}
-async function updateTecEst(id,val){
-  try{
-    await sb('tecnicos','PATCH',{estado:val},`?id=eq.${id}`);
-    const t=tecnicos.find(x=>x.id===id);
-    if(t)t.estado=val;
-    renderDashboard();toast('Estado actualizado','inf');
-  }catch(e){toast('Error','err');}
-}
-function renderTecnicos(){
-  const tb=document.getElementById('tb-tecnicos');
-  if(!tecnicos.length){tb.innerHTML='<tr class="empty-row"><td colspan="9">No hay servicios técnicos registrados</td></tr>';return;}
-  tb.innerHTML=tecnicos.map(t=>{
-    const ab=abonadoPor('tecnico',t.id);
-    const sal=saldoPendiente('tecnico',t.id,t.costo);
-    const pct=parseFloat(t.costo||0)>0?Math.min(100,Math.round((ab/parseFloat(t.costo))*100)):0;
-    return `<tr>
-      <td style="font-size:11px;color:var(--text3)">${t.fecha}</td>
-      <td><strong>${t.cliente}</strong></td>
-      <td>${t.equipo}</td>
-      <td style="color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.diagnostico||'—'}</td>
-      <td style="font-family:var(--mono)">${fmt(t.costo)}</td>
-      <td style="font-family:var(--mono);color:var(--green)">${fmt(ab)}
-        ${parseFloat(t.costo||0)>0?`<div class="progress-bar" style="width:70px"><div class="progress-fill" style="width:${pct}%"></div></div>`:''}</td>
-      <td style="font-family:var(--mono);color:${sal>0?'var(--amber)':'var(--green)'}">${fmt(sal)}</td>
-      <td><select class="status-sel" onchange="updateTecEst(${t.id},this.value)">
-        ${['Recibido','En diagnóstico','En reparación','Listo para entrega','Entregado'].map(s=>`<option${s===t.estado?' selected':''}>${s}</option>`).join('')}
-      </select></td>
-      <td style="white-space:nowrap">
-        ${parseFloat(t.costo||0)>0?`<button class="btn sm" onclick="openAbonoT(${t.id})" style="margin-right:4px">+ Abono</button>`:''}
-        <button class="icon-btn" onclick="delTec(${t.id})">🗑</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-let abonoTId=null;
-function openAbonoT(id){
-  abonoTId=id;
-  const t=tecnicos.find(x=>x.id===id);
-  const ab=abonadoPor('tecnico',id);
-  const sal=saldoPendiente('tecnico',id,t.costo);
-  const pct=parseFloat(t.costo||0)>0?Math.min(100,Math.round((ab/parseFloat(t.costo))*100)):0;
-  document.getElementById('abono-t-info').innerHTML=`
-    <div class="alert info" style="flex-direction:column;align-items:flex-start;gap:6px">
-      <div><strong>${t.cliente}</strong> — ${t.equipo}</div>
-      <div>Costo: <strong>${fmt(t.costo)}</strong> · Abonado: <strong style="color:var(--green)">${fmt(ab)}</strong> · Saldo: <strong style="color:var(--amber)">${fmt(sal)}</strong></div>
-      <div class="progress-bar" style="width:100%"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div style="font-size:11px;color:var(--text2)">${pct}% pagado</div>
-    </div>`;
-  renderAbonoLista('tecnico',id,'at-lista');
-  openModal('modal-abono-t');
-}
-async function guardarAbonoT(){
-  const monto=parseFloat(document.getElementById('at-monto').value)||0;
-  const obs=document.getElementById('at-obs').value;
-  if(!monto){toast('Ingresa un monto válido','err');return;}
-  const t=tecnicos.find(x=>x.id===abonoTId);
-  const sal=saldoPendiente('tecnico',abonoTId,t?.costo||0);
-  if(monto>sal+0.01){toast(`Abono supera el saldo (${fmt(sal)})`,'err');return;}
-  try{
-    const [a]=await sb('abonos','POST',{tipo:'tecnico',ref_id:abonoTId,monto,obs,fecha:today()});
-    abonos.push(a);
-    document.getElementById('at-monto').value='';
-    document.getElementById('at-obs').value='';
-    openAbonoT(abonoTId);
-    renderTecnicos();renderDashboard();
-    toast('Abono registrado ✓');
-  }catch(e){toast('Error: '+e.message,'err');}
-}
-async function delTec(id){
-  if(!confirm('¿Eliminar este servicio?'))return;
-  try{
-    await sb('tecnicos','DELETE',null,`?id=eq.${id}`);
-    await sb('abonos','DELETE',null,`?tipo=eq.tecnico&ref_id=eq.${id}`);
-    tecnicos=tecnicos.filter(t=>t.id!==id);
-    abonos=abonos.filter(a=>!(a.tipo==='tecnico'&&a.ref_id===id));
-    renderTecnicos();renderDashboard();toast('Servicio eliminado');
-  }catch(e){toast('Error','err');}
-}
-
-function renderAbonoLista(tipo,id,elId){
-  const list=abonos.filter(a=>a.tipo===tipo&&a.ref_id===id).sort((a,b)=>b.id-a.id);
-  const el=document.getElementById(elId);
-  if(!list.length){el.innerHTML='<p style="color:var(--text3);font-size:12px;margin-top:8px">No hay abonos registrados aún.</p>';return;}
-  el.innerHTML=`<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px"><div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Historial de abonos</div>`+
-    list.map(a=>`<div class="abono-item">
-      <div><strong style="font-family:var(--mono);color:var(--green)">${fmt(a.monto)}</strong>${a.obs?` <span style="color:var(--text3)">· ${a.obs}</span>`:''}</div>
-      <div class="abono-fecha">${a.fecha}</div>
-    </div>`).join('')+'</div>';
-}
-
-// ═══════════════════════════════════════════
-//  INVENTARIO
-// ═══════════════════════════════════════════
-function toggleVar(){
-  const c=document.getElementById('p-cat').value;
-  document.getElementById('sec-var').style.display=(c==='Computador'||c==='Teléfono')?'block':'none';
-}
-function addVar(){
-  varTemp.push({nombre:'',opciones:[{label:'',delta:0}]});
-  renderVarList();
-}
-function renderVarList(){
-  document.getElementById('var-list').innerHTML=varTemp.map((v,i)=>`
-    <div class="var-block">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-        <input placeholder="Nombre (ej: Almacenamiento)" value="${v.nombre}" oninput="varTemp[${i}].nombre=this.value" style="flex:1;font-size:12px">
-        <button class="btn danger" onclick="varTemp.splice(${i},1);renderVarList()">Quitar</button>
-      </div>
-      ${v.opciones.map((o,j)=>`<div class="var-opt-row">
-        <input placeholder="Opción (ej: 256GB)" value="${o.label}" oninput="varTemp[${i}].opciones[${j}].label=this.value" style="flex:2;font-size:12px">
-        <input type="number" placeholder="+precio" value="${o.delta||''}" oninput="varTemp[${i}].opciones[${j}].delta=parseFloat(this.value)||0" style="width:95px;font-size:12px">
-        <button onclick="varTemp[${i}].opciones.splice(${j},1);renderVarList()" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px">×</button>
-      </div>`).join('')}
-      <button class="btn sm" onclick="varTemp[${i}].opciones.push({label:'',delta:0});renderVarList()" style="margin-top:6px;font-size:11px">+ Opción</button>
-    </div>`).join('');
-}
-async function guardarProducto(){
-  const nom=document.getElementById('p-nom').value.trim();
-  const pr=parseFloat(document.getElementById('p-precio').value)||0;
-  if(!nom||!pr){toast('Completa nombre y precio','err');return;}
-  setBtn('btn-sp',true,'Guardar producto');
-  try{
-    const [p]=await sb('productos','POST',{
-      nombre:nom,categoria:document.getElementById('p-cat').value,
-      precio:pr,stock:parseInt(document.getElementById('p-stock').value)||0,
-      emoji:document.getElementById('p-emoji').value||'📦',
-      variantes:JSON.stringify(varTemp)
-    });
-    productos.unshift(p);
-    varTemp=[];
-    closeModal('modal-producto');
-    renderInventario();renderPublic();renderDashboard();
-    toast('Producto agregado ✓');
-  }catch(e){toast('Error: '+e.message,'err');}
-  setBtn('btn-sp',false,'Guardar producto');
-}
-async function updStock(id,val){
-  try{
-    await sb('productos','PATCH',{stock:parseInt(val)||0},`?id=eq.${id}`);
-    const p=productos.find(x=>x.id===id);
-    if(p)p.stock=parseInt(val)||0;
-    renderPublic();toast('Stock actualizado','inf');
-  }catch(e){toast('Error','err');}
-}
-async function delProd(id){
-  if(!confirm('¿Eliminar este producto?'))return;
-  try{
-    await sb('productos','DELETE',null,`?id=eq.${id}`);
-    productos=productos.filter(p=>p.id!==id);
-    renderInventario();renderPublic();renderDashboard();toast('Producto eliminado');
-  }catch(e){toast('Error','err');}
-}
-function renderInventario(){
-  const tb=document.getElementById('tb-inv');
-  if(!productos.length){tb.innerHTML='<tr class="empty-row"><td colspan="6">No hay productos. Agrega el primero.</td></tr>';return;}
-  tb.innerHTML=productos.map(p=>`<tr>
-    <td><strong>${p.emoji||'📦'} ${p.nombre}</strong></td>
-    <td><span class="badge blue">${p.categoria}</span></td>
-    <td style="font-family:var(--mono);font-weight:600">${fmt(p.precio)}</td>
-    <td><input type="number" value="${p.stock}" min="0" style="width:70px;font-size:12px;padding:4px 8px" onchange="updStock(${p.id},this.value)"></td>
-    <td><span class="badge ${p.stock>0?'green':'red'}">${p.stock>0?'Disponible':'Agotado'}</span></td>
-    <td><button class="icon-btn" onclick="delProd(${p.id})">🗑</button></td>
-  </tr>`).join('');
-}
-
-// ═══════════════════════════════════════════
-//  FINANCIAMIENTO
-// ═══════════════════════════════════════════
-function calcCuota(P,r,n){if(r===0)return P/n;const rm=r/100;return P*rm*Math.pow(1+rm,n)/(Math.pow(1+rm,n)-1);}
-function calcFin(){
-  const P=parseFloat(document.getElementById('fin-p').value)||0;
-  const r=parseFloat(document.getElementById('fin-t').value)||3.5;
-  const ini=parseFloat(document.getElementById('fin-i').value)||0;
-  const base=P-ini;
-  const el=document.getElementById('fin-out');
-  if(!P){el.innerHTML='<p style="color:var(--text3);font-size:13px">Ingresa el precio para ver el plan.</p>';return;}
-  let html=`<div class="fin-card"><div class="fin-hero"><div class="fin-lbl">Precio del equipo</div><div class="fin-amount">${fmt(P)}</div>${ini>0?`<div class="fin-lbl" style="margin-top:4px">Cuota inicial: ${fmt(ini)} · Saldo: ${fmt(base)}</div>`:''}</div>
-  <table><thead><tr><th>Plazo</th><th>Cuota/mes</th><th>Total</th><th>Intereses</th></tr></thead><tbody>`;
-  [2,3,4,5,6].forEach(n=>{
-    const c=calcCuota(base,r,n);
-    const tot=c*n+ini;
-    const int=tot-P;
-    html+=`<tr><td><strong>${n} meses</strong></td><td style="font-family:var(--mono);color:var(--green);font-weight:600">${fmt(Math.round(c))}</td><td style="font-family:var(--mono)">${fmt(Math.round(tot))}</td><td style="color:var(--amber);font-family:var(--mono)">+${fmt(Math.round(int))}</td></tr>`;
-  });
-  html+=`</tbody></table></div>`;
-  el.innerHTML=html;
-}
-
-// ═══════════════════════════════════════════
-//  CATÁLOGO PÚBLICO
-// ═══════════════════════════════════════════
-function filterPub(cat,el){
-  pubFilter=cat;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  if(el)el.classList.add('active');
-  renderPublic();
-}
-function renderPublic(){
-  const prods=pubFilter?productos.filter(p=>p.categoria===pubFilter):productos;
-  const grid=document.getElementById('pub-grid');
-  if(!prods.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos en esta categoría.</div>';return;}
-  grid.innerHTML=prods.map(p=>{
-    const vars=typeof p.variantes==='string'?JSON.parse(p.variantes||'[]'):p.variantes||[];
-    const hasV=vars.length>0;
-    const disp=p.stock>0;
-    let cfg='';
-    if(hasV){
-      cfg=`<div class="config-box"><div class="config-box-title">⚙ Personaliza</div>`+
-        vars.map((v,vi)=>`<label>${v.nombre}</label><select onchange="updPubPrice(${p.id})" id="ps-${p.id}-${vi}">`+
-          v.opciones.map(o=>`<option value="${o.delta}">${o.label}${o.delta>0?' (+'+fmt(o.delta)+')':''}</option>`).join('')+
-        `</select>`).join('')+`</div>`;
-    }
-    return `<div class="prod-card${!disp?' agotado':''}">
-      <div class="prod-img">${p.emoji||'📦'}<span class="stock-tag"><span class="badge ${disp?'green':'red'}">${disp?'Disponible':'Agotado'}</span></span></div>
-      <div class="prod-body">
-        <div class="prod-cat">${p.categoria}</div>
-        <div class="prod-name">${p.nombre}</div>
-        <div class="prod-price" id="pp-${p.id}">${fmt(p.precio)}</div>
-        ${cfg}
-        <button class="consultar-btn" onclick="consultarProd('${p.nombre.replace(/'/g,"\\'")}')" ${!disp?'disabled':''}>
-          ${disp?'Consultar / Comprar':'No disponible'}
-        </button>
-      </div>
-    </div>`;
-  }).join('');
-}
-function updPubPrice(pid){
-  const p=productos.find(x=>x.id===pid);
-  if(!p)return;
-  const vars=typeof p.variantes==='string'?JSON.parse(p.variantes||'[]'):p.variantes||[];
-  let tot=parseFloat(p.precio)||0;
-  vars.forEach((v,vi)=>{
-    const s=document.getElementById(`ps-${pid}-${vi}`);
-    if(s)tot+=parseFloat(s.value)||0;
-  });
-  const el=document.getElementById('pp-'+pid);
-  if(el)el.textContent=fmt(tot);
-}
-function consultarProd(nom){
-  alert(`¡Gracias por tu interés en "${nom}"!\n\nComunícate con nosotros para confirmar disponibilidad, opciones de pago y financiamiento.`);
-}
-
-// ═══════════════════════════════════════════
-//  INIT
-// ═══════════════════════════════════════════
-(async()=>{
-  await loadAll();
-  renderPublic();
-})();
+  // ── Arranque ──
+  (async () => {
+    await loadAll();
+    renderPublic();
+  })();
 </script>
 </body>
 </html>
