@@ -122,8 +122,14 @@ function renderTecnicos() {
             .map(s => `<option${s === t.estado ? ' selected' : ''}>${s}</option>`).join('')}
         </select>
       </td>
-      <td style="white-space:nowrap;display:flex;gap:4px;align-items:center">
+      <td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">
         ${parseFloat(t.costo || 0) > 0 ? `<button class="btn sm" onclick="openAbonoT(${t.id})">💳 Abono</button>` : ''}
+        ${t.estado === 'Entregado'
+          ? `<button class="btn sm" onclick="generarRecibo('tecnico',${t.id})"
+              style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">
+              📄 Paz y Salvo
+            </button>`
+          : ''}
         <button class="btn sm" onclick="editarTecnico(${t.id})" title="Editar">✏️</button>
         <button class="icon-btn" onclick="delTec(${t.id})" title="Eliminar">🗑</button>
       </td>
