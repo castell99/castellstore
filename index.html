@@ -396,6 +396,73 @@
   </div>
 </div>
 
+<!-- ══ MODAL EQUIPO FINANCIERO ══ -->
+<div class="overlay" id="modal-equipo-fin">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-eqfin-title">📱 Nuevo Equipo</div>
+      <button class="close-btn" onclick="closeModal('modal-equipo-fin')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Marca *</label><input id="ef-marca" placeholder="Samsung, iPhone…"></div>
+      <div class="form-group"><label>Modelo *</label><input id="ef-modelo" placeholder="Galaxy A55"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Precio proveedor (COP $)</label><input type="number" id="ef-prov" placeholder="0"></div>
+      <div class="form-group"><label>Precio contado (COP $) *</label><input type="number" id="ef-contado" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>RAM</label><input id="ef-ram" placeholder="8GB"></div>
+      <div class="form-group"><label>Almacenamiento</label><input id="ef-alm" placeholder="256GB"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Gama</label>
+        <select id="ef-gama">
+          <option>Entrada</option><option>Media</option><option>Premium</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
+        <div style="display:flex;gap:16px;padding-bottom:4px">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:0">
+            <input type="checkbox" id="ef-5g"> 5G
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:0">
+            <input type="checkbox" id="ef-disp" checked> Disponible
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Etiquetas comerciales</label>
+      <div id="ef-tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+        <button type="button" class="pill ef-tag" data-tag="Económico" onclick="toggleEfTag(this)">Económico</button>
+        <button type="button" class="pill ef-tag" data-tag="Más vendido" onclick="toggleEfTag(this)">Más vendido</button>
+        <button type="button" class="pill ef-tag" data-tag="Recomendado" onclick="toggleEfTag(this)">Recomendado</button>
+        <button type="button" class="pill ef-tag" data-tag="Premium" onclick="toggleEfTag(this)">Premium</button>
+        <button type="button" class="pill ef-tag" data-tag="5G" onclick="toggleEfTag(this)">5G</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-equipo-fin')">Cancelar</button>
+      <button class="btn primary" id="btn-ef" onclick="guardarEquipoFin()">Guardar equipo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL DETALLE CUOTAS ══ -->
+<div class="overlay" id="modal-cuotas-fin">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-cq-title">💳 Plan de Financiamiento</div>
+      <button class="close-btn" onclick="closeModal('modal-cuotas-fin')">×</button>
+    </div>
+    <div id="modal-cq-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-cuotas-fin')">Cerrar</button>
+    </div>
+  </div>
+</div>
+  
 <!-- ══ SCRIPTS — orden importa ══ -->
 <script src="js/logo_b64.js"></script>
 <script src="js/config.js"></script>
