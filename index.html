@@ -154,22 +154,84 @@
 
       <!-- FINANCIAMIENTO -->
       <div id="sec-financiamiento" class="section">
+
+        <!-- PAGE HEADER -->
         <div class="page-header">
-          <div><div class="page-title">Calculadora de Financiamiento</div><div class="page-sub">Cuotas con interés compuesto</div></div>
-        </div>
-        <div class="form-row" style="align-items:start">
-          <div class="card">
-            <div class="card-title" style="margin-bottom:14px">Parámetros</div>
-            <div class="form-group"><label>Precio del equipo (COP $)</label><input type="number" id="fin-p" placeholder="1500000" oninput="calcFin()"></div>
-            <div class="form-group"><label>Tasa de interés mensual (%)</label><input type="number" id="fin-t" value="3.5" step="0.1" oninput="calcFin()"></div>
-            <div class="form-group"><label>Cuota inicial (COP $) — opcional</label><input type="number" id="fin-i" placeholder="0" oninput="calcFin()"></div>
-            <div class="alert info">💡 Interés compuesto: P×r(1+r)ⁿ / ((1+r)ⁿ−1)</div>
+          <div>
+            <div class="page-title">Módulo de Financiamiento</div>
+            <div class="page-sub">Inventario de equipos con precios y cuotas automáticas por gama</div>
           </div>
-          <div class="card">
-            <div class="card-title" style="margin-bottom:14px">Plan de cuotas</div>
-            <div id="fin-out"><p style="color:var(--text3);font-size:13px">Ingresa el precio para ver el plan.</p></div>
+          <button class="btn primary" onclick="abrirNuevoEquipo()">+ Nuevo equipo</button>
+        </div>
+
+        <!-- STATS FINANCIAMIENTO -->
+        <div class="stats-grid" style="margin-bottom:18px">
+          <div class="stat-card"><div class="stat-accent green"></div><div class="stat-icon">📱</div><div class="stat-label">Total equipos</div><div class="stat-value" id="fin-total">0</div></div>
+          <div class="stat-card"><div class="stat-accent blue"></div><div class="stat-icon">✅</div><div class="stat-label">Disponibles</div><div class="stat-value" id="fin-disp">0</div></div>
+          <div class="stat-card"><div class="stat-accent amber"></div><div class="stat-icon">🔵</div><div class="stat-label">Con 5G</div><div class="stat-value" id="fin-5g">0</div></div>
+          <div class="stat-card"><div class="stat-accent red"></div><div class="stat-icon">💰</div><div class="stat-label">Precio promedio</div><div class="stat-value" id="fin-avg">—</div></div>
+        </div>
+
+        <!-- CONTROLES -->
+        <div class="card" style="padding:14px 18px;margin-bottom:14px">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <input id="fin-search" placeholder="🔍 Buscar equipo..." oninput="renderEquipos()"
+              style="flex:2;min-width:160px;font-size:13px">
+            <select id="fin-f-marca" onchange="renderEquipos()" style="width:auto;font-size:13px">
+              <option value="">Todas las marcas</option>
+            </select>
+            <select id="fin-f-gama" onchange="renderEquipos()" style="width:auto;font-size:13px">
+              <option value="">Todas las gamas</option>
+              <option>Entrada</option><option>Media</option><option>Premium</option>
+            </select>
+            <select id="fin-f-5g" onchange="renderEquipos()" style="width:auto;font-size:13px">
+              <option value="">5G: Todos</option>
+              <option value="si">Solo 5G</option>
+              <option value="no">Sin 5G</option>
+            </select>
+            <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0">
+              <span style="font-size:12px;color:var(--text3);white-space:nowrap">Plazo:</span>
+              <div id="fin-plazo-btns" style="display:flex;gap:4px">
+                <button class="btn sm fin-plazo-btn active-plazo" data-m="2" onclick="setFinPlazo(2,this)">2m</button>
+                <button class="btn sm fin-plazo-btn" data-m="3" onclick="setFinPlazo(3,this)">3m</button>
+                <button class="btn sm fin-plazo-btn" data-m="5" onclick="setFinPlazo(5,this)">5m</button>
+                <button class="btn sm fin-plazo-btn" data-m="6" onclick="setFinPlazo(6,this)">6m</button>
+              </div>
+              <span style="font-size:12px;color:var(--text3);white-space:nowrap;margin-left:8px">Inicial:</span>
+              <input type="range" id="fin-ini-pct" min="10" max="70" value="30"
+                oninput="document.getElementById('fin-ini-val').textContent=this.value+'%';renderEquipos()"
+                style="width:80px;accent-color:var(--green)">
+              <span id="fin-ini-val" style="font-size:12px;color:var(--green);font-weight:600;min-width:30px">30%</span>
+            </div>
+            <div style="display:flex;gap:4px;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+              <button id="fin-v-cat" onclick="setFinVista('catalogo')"
+                style="padding:6px 12px;font-size:12px;border:none;background:var(--green);color:var(--bg);cursor:pointer;font-weight:600">🗂 Catálogo</button>
+              <button id="fin-v-tbl" onclick="setFinVista('tabla')"
+                style="padding:6px 12px;font-size:12px;border:none;background:transparent;color:var(--text2);cursor:pointer">📋 Tabla</button>
+            </div>
           </div>
         </div>
+
+        <!-- VISTA CATÁLOGO -->
+        <div id="fin-vista-catalogo">
+          <div id="fin-grid" class="prod-grid" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"></div>
+        </div>
+
+        <!-- VISTA TABLA -->
+        <div id="fin-vista-tabla" style="display:none">
+          <div class="table-wrap card" style="padding:0">
+            <table>
+              <thead><tr>
+                <th>Equipo</th><th>Gama</th><th>Contado</th>
+                <th id="fin-th-fin">Financiado</th>
+                <th>Inicial</th><th>Cuota/mes</th>
+                <th>5G</th><th>Estado</th><th></th>
+              </tr></thead>
+              <tbody id="fin-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
 
     </div><!-- /main -->
