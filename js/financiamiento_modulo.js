@@ -38,7 +38,8 @@ function getIniPct() {
 async function subirImagenEquipo(file, slot) {
   const ext    = file.name.split('.').pop();
   const nombre = `equipo_${Date.now()}_${slot}.${ext}`;
-  const { SUPABASE_URL, SUPABASE_KEY } = window;
+  const SUPABASE_URL = SUPA;
+  const SUPABASE_KEY = KEY;
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/equipos-imagenes/${nombre}`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type, 'x-upsert': 'true' },
