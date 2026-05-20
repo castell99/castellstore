@@ -2,6 +2,17 @@
 //  catalogo.js — Catálogo público
 // ═══════════════════════════════════════════
 
+let equiposCatalogo = [];
+
+async function loadCatalogo() {
+  try {
+    const data = await sb('equipos_financiamiento', 'GET', null, '?order=id.desc&disponible=eq.true');
+    equiposCatalogo = Array.isArray(data) ? data : [];
+  } catch (e) {
+    equiposCatalogo = [];
+  }
+}
+
 function filterPub(cat, el) {
   pubFilter = cat;
   document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -9,74 +20,43 @@ function filterPub(cat, el) {
   renderPublic();
 }
 
-function renderPublic() {
+async function renderPublic() {
+  await loadCatalogo();
+  const grid = document.getElementById('pub-grid');
+  if (!grid) return;
+
+  const equipos = pubFilter
+    ? equiposCatalogo.filter(e => e.gama === pubFilter || e.marca === pubFilter)
+    : equiposCatalogo;
+
   const prods = pubFilter
     ? productos.filter(p => p.categoria === pubFilter)
     : productos;
-  const grid = document.getElementById('pub-grid');
 
-  if (!prods.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos en esta categoría.</div>';
+  const tarjetasEquipos = equipos.map(eq => renderTarjetaEquipo(eq));
+  const tarjetasProds   = prods
+    .filter(p => !equiposCatalogo.find(e => e.producto_id === p.id))
+    .map(p => renderTarjetaProducto(p));
+
+  const todas = [...tarjetasEquipos, ...tarjetasProds];
+
+  if (!todas.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos disponibles.</div>';
     return;
   }
-
-  grid.innerHTML = prods.map(p => {
-    const vars = typeof p.variantes === 'string'
-      ? JSON.parse(p.variantes || '[]')
-      : (p.variantes || []);
-    const hasV = vars.length > 0;
-    const disp = p.stock > 0;
-
-    let cfg = '';
-    if (hasV) {
-      cfg = `<div class="config-box">
-        <div class="config-box-title">⚙ Personaliza</div>
-        ${vars.map((v, vi) => `
-          <label>${v.nombre}</label>
-          <select onchange="updPubPrice(${p.id})" id="ps-${p.id}-${vi}">
-            ${v.opciones.map(o =>
-              `<option value="${o.delta}">${o.label}${o.delta > 0 ? ' (+' + fmt(o.delta) + ')' : ''}</option>`
-            ).join('')}
-          </select>`).join('')}
-      </div>`;
-    }
-
-    return `<div class="prod-card${!disp ? ' agotado' : ''}">
-      <div class="prod-img">${p.emoji || '📦'}
-        <span class="stock-tag">
-          <span class="badge ${disp ? 'green' : 'red'}">${disp ? 'Disponible' : 'Agotado'}</span>
-        </span>
-      </div>
-      <div class="prod-body">
-        <div class="prod-cat">${p.categoria}</div>
-        <div class="prod-name">${p.nombre}</div>
-        <div class="prod-price" id="pp-${p.id}">${fmt(p.precio)}</div>
-        ${cfg}
-        <button class="consultar-btn"
-          onclick="consultarProd('${p.nombre.replace(/'/g, "\\'")}')"
-          ${!disp ? 'disabled' : ''}>
-          ${disp ? 'Consultar / Comprar' : 'No disponible'}
-        </button>
-      </div>
-    </div>`;
-  }).join('');
+  grid.innerHTML = todas.join('');
 }
 
-function updPubPrice(pid) {
-  const p = productos.find(x => x.id === pid);
-  if (!p) return;
-  const vars = typeof p.variantes === 'string'
-    ? JSON.parse(p.variantes || '[]')
-    : (p.variantes || []);
-  let tot = parseFloat(p.precio) || 0;
-  vars.forEach((v, vi) => {
-    const s = document.getElementById(`ps-${pid}-${vi}`);
-    if (s) tot += parseFloat(s.value) || 0;
-  });
-  const el = document.getElementById('pp-' + pid);
-  if (el) el.textContent = fmt(tot);
-}
+function renderTarjetaEquipo(eq) {
+  const tags = typeof eq.etiquetas === 'string'
+    ? JSON.parse(eq.etiquetas || '[]') : (eq.etiquetas || []);
 
-function consultarProd(nom) {
-  alert(`¡Gracias por tu interés en "${nom}"!\n\nComunícate con nosotros para confirmar disponibilidad, opciones de pago y financiamiento.`);
-}
+  const GAMA_COLOR = { 'Entrada':'green','Media':'blue','Premium':'amber' };
+  const TAG_COLOR  = { 'Económico':'green','Más vendido':'amber','Recomendado':'blue','Premium':'muted','5G':'blue' };
+
+  let imgHtml = '';
+  if (eq.imagen1 && eq.imagen2) {
+    imgHtml = `
+      <div style="position:relative;height:200px;overflow:hidden;cursor:pointer" onclick="toggleCatImg(this)">
+        <img src="${eq.imagen1}" data-img1="${eq.imagen1}" data-img2="${eq.imagen2}"
+          style="width:100%;height:200px;object-fit:cove
