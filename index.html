@@ -163,6 +163,8 @@
           </div>
           <button class="btn primary" onclick="abrirNuevoEquipo()">+ Nuevo equipo</button>
           <button class="btn" onclick="importarDesdeInventario()">⬇️ Importar inventario</button>
+          <button class="btn" onclick="document.getElementById('input-excel-fin').click()">📊 Importar Excel</button>
+          <input type="file" id="input-excel-fin" accept=".xlsx" style="display:none" onchange="importarExcelEquipos(this)">
         </div>
 
         <!-- STATS FINANCIAMIENTO -->
