@@ -73,8 +73,8 @@ async function guardarVenta() {
     } else {
       const pid = document.getElementById('v-prod').value;
       if (!pid) { toast('Selecciona un producto', 'err'); setBtn('btn-sv', false, 'Guardar venta'); return; }
-      const prod = productos.find(x => x.id == pid);
-      payload.producto = prod.nombre;
+      const eq = equiposFin.find(x => x.id == pid);
+      payload.producto = `${eq.marca} ${eq.modelo}`;
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
       ventas.unshift(v);
@@ -500,16 +500,23 @@ function addMonths(dateStr, months) {
 // ── Helpers modal venta ───────────────────
 function fillProdSel() {
   const s = document.getElementById('v-prod');
-  s.innerHTML = '<option value="">Seleccionar producto...</option>';
-  productos.filter(p => p.stock > 0).forEach(p => {
-    s.innerHTML += `<option value="${p.id}" data-p="${p.precio}">${p.emoji || ''} ${p.nombre} — ${fmt(p.precio)}</option>`;
-  });
+  s.innerHTML = '<option value="">Seleccionar equipo...</option>';
+  equiposFin
+    .filter(e => e.disponible !== false)
+    .forEach(e => {
+      s.innerHTML += `<option value="${e.id}" data-p="${e.precio_contado}">${e.marca} ${e.modelo} — ${fmt(e.precio_contado)}</option>`;
+    });
 }
 
 function fillVPrecio() {
   const o = document.getElementById('v-prod').selectedOptions[0];
   if (o && o.dataset.p) {
     document.getElementById('v-precio').value = o.dataset.p;
+    const eq = equiposFin.find(e => e.id == document.getElementById('v-prod').value);
+    if (eq) {
+      const payload_prod = `${eq.marca} ${eq.modelo}`;
+      document.getElementById('v-prod').dataset.nombre = payload_prod;
+    }
     previewFinV();
   }
 }
