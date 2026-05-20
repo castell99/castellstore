@@ -444,6 +444,74 @@ function abrirDetalleCuotas(id) {
   document.head.appendChild(s);
 })();
 
+// ── Importar desde Excel ──────────────────────────────────
+async function importarExcelEquipos(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const wb   = XLSX.read(e.target.result, { type: 'binary' });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { range: 4, defval: '' });
+
+      if (!rows.length) { toast('El archivo no tiene datos', 'err'); return; }
+
+      let importados = 0;
+      let errores    = 0;
+
+      for (const row of rows) {
+        const marca   = (row['Marca *'] || row['marca'] || '').toString().trim();
+        const modelo  = (row['Modelo *'] || row['modelo'] || '').toString().trim();
+        const contado = parseFloat(row['Precio Contado *'] || row['precio_contado'] || 0);
+
+        if (!marca || !modelo || !contado) continue;
+
+        const g5   = (row['5G (SI/NO)'] || row['g5'] || 'NO').toString().toUpperCase() === 'SI';
+        const disp = (row['Disponible (SI/NO)'] || row['disponible'] || 'SI').toString().toUpperCase() === 'SI';
+        const gama = (row['Gama *'] || row['gama'] || 'Media').toString().trim();
+
+        // Procesar etiquetas
+        const etiqRaw = (row['Etiquetas'] || row['etiquetas'] || '').toString();
+        const etiquetas = etiqRaw ? etiqRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+        const payload = {
+          marca,
+          modelo,
+          precio_proveedor : parseFloat(row['Precio Proveedor'] || row['precio_proveedor'] || 0),
+          precio_contado   : contado,
+          ram              : (row['RAM'] || row['ram'] || '').toString().trim(),
+          almacenamiento   : (row['Almacenamiento'] || row['almacenamiento'] || '').toString().trim(),
+          g5               : g5,
+          gama             : gama,
+          disponible       : disp,
+          etiquetas        : JSON.stringify(etiquetas),
+          imagen1          : null,
+          imagen2          : null,
+        };
+
+        try {
+          const [eq] = await sb('equipos_financiamiento', 'POST', payload);
+          equiposFin.unshift(eq || { ...payload, id: Date.now() });
+          importados++;
+        } catch (e) {
+          errores++;
+        }
+      }
+
+      toast(importados + ' equipo(s) importado(s) ✓' + (errores ? ' · ' + errores + ' errores' : ''));
+      renderEquipos();
+      renderFinStats();
+
+    } catch (e) {
+      toast('Error leyendo el archivo Excel', 'err');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   const btn3=document.querySelector('.fin-plazo-btn[data-m="3"]');
   if(btn3){btn3.style.background='var(--green)';btn3.style.borderColor='var(--green)';btn3.style.color='var(--bg)';}
