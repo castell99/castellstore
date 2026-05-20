@@ -447,8 +447,10 @@ function abrirDetalleCuotas(id) {
 // ── Importar desde Excel ──────────────────────────────────
 async function importarExcelEquipos(input) {
   const file = input.files[0];
-  if (!file) return;
-  input.value = '';
+  if (!file) { toast('No se seleccionó archivo', 'err'); return; }
+  const fileName = file.name;
+  const fileSize = file.size;
+  toast('Leyendo ' + fileName + '...', 'inf');
 
   const reader = new FileReader();
   reader.onload = async function(e) {
