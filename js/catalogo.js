@@ -73,8 +73,7 @@ function renderTarjetaEquipo(eq) {
     + masVendido
     + '</div>'
     + '<div class="prod-body">'
-    + '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + (eq.marca || '') + '</div>'
-    + '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.modelo || '') + '</div>'
+    + '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.marca || '') + ' ' + (eq.modelo || '') + '</div>'
     + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + specs + '</div>'
     + '<div class="prod-price">' + fmt(eq.precio_contado) + '</div>'
     + '<button class="consultar-btn" onclick="consultarEquipo(\'' + nombre.replace(/'/g,'') + '\')">💬 Consultar / Comprar</button>'
