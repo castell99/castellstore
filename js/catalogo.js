@@ -25,9 +25,33 @@ async function renderPublic() {
   grid.innerHTML = equipos.map(function(eq) { return renderTarjetaEquipo(eq); }).join('');
 }
 
+var marcaFiltro = '';
+
 function filterPub(cat, el) {
   pubFilter = cat;
+  marcaFiltro = '';
   document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
+  if (el) el.classList.add('active');
+
+  // Mostrar/ocultar barra de marcas
+  var marcaBar = document.getElementById('marca-bar');
+  if (cat === 'Teléfono' || cat === 'Telefonos' || cat === '') {
+    var marcas = [...new Set(equiposCatalogo.map(function(e) { return e.marca; }).filter(Boolean))].sort();
+    marcaBar.innerHTML = '<button class="pill active" onclick="filterMarca(\'\',this)">Todas las marcas</button>'
+      + marcas.map(function(m) {
+          return '<button class="pill" onclick="filterMarca(\'' + m + '\',this)">' + m + '</button>';
+        }).join('');
+    marcaBar.style.display = 'flex';
+  } else {
+    marcaBar.style.display = 'none';
+  }
+
+  renderPublic();
+}
+
+function filterMarca(marca, el) {
+  marcaFiltro = marca;
+  document.querySelectorAll('#marca-bar .pill').forEach(function(p) { p.classList.remove('active'); });
   if (el) el.classList.add('active');
   renderPublic();
 }
