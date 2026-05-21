@@ -68,6 +68,9 @@
         <button class="pill" onclick="filterPub('Accesorio',this)">🎧 Accesorios</button>
         <button class="pill" onclick="filterPub('Servicio',this)">🔧 Servicios</button>
       </div>
+      <div id="marca-bar" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+        <button class="pill active" onclick="filterMarca('',this)">Todas las marcas</button>
+      </div>
       <div id="pub-grid" class="prod-grid">
         <div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">Cargando productos...</div>
       </div>
