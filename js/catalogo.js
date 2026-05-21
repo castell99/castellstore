@@ -15,9 +15,11 @@ async function renderPublic() {
   await loadCatalogo();
   var grid = document.getElementById('pub-grid');
   if (!grid) return;
-  var equipos = pubFilter
-    ? equiposCatalogo.filter(function(e) { return e.gama === pubFilter || e.marca === pubFilter; })
-    : equiposCatalogo;
+  var equipos = equiposCatalogo.filter(function(e) {
+    if (pubFilter && e.categoria !== pubFilter) return false;
+    if (marcaFiltro && e.marca !== marcaFiltro) return false;
+    return true;
+  });
   if (!equipos.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos disponibles.</div>';
     return;
