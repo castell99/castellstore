@@ -16,7 +16,6 @@ async function renderPublic() {
   var grid = document.getElementById('pub-grid');
   if (!grid) return;
   var equipos = equiposCatalogo.filter(function(e) {
-    if (pubFilter && e.categoria !== pubFilter) return false;
     if (marcaFiltro && e.marca !== marcaFiltro) return false;
     return true;
   });
