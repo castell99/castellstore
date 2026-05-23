@@ -395,7 +395,15 @@ function abrirDetalleCuotas(id) {
         <input type="range" min="10" max="70" value="${iniLocal}"
           oninput="window.__finIni=parseInt(this.value);document.getElementById('cq-ini-lbl').textContent=this.value+'%';document.getElementById('cq-ini-manual').value=Math.round(finCalcManual(${id},this.value));renderModalCuotas(${id})"
           style="flex:1;accent-color:var(--green)">
-        <span id="cq-ini-lbl"
+       <span id="cq-ini-lbl" style="font-size:13px;color:var(--green);font-weight:700;min-width:34px">${iniLocal}%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-size:12px;color:var(--text2);white-space:nowrap">O ingresa inicial:</span>
+        <input type="number" id="cq-ini-manual" placeholder="Ej: 500000"
+          value="${Math.round(finCalc(eq, mLocal, iniLocal).inicial)}"
+          oninput="window.__finIniManual=parseInt(this.value)||0;renderModalCuotasManual(${id})"
+          style="flex:1;font-family:var(--mono);font-size:13px">
+        <span style="font-size:11px;color:var(--text3)">COP</span>
       </div>
       <div class="fin-card" style="margin-bottom:14px">
         <div class="fin-hero">
@@ -515,6 +523,42 @@ async function importarExcelEquipos(input) {
   };
   reader.readAsBinaryString(file);
 }
+
+function finCalcManual(id, pct) {
+  const eq = equiposFin.find(e => e.id === id);
+  if (!eq) return 0;
+  const tasa = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[window.__finM || 3] || 0;
+  const financiado = eq.precio_contado * (1 + tasa / 100);
+  return financiado * (parseInt(pct) / 100);
+}
+
+window.renderModalCuotasManual = function(id) {
+  const eq = equiposFin.find(e => e.id === id);
+  if (!eq) return;
+  const mLocal  = window.__finM || 3;
+  const manual  = window.__finIniManual || 0;
+  const tasa    = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[mLocal] || 0;
+  const financiado = eq.precio_contado * (1 + tasa / 100);
+  const cuota   = (financiado - manual) / mLocal;
+
+  const finEl = document.getElementById('cq-fin-amt');
+  const iniEl = document.getElementById('cq-ini-amt');
+  const cuoEl = document.getElementById('cq-cuo-amt');
+  if (finEl) finEl.textContent = fmt(Math.round(financiado));
+  if (iniEl) iniEl.textContent = fmt(Math.round(manual));
+  if (cuoEl) cuoEl.textContent = fmt(Math.round(cuota));
+
+  // Actualizar tabla de cuotas
+  const tbody = document.getElementById('cq-tabla-body');
+  if (tbody) {
+    tbody.innerHTML = Array.from({length: mLocal}, (_, i) => `
+      <tr>
+        <td style="text-align:center;font-weight:600">#${i+1}</td>
+        <td style="font-family:var(--mono);color:var(--green);font-weight:700;text-align:right">${fmt(Math.round(cuota))}</td>
+        <td style="font-family:var(--mono);text-align:right">${fmt(Math.round(manual + cuota*(i+1)))}</td>
+      </tr>`).join('');
+  }
+};
 
 document.addEventListener('DOMContentLoaded',()=>{
   const btn3=document.querySelector('.fin-plazo-btn[data-m="3"]');
