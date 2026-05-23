@@ -14,7 +14,8 @@ async function loadCuotas() {
 }
 
 // ── Abrir modal nueva venta ───────────────
-function abrirNuevaVenta() {
+async function abrirNuevaVenta() {
+  if (!equiposFin.length) await loadEquiposFin();
   editVentaId = null;
   document.getElementById('modal-venta-title').textContent = '💰 Nueva Venta';
   document.getElementById('btn-sv').textContent = 'Guardar venta';
@@ -23,14 +24,14 @@ function abrirNuevaVenta() {
   document.getElementById('v-pago').value   = 'Efectivo';
   document.getElementById('v-cuotas').value = '0';
   document.getElementById('v-estado').value = 'Completada';
-  document.getElementById('v-fin-prev').style.display = 'none';
-  document.getElementById('v-prod').style.display     = '';
-  document.getElementById('v-prod-txt').style.display = 'none';
   document.getElementById('v-tel').value     = '';
   document.getElementById('v-color').value   = '';
   document.getElementById('v-imei').value    = '';
   document.getElementById('v-inicial').value = '';
   document.getElementById('v-obs').value     = '';
+  document.getElementById('v-fin-prev').style.display = 'none';
+  document.getElementById('v-prod').style.display     = '';
+  document.getElementById('v-prod-txt').style.display = 'none';
   fillProdSel();
   openModal('modal-venta');
 }
