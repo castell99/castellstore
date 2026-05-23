@@ -95,10 +95,7 @@ async function guardarVenta() {
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
       ventas.unshift(v);
-      if (prod.stock > 0) {
-        await sb('productos', 'PATCH', { stock: prod.stock - 1 }, `?id=eq.${prod.id}`);
-        prod.stock--;
-      }
+      // Stock se maneja desde financiamiento
     }
     closeModal('modal-venta');
     renderVentas();
