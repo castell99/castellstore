@@ -552,7 +552,7 @@ function previewFinV() {
       const tasa      = FIN_TASAS[eq.gama][c] / 100;
       const financiado = p * (1 + tasa);
       const inicial    = financiado * 0.30;
-      const ini_real   = parseFloat(document.getElementById('v-inicial')?.value) || inicial;
+     const ini_real = parseFloat(document.getElementById('v-inicial')?.value) || 0;
       const cuota      = (financiado - ini_real) / c;
       monto = cuota;
       el.style.display = 'block';
