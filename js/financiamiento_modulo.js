@@ -392,8 +392,10 @@ function abrirDetalleCuotas(id) {
       </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="font-size:12px;color:var(--text2);white-space:nowrap">Inicial:</span>
-        <input type="range" min="10" max="70" value="${iniLocal}" oninput="window.__finIni=parseInt(this.value);document.getElementById('cq-ini-lbl').textContent=this.value+'%';renderModalCuotas(${id})" style="flex:1;accent-color:var(--green)">
-        <span id="cq-ini-lbl" style="font-size:13px;color:var(--green);font-weight:700;min-width:34px">${iniLocal}%</span>
+        <input type="range" min="10" max="70" value="${iniLocal}"
+          oninput="window.__finIni=parseInt(this.value);document.getElementById('cq-ini-lbl').textContent=this.value+'%';document.getElementById('cq-ini-manual').value=Math.round(finCalcManual(${id},this.value));renderModalCuotas(${id})"
+          style="flex:1;accent-color:var(--green)">
+        <span id="cq-ini-lbl"
       </div>
       <div class="fin-card" style="margin-bottom:14px">
         <div class="fin-hero">
