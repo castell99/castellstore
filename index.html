@@ -252,6 +252,15 @@
       <button class="close-btn" onclick="closeModal('modal-venta')">×</button>
     </div>
     <div class="form-group"><label>Cliente *</label><input id="v-cli" placeholder="Nombre completo"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Teléfono / WhatsApp</label><input id="v-tel" placeholder="300 123 4567"></div>
+      <div class="form-group"><label>Color del equipo</label><input id="v-color" placeholder="Negro, Azul..."></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>IMEI</label><input id="v-imei" placeholder="15 dígitos"></div>
+      <div class="form-group"><label>Inicial pagada (COP $)</label><input type="number" id="v-inicial" placeholder="0"></div>
+    </div>
+    <div class="form-group"><label>Observaciones</label><input id="v-obs" placeholder="Notas adicionales..."></div>
     <div class="form-group" id="v-prod-group">
       <label>Producto *</label>
       <select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar...</option></select>
