@@ -26,6 +26,11 @@ function abrirNuevaVenta() {
   document.getElementById('v-fin-prev').style.display = 'none';
   document.getElementById('v-prod').style.display     = '';
   document.getElementById('v-prod-txt').style.display = 'none';
+  document.getElementById('v-tel').value     = '';
+  document.getElementById('v-color').value   = '';
+  document.getElementById('v-imei').value    = '';
+  document.getElementById('v-inicial').value = '';
+  document.getElementById('v-obs').value     = '';
   fillProdSel();
   openModal('modal-venta');
 }
@@ -45,6 +50,11 @@ function editarVenta(id) {
   document.getElementById('v-prod-txt').value         = v.producto || '';
   setSelectVal('v-pago',   v.pago);
   setSelectVal('v-estado', v.estado);
+  document.getElementById('v-tel').value     = v.telefono_cliente || '';
+  document.getElementById('v-color').value   = v.color || '';
+  document.getElementById('v-imei').value    = v.imei || '';
+  document.getElementById('v-inicial').value = v.inicial_pagada || '';
+  document.getElementById('v-obs').value     = v.observaciones || '';
   document.getElementById('v-fin-prev').style.display = 'none';
   openModal('modal-venta');
 }
