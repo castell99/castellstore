@@ -16,6 +16,7 @@ async function loadCuotas() {
 // ── Abrir modal nueva venta ───────────────
 async function abrirNuevaVenta() {
   if (!equiposFin.length) await loadEquiposFin();
+  await new Promise(r => setTimeout(r, 300));
   editVentaId = null;
   document.getElementById('modal-venta-title').textContent = '💰 Nueva Venta';
   document.getElementById('btn-sv').textContent = 'Guardar venta';
