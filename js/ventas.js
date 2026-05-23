@@ -56,11 +56,16 @@ async function guardarVenta() {
   if (!cli || !precio) { toast('Completa los campos requeridos', 'err'); return; }
 
   const payload = {
-    cliente : cli,
+    cliente          : cli,
     precio,
-    pago    : document.getElementById('v-pago').value,
-    cuotas  : parseInt(document.getElementById('v-cuotas').value) || 0,
-    estado  : document.getElementById('v-estado').value,
+    pago             : document.getElementById('v-pago').value,
+    cuotas           : parseInt(document.getElementById('v-cuotas').value) || 0,
+    estado           : document.getElementById('v-estado').value,
+    telefono_cliente : document.getElementById('v-tel')?.value.trim() || '',
+    color            : document.getElementById('v-color')?.value.trim() || '',
+    imei             : document.getElementById('v-imei')?.value.trim() || '',
+    inicial_pagada   : parseFloat(document.getElementById('v-inicial')?.value) || 0,
+    observaciones    : document.getElementById('v-obs')?.value.trim() || '',
   };
 
   setBtn('btn-sv', true, 'Guardar venta');
