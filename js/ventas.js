@@ -539,13 +539,29 @@ function fillVPrecio() {
 }
 
 function previewFinV() {
-  const c  = parseInt(document.getElementById('v-cuotas').value) || 0;
-  const p  = parseFloat(document.getElementById('v-precio').value) || 0;
-  const el = document.getElementById('v-fin-prev');
+  const c   = parseInt(document.getElementById('v-cuotas').value) || 0;
+  const p   = parseFloat(document.getElementById('v-precio').value) || 0;
+  const el  = document.getElementById('v-fin-prev');
+  const pid = document.getElementById('v-prod').value;
+  const eq  = equiposFin.find(x => x.id == pid);
+
   if (c > 0 && p > 0) {
-    const cuota = calcCuota(p, 3.5, c);
-    el.style.display = 'block';
-    el.innerHTML = `<div class="alert info">🧮 <strong>${c} meses</strong> · Cuota: <strong>${fmt(Math.round(cuota))}/mes</strong> · Total: <strong>${fmt(Math.round(cuota * c))}</strong></div>`;
+    // Usar tasa por gama si hay equipo seleccionado
+    let monto = 0;
+    if (eq && FIN_TASAS[eq.gama] && FIN_TASAS[eq.gama][c]) {
+      const tasa      = FIN_TASAS[eq.gama][c] / 100;
+      const financiado = p * (1 + tasa);
+      const inicial    = financiado * 0.30;
+      const cuota      = (financiado - inicial) / c;
+      monto = cuota;
+      el.style.display = 'block';
+      el.innerHTML = `<div class="alert info">🧮 <strong>${c} meses</strong> · Tasa: <strong>${FIN_TASAS[eq.gama][c]}%</strong> · Cuota: <strong>${fmt(Math.round(cuota))}/mes</strong> · Total financiado: <strong>${fmt(Math.round(financiado))}</strong></div>`;
+    } else {
+      const cuota = calcCuota(p, 3.5, c);
+      monto = cuota;
+      el.style.display = 'block';
+      el.innerHTML = `<div class="alert info">🧮 <strong>${c} meses</strong> · Cuota: <strong>${fmt(Math.round(cuota))}/mes</strong> · Total: <strong>${fmt(Math.round(cuota * c))}</strong></div>`;
+    }
   } else {
     el.style.display = 'none';
   }
