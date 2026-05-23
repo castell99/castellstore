@@ -410,16 +410,16 @@ function abrirDetalleCuotas(id) {
           <div class="fin-lbl">Precio contado</div>
           <div style="font-size:14px;font-family:var(--mono);color:var(--text2)">${fmt(eq.precio_contado)}</div>
           <div class="fin-lbl" style="margin-top:6px">Precio financiado (+${f.tasa}%)</div>
-          <div class="fin-amount">${fmt(Math.round(f.financiado))}</div>
+          <div class="fin-amount" id="cq-fin-amt">${fmt(Math.round(f.financiado))}</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border)">
           <div style="padding:14px;border-right:1px solid var(--border)">
             <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Inicial (${iniLocal}%)</div>
-            <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--amber)">${fmt(Math.round(f.inicial))}</div>
+            <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--amber)" id="cq-ini-amt">${fmt(Math.round(f.inicial))}</div>
           </div>
           <div style="padding:14px">
             <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Cuota mensual</div>
-            <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--green)">${fmt(Math.round(f.cuota))}</div>
+            <div style="font-size:18px;font-weight:700;font-family:var(--mono);color:var(--green)" id="cq-cuo-amt">${fmt(Math.round(f.cuota))}</div>
           </div>
         </div>
       </div>
@@ -429,7 +429,8 @@ function abrirDetalleCuotas(id) {
           <th style="text-align:center">Cuota</th>
           <th style="text-align:right">Monto</th>
           <th style="text-align:right">Acumulado</th>
-        </tr></thead><tbody>${filas}</tbody></table>
+        </tr></thead><tbody id="cq-tabla-body">${filas}</tbody>
+        </table>
       </div>
       <div style="font-size:11px;color:var(--text3);text-align:center">Tasa: ${f.tasa}% · Gama ${eq.gama}</div>`;
   }
