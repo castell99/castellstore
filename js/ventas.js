@@ -107,8 +107,19 @@ async function guardarVenta() {
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
       ventas.unshift(v);
-      // Stock se maneja desde financiamiento
-    }
+
+      // Registrar inicial como abono automático
+      const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
+      if (inicialVal > 0 && v?.id) {
+        const [a] = await sb('abonos', 'POST', {
+          tipo   : 'venta',
+          ref_id : v.id,
+          monto  : inicialVal,
+          obs    : 'Cuota inicial',
+          fecha  : today()
+        });
+        abonos.push(a);
+      }
     closeModal('modal-venta');
     renderVentas();
     renderDashboard();
