@@ -84,7 +84,7 @@ async function loadAll() {
     if (!Array.isArray(tecnicos))  tecnicos  = [];
     if (!Array.isArray(abonos))    abonos    = [];
     // Cargar cuotas programadas
-    await loadCuotas();
+    if (typeof loadCuotas === 'function') await loadCuotas();
   } catch (e) {
     toast('Error cargando datos: ' + e.message, 'err');
     productos = []; ventas = []; tecnicos = []; abonos = [];
