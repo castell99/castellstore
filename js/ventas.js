@@ -120,6 +120,7 @@ async function guardarVenta() {
         });
         abonos.push(a);
       }
+    }
     closeModal('modal-venta');
     renderVentas();
     renderDashboard();
