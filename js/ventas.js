@@ -67,11 +67,23 @@ async function guardarVenta() {
   const precio = parseFloat(document.getElementById('v-precio').value) || 0;
   if (!cli || !precio) { toast('Completa los campos requeridos', 'err'); return; }
 
+  // Si es financiado, usar precio financiado
+  const metodoPago = document.getElementById('v-pago').value;
+  const cuotasNum  = parseInt(document.getElementById('v-cuotas').value) || 0;
+  const pid        = document.getElementById('v-prod').value;
+  const eqSel      = equiposFin.find(x => x.id == pid);
+  let precioFinal  = precio;
+
+  if (metodoPago === 'Financiado' && eqSel && cuotasNum > 0 && FIN_TASAS[eqSel.gama]?.[cuotasNum]) {
+    const tasa  = FIN_TASAS[eqSel.gama][cuotasNum] / 100;
+    precioFinal = Math.round(precio * (1 + tasa));
+  }
+
   const payload = {
     cliente          : cli,
-    precio,
-    pago             : document.getElementById('v-pago').value,
-    cuotas           : parseInt(document.getElementById('v-cuotas').value) || 0,
+    precio           : precioFinal,
+    pago             : metodoPago,
+    cuotas           : cuotasNum,
     estado           : document.getElementById('v-estado').value,
     telefono_cliente : document.getElementById('v-tel')?.value.trim() || '',
     color            : document.getElementById('v-color')?.value.trim() || '',
