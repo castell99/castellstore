@@ -39,12 +39,13 @@ async function guardarTecnico() {
   if (!cli || !eq) { toast('Completa los campos requeridos', 'err'); return; }
 
   const payload = {
-    cliente     : cli,
-    equipo      : eq,
-    diagnostico : document.getElementById('t-diag').value,
-    costo       : parseFloat(document.getElementById('t-costo').value) || 0,
-    estado      : document.getElementById('t-estado').value,
-    obs         : document.getElementById('t-obs').value,
+    cliente         : cli,
+    equipo          : eq,
+    diagnostico     : document.getElementById('t-diag').value,
+    costo           : parseFloat(document.getElementById('t-costo').value) || 0,
+    costo_repuestos : parseFloat(document.getElementById('t-repuestos').value) || 0,
+    estado          : document.getElementById('t-estado').value,
+    obs             : document.getElementById('t-obs').value,
   };
 
   setBtn('btn-st', true, 'Guardar servicio');
