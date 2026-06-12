@@ -115,7 +115,8 @@ function renderTecnicos() {
       <td><strong>${t.cliente}</strong></td>
       <td>${t.equipo}</td>
       <td style="color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.diagnostico || '—'}</td>
-      <td style="font-family:var(--mono)">${fmt(t.costo)}</td>
+      <td style="font-family:var(--mono)">${fmt(t.costo)}
+              ${parseFloat(t.costo_repuestos||0) > 0 ? `<div style="font-size:10px;color:var(--text3)">Repuestos: ${fmt(t.costo_repuestos)}</div><div style="font-size:11px;color:var(--green);font-weight:600">Ganancia: ${fmt(t.costo - t.costo_repuestos)}</div>` : ''}</td>
       <td style="font-family:var(--mono);color:var(--green)">${fmt(ab)}
         ${parseFloat(t.costo || 0) > 0 ? `<div class="progress-bar" style="width:70px"><div class="progress-fill" style="width:${pct}%"></div></div>` : ''}</td>
       <td style="font-family:var(--mono);color:${sal > 0 ? 'var(--amber)' : 'var(--green)'}">${fmt(sal)}</td>
