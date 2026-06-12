@@ -7,12 +7,13 @@ function abrirNuevoTecnico() {
   editTecId = null;
   document.getElementById('modal-tec-title').textContent = '🔧 Nuevo Servicio Técnico';
   document.getElementById('btn-st').textContent = 'Guardar servicio';
-  document.getElementById('t-cli').value    = '';
-  document.getElementById('t-equipo').value = '';
-  document.getElementById('t-diag').value   = '';
-  document.getElementById('t-costo').value  = '';
-  document.getElementById('t-obs').value    = '';
-  document.getElementById('t-estado').value = 'Recibido';
+  document.getElementById('t-cli').value       = '';
+  document.getElementById('t-equipo').value    = '';
+  document.getElementById('t-diag').value      = '';
+  document.getElementById('t-costo').value     = '';
+  document.getElementById('t-repuestos').value = '';
+  document.getElementById('t-obs').value       = '';
+  document.getElementById('t-estado').value    = 'Recibido';
   openModal('modal-tecnico');
 }
 
@@ -23,11 +24,12 @@ function editarTecnico(id) {
   editTecId = id;
   document.getElementById('modal-tec-title').textContent = '✏️ Editar Servicio Técnico';
   document.getElementById('btn-st').textContent = 'Actualizar servicio';
-  document.getElementById('t-cli').value    = t.cliente     || '';
-  document.getElementById('t-equipo').value = t.equipo      || '';
-  document.getElementById('t-diag').value   = t.diagnostico || '';
-  document.getElementById('t-costo').value  = t.costo       || '';
-  document.getElementById('t-obs').value    = t.obs         || '';
+  document.getElementById('t-cli').value       = t.cliente     || '';
+  document.getElementById('t-equipo').value    = t.equipo      || '';
+  document.getElementById('t-diag').value      = t.diagnostico || '';
+  document.getElementById('t-costo').value     = t.costo       || '';
+  document.getElementById('t-repuestos').value = t.costo_repuestos || '';
+  document.getElementById('t-obs').value       = t.obs         || '';
   setSelectVal('t-estado', t.estado);
   openModal('modal-tecnico');
 }
