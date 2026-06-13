@@ -115,7 +115,9 @@ function renderCaja() {
       return d && ymKey(d) === filtroMes;
     });
   }
-  
+  const gananciaTotal = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.ganancia) || 0), 0);
+  if (el('caja-ganancia')) el('caja-ganancia').textContent = fmt(gananciaTotal);
+
   // Capital invertido en equipos (ventas)
   const capitalVentas = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.costo_proveedor) || 0), 0);
   if (el('caja-capital-ventas')) el('caja-capital-ventas').textContent = fmt(capitalVentas);
@@ -237,4 +239,31 @@ function renderCajaChart() {
       }
     }
   });
+}
+// ── Recalcular ganancias de ventas existentes ──
+async function recalcularGanancias() {
+  if (!confirm('Esto recalculará la ganancia de todas las ventas según el equipo asociado. ¿Continuar?')) return;
+
+  if (!equiposFin.length) await loadEquiposFin();
+
+  let actualizadas = 0;
+  let sinEquipo = 0;
+
+  for (const v of ventas) {
+    const eq = equiposFin.find(e => `${e.marca} ${e.modelo}` === v.producto);
+    if (!eq) { sinEquipo++; continue; }
+
+    const costoProveedor = parseFloat(eq.precio_proveedor) || 0;
+    const ganancia       = parseFloat(v.precio) - costoProveedor;
+
+    try {
+      await sb('ventas', 'PATCH', { costo_proveedor: costoProveedor, ganancia: ganancia }, `?id=eq.${v.id}`);
+      v.costo_proveedor = costoProveedor;
+      v.ganancia        = ganancia;
+      actualizadas++;
+    } catch (e) { console.warn('Error venta', v.id, e.message); }
+  }
+
+  toast(`${actualizadas} venta(s) actualizadas${sinEquipo ? ' · ' + sinEquipo + ' sin equipo asociado' : ''} ✓`);
+  renderCaja();
 }
