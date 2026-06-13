@@ -8,7 +8,7 @@ async function loadCaja() {
   try {
     const data = await sb('caja_movimientos', 'GET', null, '?order=id.desc');
     cajaMovs = Array.isArray(data) ? data : [];
-  } catch (e) {
+  } catch (e) {F
     cajaMovs = [];
   }
   renderCaja();
@@ -102,7 +102,7 @@ function renderCaja() {
         ${m.tipo === 'ingreso' ? '+' : '-'}${fmt(m.monto)}
       </td>
       <td>
-        ${m.origen === 'manual' ? `<button class="icon-btn" onclick="delMovCaja(${m.id})">🗑</button>` : ''}
+        <button class="icon-btn" onclick="delMovCaja(${m.id})">🗑</button>
       </td>
     </tr>`).join('');
 }
