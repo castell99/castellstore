@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════
-//  tecnicos.js — CRUD Servicios Técnicos + Abonos
+//  tecnicos.js — CRUD Servicios Técnicos + Abonos .
 // ═══════════════════════════════════════════
 
 // ── Abrir modal nuevo servicio ────────────
