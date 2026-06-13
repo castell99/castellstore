@@ -115,8 +115,21 @@ function renderCaja() {
       return d && ymKey(d) === filtroMes;
     });
   }
-  const gananciaTotal = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.ganancia) || 0), 0);
-  if (el('caja-ganancia')) el('caja-ganancia').textContent = fmt(gananciaTotal);
+  
+  // Capital invertido en equipos (ventas)
+  const capitalVentas = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.costo_proveedor) || 0), 0);
+  if (el('caja-capital-ventas')) el('caja-capital-ventas').textContent = fmt(capitalVentas);
+
+  // Capital invertido en repuestos (servicios técnicos)
+  let tecnicosFiltrados = (typeof tecnicos !== 'undefined') ? tecnicos : [];
+  if (filtroMes) {
+    tecnicosFiltrados = tecnicosFiltrados.filter(t => {
+      const d = parseFechaCaja(t.fecha);
+      return d && ymKey(d) === filtroMes;
+    });
+  }
+  const capitalServicios = tecnicosFiltrados.reduce((s, t) => s + (parseFloat(t.costo_repuestos) || 0), 0);
+  if (el('caja-capital-servicios')) el('caja-capital-servicios').textContent = fmt(capitalServicios);
   
   const tb = document.getElementById('tb-caja');
   if (tb) {
