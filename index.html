@@ -164,6 +164,33 @@
         </div>
       </div>
 
+      <!-- CAJA -->
+<div id="sec-caja" class="section">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Caja</div>
+      <div class="page-sub">Control de dinero disponible — ingresos y gastos</div>
+    </div>
+    <button class="btn primary" onclick="abrirNuevoMovCaja()">+ Nuevo movimiento</button>
+  </div>
+
+  <div class="stats-grid" style="margin-bottom:18px">
+    <div class="stat-card"><div class="stat-accent green"></div><div class="stat-icon">💰</div><div class="stat-label">Saldo disponible</div><div class="stat-value" id="caja-saldo">$0</div></div>
+    <div class="stat-card"><div class="stat-accent blue"></div><div class="stat-icon">⬆️</div><div class="stat-label">Total ingresos</div><div class="stat-value" id="caja-ingresos">$0</div></div>
+    <div class="stat-card"><div class="stat-accent red"></div><div class="stat-icon">⬇️</div><div class="stat-label">Total egresos</div><div class="stat-value" id="caja-egresos">$0</div></div>
+    <div class="stat-card"><div class="stat-accent amber"></div><div class="stat-icon">📊</div><div class="stat-label">Movimientos</div><div class="stat-value" id="caja-total">0</div></div>
+  </div>
+
+  <div class="table-wrap card" style="padding:0">
+    <table>
+      <thead><tr>
+        <th>Fecha</th><th>Tipo</th><th>Concepto</th><th>Origen</th><th>Monto</th><th></th>
+      </tr></thead>
+      <tbody id="tb-caja"></tbody>
+    </table>
+  </div>
+</div>
+      
       <!-- FINANCIAMIENTO -->
       <div id="sec-financiamiento" class="section">
 
