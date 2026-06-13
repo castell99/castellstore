@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════
-//  catalogo.js — Catálogo público
+//  catalogo.js — Catálogo público.
 // ═══════════════════════════════════════════
 
 var equiposCatalogo = [];
