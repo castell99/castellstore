@@ -126,7 +126,15 @@ async function guardarVenta() {
       if (montoCaja > 0) {
         await registrarMovCajaAuto('ingreso', `Venta: ${payload.producto} — ${cli}`, montoCaja, 'venta', v.id);
       }
-      
+    }
+    closeModal('modal-venta');
+    renderVentas();
+    renderDashboard();
+    renderInventario();
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+  setBtn('btn-sv', false, 'Guardar venta');
+}
+
 // ── Eliminar venta ────────────────────────
 async function delVenta(id) {
   if (!confirm('¿Eliminar esta venta? También se eliminarán abonos y cuotas.')) return;
