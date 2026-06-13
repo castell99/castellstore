@@ -107,6 +107,17 @@ function renderCaja() {
   if (el('caja-egresos'))  el('caja-egresos').textContent  = fmt(egresos);
   if (el('caja-total'))    el('caja-total').textContent    = movsFiltrados.length;
 
+  // Ganancia neta de ventas (filtrada por mes si aplica)
+  let ventasFiltradas = (typeof ventas !== 'undefined') ? ventas : [];
+  if (filtroMes) {
+    ventasFiltradas = ventasFiltradas.filter(v => {
+      const d = parseFechaCaja(v.fecha);
+      return d && ymKey(d) === filtroMes;
+    });
+  }
+  const gananciaTotal = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.ganancia) || 0), 0);
+  if (el('caja-ganancia')) el('caja-ganancia').textContent = fmt(gananciaTotal);
+  
   const tb = document.getElementById('tb-caja');
   if (tb) {
     if (!movsFiltrados.length) {
