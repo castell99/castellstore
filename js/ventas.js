@@ -107,7 +107,7 @@ async function guardarVenta() {
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
       ventas.unshift(v);
-
+    }
       // Registrar inicial como abono automático
       const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
       if (inicialVal > 0 && v?.id) {
