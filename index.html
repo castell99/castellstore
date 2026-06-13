@@ -448,6 +448,35 @@
   </div>
 </div>
 
+<!-- ══ MODAL MOVIMIENTO CAJA ══ -->
+<div class="overlay" id="modal-caja">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">💰 Nuevo Movimiento</div>
+      <button class="close-btn" onclick="closeModal('modal-caja')">×</button>
+    </div>
+    <div class="form-group">
+      <label>Tipo</label>
+      <select id="cm-tipo">
+        <option value="ingreso">⬆️ Ingreso (entra dinero)</option>
+        <option value="egreso">⬇️ Egreso (sale dinero)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Concepto *</label>
+      <input id="cm-concepto" placeholder="Ej: Compra de repuestos, aporte capital...">
+    </div>
+    <div class="form-group">
+      <label>Monto (COP $) *</label>
+      <input type="number" id="cm-monto" placeholder="0">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-caja')">Cancelar</button>
+      <button class="btn primary" id="btn-cm" onclick="guardarMovCaja()">Guardar movimiento</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL EQUIPO FINANCIERO ══ -->
 <div class="overlay" id="modal-equipo-fin">
   <div class="modal" style="max-width:540px">
