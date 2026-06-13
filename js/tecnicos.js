@@ -63,6 +63,12 @@ async function guardarTecnico() {
       payload.fecha = today();
       const [t] = await sb('tecnicos', 'POST', payload);
       tecnicos.unshift(t);
+
+      // Egreso automático por repuestos
+      if (payload.costo_repuestos > 0) {
+        await registrarMovCajaAuto('egreso', `Repuestos: ${payload.equipo} — ${cli}`, payload.costo_repuestos, 'tecnico', t.id);
+      }
+
       toast('Servicio registrado ✓');
     }
     closeModal('modal-tecnico');
@@ -171,6 +177,7 @@ async function guardarAbonoT() {
   try {
     const [a] = await sb('abonos', 'POST', { tipo: 'tecnico', ref_id: abonoTId, monto, obs, fecha: today() });
     abonos.push(a);
+    await registrarMovCajaAuto('ingreso', `Abono servicio #${abonoTId}${obs ? ' — ' + obs : ''}`, monto, 'tecnico', abonoTId);
     document.getElementById('at-monto').value = '';
     document.getElementById('at-obs').value   = '';
     openAbonoT(abonoTId);
