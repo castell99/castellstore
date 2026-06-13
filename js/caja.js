@@ -267,3 +267,77 @@ async function recalcularGanancias() {
   toast(`${actualizadas} venta(s) actualizadas${sinEquipo ? ' · ' + sinEquipo + ' sin equipo asociado' : ''} ✓`);
   renderCaja();
 }
+
+// ── Desglose por tarjeta ──
+function abrirDesglose(tipo) {
+  const filtroMes = document.getElementById('caja-mes')?.value || '';
+  let movs = cajaMovs;
+  let vts  = (typeof ventas !== 'undefined') ? ventas : [];
+  let tecs = (typeof tecnicos !== 'undefined') ? tecnicos : [];
+
+  if (filtroMes) {
+    movs = movs.filter(m => { const d = parseFechaCaja(m.fecha); return d && ymKey(d) === filtroMes; });
+    vts  = vts.filter(v => { const d = parseFechaCaja(v.fecha); return d && ymKey(d) === filtroMes; });
+    tecs = tecs.filter(t => { const d = parseFechaCaja(t.fecha); return d && ymKey(d) === filtroMes; });
+  }
+
+  let titulo = '';
+  let rows   = '';
+
+  if (tipo === 'saldo' || tipo === 'ingresos' || tipo === 'egresos') {
+    const filtro = tipo === 'ingresos' ? 'ingreso' : tipo === 'egresos' ? 'egreso' : null;
+    const lista  = filtro ? movs.filter(m => m.tipo === filtro) : movs;
+    titulo = tipo === 'ingresos' ? '⬆️ Detalle de Ingresos' : tipo === 'egresos' ? '⬇️ Detalle de Egresos' : '💰 Detalle del Saldo';
+
+    rows = lista.map(m => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:600">${m.concepto}</div>
+          <div style="font-size:11px;color:var(--text3)">${m.fecha} · ${ORIGEN_LABEL[m.origen] || m.origen}</div>
+        </div>
+        <div style="font-family:var(--mono);font-weight:700;color:${m.tipo === 'ingreso' ? 'var(--green)' : 'var(--red)'}">
+          ${m.tipo === 'ingreso' ? '+' : '-'}${fmt(m.monto)}
+        </div>
+      </div>`).join('');
+
+  } else if (tipo === 'ganancia') {
+    titulo = '📈 Detalle de Ganancia Neta';
+    const lista = vts.filter(v => parseFloat(v.ganancia) > 0 || parseFloat(v.ganancia) < 0);
+    rows = lista.map(v => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:600">${v.cliente} — ${v.producto}</div>
+          <div style="font-size:11px;color:var(--text3)">${v.fecha} · Venta: ${fmt(v.precio)} − Costo: ${fmt(v.costo_proveedor)}</div>
+        </div>
+        <div style="font-family:var(--mono);font-weight:700;color:var(--green)">${fmt(v.ganancia)}</div>
+      </div>`).join('');
+
+  } else if (tipo === 'capital-ventas') {
+    titulo = '📱 Capital Invertido en Equipos';
+    rows = vts.filter(v => parseFloat(v.costo_proveedor) > 0).map(v => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:600">${v.cliente} — ${v.producto}</div>
+          <div style="font-size:11px;color:var(--text3)">${v.fecha}</div>
+        </div>
+        <div style="font-family:var(--mono);font-weight:700;color:var(--blue)">${fmt(v.costo_proveedor)}</div>
+      </div>`).join('');
+
+  } else if (tipo === 'capital-servicios') {
+    titulo = '🔧 Capital Invertido en Repuestos';
+    rows = tecs.filter(t => parseFloat(t.costo_repuestos) > 0).map(t => `
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:13px;font-weight:600">${t.cliente} — ${t.equipo}</div>
+          <div style="font-size:11px;color:var(--text3)">${t.fecha}</div>
+        </div>
+        <div style="font-family:var(--mono);font-weight:700;color:var(--amber)">${fmt(t.costo_repuestos)}</div>
+      </div>`).join('');
+  }
+
+  if (!rows) rows = '<p style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0">No hay registros para mostrar.</p>';
+
+  document.getElementById('desglose-title').textContent = titulo;
+  document.getElementById('desglose-body').innerHTML = rows;
+  openModal('modal-desglose');
+}
