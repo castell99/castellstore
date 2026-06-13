@@ -120,15 +120,13 @@ async function guardarVenta() {
         });
         abonos.push(a);
       }
-    }
-    closeModal('modal-venta');
-    renderVentas();
-    renderDashboard();
-    renderInventario();
-  } catch (e) { toast('Error: ' + e.message, 'err'); }
-  setBtn('btn-sv', false, 'Guardar venta');
-}
 
+      // Movimiento de caja automático
+      const montoCaja = metodoPago === 'Financiado' ? inicialVal : precioFinal;
+      if (montoCaja > 0) {
+        await registrarMovCajaAuto('ingreso', `Venta: ${payload.producto} — ${cli}`, montoCaja, 'venta', v.id);
+      }
+      
 // ── Eliminar venta ────────────────────────
 async function delVenta(id) {
   if (!confirm('¿Eliminar esta venta? También se eliminarán abonos y cuotas.')) return;
@@ -378,6 +376,8 @@ async function registrarAbonoLibre() {
       tipo: 'venta', ref_id: finVentaId, monto, obs, fecha: today()
     });
     abonos.push(a);
+    await registrarMovCajaAuto('ingreso', `Abono venta #${finVentaId}${obs ? ' — ' + obs : ''}`, monto, 'venta', finVentaId);
+    
     // Marcar como Financiada si no tenía estado especial
     if (v && v.estado !== 'Financiada' && v.estado !== 'Completada') {
       await sb('ventas', 'PATCH', { estado: 'Financiada' }, `?id=eq.${finVentaId}`);
