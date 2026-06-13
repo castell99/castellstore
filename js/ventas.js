@@ -79,9 +79,14 @@ async function guardarVenta() {
     precioFinal = Math.round(precio * (1 + tasa));
   }
 
+  const costoProveedor = eqSel ? parseFloat(eqSel.precio_proveedor) || 0 : 0;
+  const ganancia       = precioFinal - costoProveedor;
+
   const payload = {
     cliente          : cli,
     precio           : precioFinal,
+    costo_proveedor  : costoProveedor,
+    ganancia         : ganancia,
     pago             : metodoPago,
     cuotas           : cuotasNum,
     estado           : document.getElementById('v-estado').value,
