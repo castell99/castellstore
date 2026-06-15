@@ -48,7 +48,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   width: 36px;
   height: 36px;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 0;
+  background: transparent;
+  mix-blend-mode: screen;
   filter: drop-shadow(0 0 6px rgba(57,255,20,0.4));
   animation: logoSpin 12s linear infinite;
   transition: filter 0.3s;
