@@ -158,13 +158,14 @@ async function dibujarRecibo(datos, tipo, refId) {
   // ── Caja de datos cliente ──
   y += 52;
   ctx.fillStyle = '#152535';
-  roundRect(ctx, 40, y, W - 80, 100, 10);
+  const cajaH = datos.diagnostico || datos.obs ? 160 : (datos.ram || datos.color ? 120 : 100);
+  roundRect(ctx, 40, y, W - 80, cajaH, 10);
   ctx.fill();
   ctx.strokeStyle = '#1e3347';
   ctx.lineWidth   = 1;
-  roundRect(ctx, 40, y, W - 80, 100, 10);
+  roundRect(ctx, 40, y, W - 80, cajaH, 10);
   ctx.stroke();
-
+  
   ctx.fillStyle = '#8a9aa1';
   ctx.font      = '11px Outfit, sans-serif';
   ctx.fillText('CLIENTE', 60, y + 22);
@@ -178,6 +179,41 @@ async function dibujarRecibo(datos, tipo, refId) {
   ctx.fillStyle = '#e8f0f5';
   ctx.font      = '14px Outfit, sans-serif';
   ctx.fillText(truncate(datos.detalle, 70), 60, y + 88);
+
+  // Specs del equipo (venta) o diagnóstico (servicio)
+  if (datos.ram || datos.almacenamiento || datos.color) {
+    let specs = [datos.ram, datos.almacenamiento, datos.g5 ? '5G' : '', datos.color].filter(Boolean).join(' · ');
+    ctx.fillStyle = '#5ba3c9';
+    ctx.font      = '12px Outfit, sans-serif';
+    ctx.fillText(specs, 60, y + 108);
+  }
+  if (datos.diagnostico) {
+    ctx.fillStyle = '#8a9aa1';
+    ctx.font      = '11px Outfit, sans-serif';
+    ctx.fillText('DIAGNÓSTICO / SERVICIO', 60, y + 108);
+    ctx.fillStyle = '#e8f0f5';
+    ctx.font      = '12px Outfit, sans-serif';
+    ctx.fillText(truncate(datos.diagnostico, 70), 60, y + 124);
+  }
+  if (datos.obs) {
+    ctx.fillStyle = '#8a9aa1';
+    ctx.font      = '11px Outfit, sans-serif';
+    const obsY = datos.diagnostico ? y + 144 : y + 108;
+    ctx.fillText('OBSERVACIONES', 60, obsY);
+    ctx.fillStyle = '#e8f0f5';
+    ctx.font      = '12px Outfit, sans-serif';
+    ctx.fillText(truncate(datos.obs, 70), 60, obsY + 16);
+  }
+  if (datos.costoRepuestos > 0) {
+    ctx.fillStyle = '#8a9aa1';
+    ctx.font      = '11px Outfit, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('COSTO REPUESTOS', W - 60, y + 68);
+    ctx.fillStyle = '#f5b847';
+    ctx.font      = '14px Outfit, sans-serif';
+    ctx.fillText(fmt(datos.costoRepuestos), W - 60, y + 88);
+    ctx.textAlign = 'left';
+  }
 
   // Fecha ingreso (derecha)
   ctx.fillStyle = '#8a9aa1';
