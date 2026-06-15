@@ -23,30 +23,43 @@ async function generarRecibo(tipo, id) {
     const v       = ventas.find(x => x.id === id);
     const misAb   = abonos.filter(a => a.tipo === 'venta' && a.ref_id === id).sort((a,b) => a.id - b.id);
     const misCu   = cuotas.filter(c => c.venta_id === id).sort((a,b) => a.numero - b.numero);
+    // Buscar equipo en financiamiento para specs
+    const eq = equiposFin.find(e => `${e.marca} ${e.modelo}` === v.producto);
     datos = {
-      tipo      : 'VENTA',
-      cliente   : v.cliente,
-      detalle   : v.producto,
-      fecha     : v.fecha,
-      fechaPago : today(),
-      total     : parseFloat(v.precio),
-      abonos    : misAb,
-      cuotas    : misCu,
-      pago      : v.pago,
+      tipo       : 'VENTA',
+      cliente    : v.cliente,
+      detalle    : v.producto,
+      fecha      : v.fecha,
+      fechaPago  : today(),
+      total      : parseFloat(v.precio),
+      abonos     : misAb,
+      cuotas     : misCu,
+      pago       : v.pago,
+      color      : v.color || '',
+      imei       : v.imei || '',
+      telefono   : v.telefono_cliente || '',
+      obs        : v.observaciones || '',
+      ram        : eq ? eq.ram : '',
+      almacenamiento: eq ? eq.almacenamiento : '',
+      g5         : eq ? eq.g5 : false,
+      esFinanciado: misCu.length > 0 || v.pago === 'Financiado',
     };
   } else {
     const t     = tecnicos.find(x => x.id === id);
     const misAb = abonos.filter(a => a.tipo === 'tecnico' && a.ref_id === id).sort((a,b) => a.id - b.id);
     datos = {
-      tipo      : 'SERVICIO TÉCNICO',
-      cliente   : t.cliente,
-      detalle   : `${t.equipo}${t.diagnostico ? ' — ' + t.diagnostico : ''}`,
-      fecha     : t.fecha,
-      fechaPago : today(),
-      total     : parseFloat(t.costo),
-      abonos    : misAb,
-      cuotas    : [],
-      pago      : 'Servicio técnico',
+      tipo           : 'SERVICIO TÉCNICO',
+      cliente        : t.cliente,
+      detalle        : t.equipo,
+      diagnostico    : t.diagnostico || '',
+      obs            : t.obs || '',
+      costoRepuestos : parseFloat(t.costo_repuestos) || 0,
+      fecha          : t.fecha,
+      fechaPago      : today(),
+      total          : parseFloat(t.costo),
+      abonos         : misAb,
+      cuotas         : [],
+      pago           : 'Servicio técnico',
     };
   }
 
