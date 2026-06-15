@@ -404,6 +404,7 @@ async function registrarAbonoLibre() {
       toast('¡Venta completamente pagada! ✓');
     } else {
       toast('Abono registrado ✓');
+      await generarComprobanteAbono('venta', finVentaId, monto, obs);
     }
     renderModalFin(ventas.find(x => x.id === finVentaId));
     renderVentas();
