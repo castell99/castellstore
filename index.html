@@ -19,9 +19,8 @@
 <body>
 
 <!-- ── NAVBAR ── -->
-<nav class="nav">
-  <div class="brand">
-    <div class="brand-dot"></div>
+<div class="brand">
+    <img id="nav-logo" src="" alt="C" style="width:32px;height:32px;object-fit:contain;border-radius:6px;margin-right:6px">
     CastellStore
   </div>
   <div class="nav-actions">
@@ -586,9 +585,9 @@
 <script src="js/logo_castell.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const heroLogo = document.getElementById('hero-logo');
-    if (heroLogo && typeof LOGO_CASTELL_FULL !== 'undefined') {
-      heroLogo.src = LOGO_CASTELL_FULL;
+    const navLogo = document.getElementById('nav-logo');
+    if (navLogo && typeof LOGO_CASTELL_FULL !== 'undefined') {
+      navLogo.src = LOGO_CASTELL_FULL;
     }
   });
 </script>
