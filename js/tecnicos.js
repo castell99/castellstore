@@ -184,5 +184,6 @@ async function guardarAbonoT() {
     renderTecnicos();
     renderDashboard();
     toast('Abono registrado ✓');
+    await generarComprobanteAbono('tecnico', abonoTId, monto, obs);
   } catch (e) { toast('Error: ' + e.message, 'err'); }
 }
