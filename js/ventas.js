@@ -549,6 +549,77 @@ function addMonths(dateStr, months) {
   return d.toISOString().split('T')[0];
 }
 
+// ── Plan automático al registrar venta financiada ──
+let _planAutoData = null;
+
+function abrirModalFechaPlan(ventaId, meses, cuotaMonto, financiado, inicial) {
+  _planAutoData = { ventaId, meses, cuotaMonto, financiado, inicial };
+
+  // Fecha por defecto: mes siguiente
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  document.getElementById('fecha-primer-venc').value = d.toISOString().split('T')[0];
+
+  // Resumen
+  document.getElementById('fecha-plan-resumen').innerHTML = `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:var(--text3);font-size:12px">Total financiado</span>
+        <span style="font-family:var(--mono);font-weight:600">${fmt(financiado)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:var(--text3);font-size:12px">Inicial pagada</span>
+        <span style="font-family:var(--mono);color:var(--amber)">${fmt(inicial)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="color:var(--text3);font-size:12px">Cuota mensual</span>
+        <span style="font-family:var(--mono);color:var(--green);font-weight:700">${fmt(Math.round(cuotaMonto))}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--text3);font-size:12px">Número de cuotas</span>
+        <span style="font-weight:600">${meses} meses</span>
+      </div>
+    </div>`;
+
+  openModal('modal-fecha-plan');
+}
+
+async function crearPlanAuto() {
+  if (!_planAutoData) return;
+  const { ventaId, meses, cuotaMonto, financiado, inicial } = _planAutoData;
+  const fecha = document.getElementById('fecha-primer-venc').value;
+  if (!fecha) { toast('Selecciona la fecha del primer vencimiento', 'err'); return; }
+
+  setBtn('btn-crear-plan-auto', true, 'Creando...');
+  try {
+    const v = ventas.find(x => x.id === ventaId);
+    if (v) {
+      await sb('ventas', 'PATCH', { estado: 'Financiada', cuotas: meses }, `?id=eq.${ventaId}`);
+      v.estado = 'Financiada';
+      v.cuotas = meses;
+    }
+
+    for (let i = 0; i < meses; i++) {
+      const [c] = await sb('cuotas', 'POST', {
+        venta_id  : ventaId,
+        numero    : i + 1,
+        monto     : Math.round(cuotaMonto),
+        fecha_venc: addMonths(fecha, i),
+        estado    : 'Pendiente'
+      });
+      cuotas.push(c);
+    }
+
+    toast(`Plan de ${meses} cuotas creado ✓`);
+    closeModal('modal-fecha-plan');
+    renderVentas();
+    renderDashboard();
+  } catch (e) {
+    toast('Error: ' + e.message, 'err');
+  }
+  setBtn('btn-crear-plan-auto', false, '📋 Crear plan');
+}
+
 // ── Helpers modal venta ───────────────────
 function fillProdSel() {
   const s = document.getElementById('v-prod');
