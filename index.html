@@ -567,6 +567,28 @@
   </div>
 </div>
 
+<!-- ══ MODAL FECHA PLAN CUOTAS ══ -->
+<div class="overlay" id="modal-fecha-plan">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <div class="modal-title">📅 Fecha del plan de cuotas</div>
+      <button class="close-btn" onclick="closeModal('modal-fecha-plan')">×</button>
+    </div>
+    <div class="alert info" style="margin-bottom:14px">
+      El plan se creará automáticamente con los valores del financiamiento registrado.
+    </div>
+    <div id="fecha-plan-resumen" style="margin-bottom:14px"></div>
+    <div class="form-group">
+      <label>Fecha del primer vencimiento *</label>
+      <input type="date" id="fecha-primer-venc">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-fecha-plan')">Cancelar</button>
+      <button class="btn primary" id="btn-crear-plan-auto" onclick="crearPlanAuto()">📋 Crear plan</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL DETALLE CUOTAS ══ -->
 <div class="overlay" id="modal-cuotas-fin">
   <div class="modal" style="max-width:580px">
