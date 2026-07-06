@@ -151,6 +151,9 @@ async function guardarVenta() {
     renderVentas();
     renderDashboard();
     renderInventario();
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+  setBtn('btn-sv', false, 'Guardar venta');
+}
 
 // ── Eliminar venta ────────────────────────
 async function delVenta(id) {
