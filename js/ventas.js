@@ -131,14 +131,26 @@ async function guardarVenta() {
       if (montoCaja > 0) {
         await registrarMovCajaAuto('ingreso', `Venta: ${payload.producto} — ${cli}`, montoCaja, 'venta', v.id);
       }
+
+      // Si es financiado, abrir modal para crear plan de cuotas automático
+      if (metodoPago === 'Financiado' && cuotasNum > 0 && eqSel) {
+        const tasa       = FIN_TASAS[eqSel.gama][cuotasNum] / 100;
+        const financiado = Math.round(precio * (1 + tasa));
+        const ini_real   = inicialVal || 0;
+        const cuotaMonto = (financiado - ini_real) / cuotasNum;
+        closeModal('modal-venta');
+        renderVentas();
+        renderDashboard();
+        renderInventario();
+        abrirModalFechaPlan(v.id, cuotasNum, cuotaMonto, financiado, ini_real);
+        setBtn('btn-sv', false, 'Guardar venta');
+        return;
+      }
     }
     closeModal('modal-venta');
     renderVentas();
     renderDashboard();
     renderInventario();
-  } catch (e) { toast('Error: ' + e.message, 'err'); }
-  setBtn('btn-sv', false, 'Guardar venta');
-}
 
 // ── Eliminar venta ────────────────────────
 async function delVenta(id) {
