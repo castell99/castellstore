@@ -315,9 +315,34 @@ async function registrarAbonoLibre() {
   const sal = saldoPendiente('venta', finVentaId, v?.precio || 0);
   if (monto > sal + 0.01) { toast(`El abono supera el saldo (${fmt(sal)})`, 'err'); return; }
   try {
+    // Registrar abono
     const [a] = await sb('abonos', 'POST', { tipo: 'venta', ref_id: finVentaId, monto, obs, fecha: today() });
     abonos.push(a);
     await registrarMovCajaAuto('ingreso', `Abono venta #${finVentaId}${obs ? ' — ' + obs : ''}`, monto, 'venta', finVentaId);
+
+    // Aplicar abono a cuotas pendientes
+    const misCuotas = cuotas.filter(c => c.venta_id === finVentaId && c.estado !== 'Pagada').sort((a, b) => a.numero - b.numero);
+    let restante = monto;
+
+    for (const c of misCuotas) {
+      if (restante <= 0) break;
+      const pagadoAntes = parseFloat(c.monto_pagado) || 0;
+      const falta       = parseFloat(c.monto) - pagadoAntes;
+
+      if (restante >= falta) {
+        // Cubre esta cuota completamente
+        await sb('cuotas', 'PATCH', { estado: 'Pagada', fecha_pago: today(), monto_pagado: parseFloat(c.monto) }, `?id=eq.${c.id}`);
+        c.estado = 'Pagada'; c.fecha_pago = today(); c.monto_pagado = parseFloat(c.monto);
+        restante -= falta;
+      } else {
+        // Abono parcial — cuota sigue pendiente
+        const nuevoPagado = pagadoAntes + restante;
+        await sb('cuotas', 'PATCH', { monto_pagado: nuevoPagado }, `?id=eq.${c.id}`);
+        c.monto_pagado = nuevoPagado;
+        restante = 0;
+      }
+    }
+
     if (v && v.estado !== 'Financiada' && v.estado !== 'Completada') {
       await sb('ventas', 'PATCH', { estado: 'Financiada' }, `?id=eq.${finVentaId}`);
       v.estado = 'Financiada';
