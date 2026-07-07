@@ -268,11 +268,15 @@ function renderModalFin(v) {
             ${c.fecha_pago ? `<div style="font-size:11px;color:var(--green)">Pagada: ${c.fecha_pago}</div>` : ''}
           </div>
         </div>
-        <div style="text-align:right">
-          <div style="font-family:var(--mono);font-weight:600">${fmt(c.monto)}</div>
-          <span class="badge ${colorMap[c.estado] || 'amber'}" style="margin-top:4px">${c.estado}</span>
-          ${c.estado !== 'Pagada' ? `<div style="margin-top:6px"><button class="btn sm" onclick="marcarCuotaPagada(${c.id})" style="font-size:11px">✓ Marcar pagada</button></div>` : ''}
-        </div>
+        <div style="font-family:var(--mono);font-weight:600">${fmt(c.monto)}</div>
+              ${parseFloat(c.monto_pagado||0) > 0 && c.estado !== 'Pagada' ? `
+                <div style="font-size:11px;color:var(--green);margin-top:2px">Pagado: ${fmt(c.monto_pagado)}</div>
+                <div style="font-size:11px;color:var(--amber)">Falta: ${fmt(parseFloat(c.monto) - parseFloat(c.monto_pagado))}</div>
+                <div style="margin-top:4px;background:var(--bg3);border-radius:4px;height:6px;width:80px">
+                  <div style="background:var(--green);height:6px;border-radius:4px;width:${Math.min(100,(parseFloat(c.monto_pagado)/parseFloat(c.monto)*100)).toFixed(0)}%"></div>
+                </div>` : ''}
+              <span class="badge ${colorMap[c.estado] || 'amber'}" style="margin-top:4px">${c.estado}</span>
+              ${c.estado !== 'Pagada' ? `<div style="margin-top:6px"><button class="btn sm" onclick="marcarCuotaPagada(${c.id})" style="font-size:11px">✓ Marcar pagada</button></div>` : ''}
       </div>`;
     }).join('')}`;
   } else {
