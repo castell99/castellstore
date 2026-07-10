@@ -11,7 +11,7 @@ function abrirNuevoTecnico() {
   document.getElementById('t-equipo').value    = '';
   document.getElementById('t-diag').value      = '';
   document.getElementById('t-costo').value     = '';
-  ddocument.getElementById('t-repuestos').value = '';
+  document.getElementById('t-repuestos').value = '';
   document.getElementById('t-obs').value       = '';
   document.getElementById('t-estado').value    = 'Recibido';
   // Limpiar fotos
