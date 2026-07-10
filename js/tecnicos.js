@@ -187,3 +187,125 @@ async function guardarAbonoT() {
     await generarComprobanteAbono('tecnico', abonoTId, monto, obs);
   } catch (e) { toast('Error: ' + e.message, 'err'); }
 }
+
+// ── Fotos de servicios técnicos ───────────
+window._tecFotos = { entrada: null, salida: null };
+
+function prevTecFoto(input, tipo) {
+  const file = input.files[0];
+  if (!file) return;
+  window._tecFotos[tipo] = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById(`tec-prev-${tipo}`);
+    if (prev) { prev.src = e.target.result; prev.style.display = 'block'; }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function subirFotoServicio(file, tipo) {
+  const ext    = file.name.split('.').pop();
+  const nombre = `servicio_${tipo}_${Date.now()}.${ext}`;
+  const res    = await fetch(`${SUPA}/storage/v1/object/servicios-fotos/${nombre}`, {
+    method : 'POST',
+    headers: { 'Authorization': `Bearer ${KEY}`, 'Content-Type': file.type, 'x-upsert': 'true' },
+    body   : file,
+  });
+  if (!res.ok) throw new Error('Error subiendo foto');
+  return `${SUPA}/storage/v1/object/public/servicios-fotos/${nombre}`;
+}
+
+async function guardarFotosServicio(tecnicoId) {
+  for (const tipo of ['entrada', 'salida']) {
+    const file = window._tecFotos[tipo];
+    if (!file) continue;
+    try {
+      const url = await subirFotoServicio(file, tipo);
+      await sb('servicios_fotos', 'POST', {
+        tecnico_id : tecnicoId,
+        tipo,
+        url,
+        descripcion: tipo === 'entrada' ? 'Estado inicial del equipo' : 'Resultado final',
+        fecha      : today(),
+      });
+    } catch (e) { console.warn('Error subiendo foto', tipo, e.message); }
+  }
+  window._tecFotos = { entrada: null, salida: null };
+}
+
+async function cargarFotosServicio(tecnicoId) {
+  try {
+    const fotos = await sb('servicios_fotos', 'GET', null, `?tecnico_id=eq.${tecnicoId}&order=id.asc`);
+    return Array.isArray(fotos) ? fotos : [];
+  } catch (e) { return []; }
+}
+
+async function subirFotoProceso(tecnicoId) {
+  const input = document.createElement('input');
+  input.type  = 'file';
+  input.accept = 'image/*';
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      toast('Subiendo foto...', 'inf');
+      const url = await subirFotoServicio(file, 'proceso');
+      await sb('servicios_fotos', 'POST', {
+        tecnico_id : tecnicoId,
+        tipo       : 'proceso',
+        url,
+        descripcion: 'Foto del proceso',
+        fecha      : today(),
+      });
+      toast('Foto agregada ✓');
+      abrirGaleriaServicio(tecnicoId);
+    } catch (e) { toast('Error subiendo foto', 'err'); }
+  };
+  input.click();
+}
+
+async function abrirGaleriaServicio(tecnicoId) {
+  const t     = tecnicos.find(x => x.id === tecnicoId);
+  const fotos = await cargarFotosServicio(tecnicoId);
+
+  const TIPO_LABEL = { entrada: '📥 Entrada', salida: '📤 Salida', proceso: '🔧 Proceso' };
+  const TIPO_COLOR = { entrada: 'amber', salida: 'green', proceso: 'blue' };
+
+  let galeria = '';
+  if (!fotos.length) {
+    galeria = '<p style="color:var(--text3);text-align:center;padding:20px">No hay fotos registradas aún.</p>';
+  } else {
+    galeria = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+      ${fotos.map(f => `
+        <div style="position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)">
+          <img src="${f.url}" style="width:100%;height:130px;object-fit:cover;cursor:pointer" onclick="window.open('${f.url}','_blank')">
+          <div style="padding:6px 8px;background:var(--bg3)">
+            <span class="badge ${TIPO_COLOR[f.tipo]||'muted'}" style="font-size:10px">${TIPO_LABEL[f.tipo]||f.tipo}</span>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px">${f.fecha||''}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  let modal = document.getElementById('modal-galeria-servicio');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-galeria-servicio';
+    modal.className = 'overlay';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <div class="modal-title">📸 Fotos — ${t?.cliente || ''} · ${t?.equipo || ''}</div>
+        <button class="close-btn" onclick="document.getElementById('modal-galeria-servicio').classList.remove('open')">×</button>
+      </div>
+      ${galeria}
+      <div class="modal-footer">
+        <button class="btn" onclick="document.getElementById('modal-galeria-servicio').classList.remove('open')">Cerrar</button>
+        <button class="btn primary" onclick="subirFotoProceso(${tecnicoId})">📷 Agregar foto proceso</button>
+      </div>
+    </div>`;
+  modal.classList.add('open');
+}
