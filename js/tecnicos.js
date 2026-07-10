@@ -287,21 +287,105 @@ async function abrirGaleriaServicio(tecnicoId) {
   const TIPO_LABEL = { entrada: '📥 Entrada', salida: '📤 Salida', proceso: '🔧 Proceso' };
   const TIPO_COLOR = { entrada: 'amber', salida: 'green', proceso: 'blue' };
 
-  let galeria = '';
-  if (!fotos.length) {
-    galeria = '<p style="color:var(--text3);text-align:center;padding:20px">No hay fotos registradas aún.</p>';
-  } else {
-    galeria = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px">
-      ${fotos.map(f => `
-        <div style="position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)">
-          <img src="${f.url}" style="width:100%;height:130px;object-fit:cover;cursor:pointer" onclick="window.open('${f.url}','_blank')">
-          <div style="padding:6px 8px;background:var(--bg3)">
-            <span class="badge ${TIPO_COLOR[f.tipo]||'muted'}" style="font-size:10px">${TIPO_LABEL[f.tipo]||f.tipo}</span>
-            <div style="font-size:10px;color:var(--text3);margin-top:3px">${f.fecha||''}</div>
+  window._galeriaFotos    = fotos;
+  window._galeriaSelec    = new Set();
+  window._galeriaTecId    = tecnicoId;
+
+  function renderGaleria() {
+    const fotos = window._galeriaFotos;
+    if (!fotos.length) return '<p style="color:var(--text3);text-align:center;padding:20px">No hay fotos registradas aún.</p>';
+    return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px">
+      ${fotos.map((f, i) => `
+        <div style="position:relative;border-radius:var(--radius);overflow:hidden;border:2px solid ${window._galeriaSelec.has(f.id) ? 'var(--green)' : 'var(--border)'}">
+          <div style="position:absolute;top:6px;left:6px;z-index:2">
+            <input type="checkbox" ${window._galeriaSelec.has(f.id) ? 'checked' : ''}
+              onchange="toggleSelecFoto(${f.id})"
+              style="width:16px;height:16px;cursor:pointer;accent-color:var(--green)">
+          </div>
+          <img src="${f.url}" style="width:100%;height:130px;object-fit:cover;cursor:zoom-in"
+            onclick="abrirLightbox('${f.url}', '${TIPO_LABEL[f.tipo]||f.tipo}', '${f.fecha||''}')">
+          <div style="padding:6px 8px;background:var(--bg3);display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span class="badge ${TIPO_COLOR[f.tipo]||'muted'}" style="font-size:10px">${TIPO_LABEL[f.tipo]||f.tipo}</span>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px">${f.fecha||''}</div>
+            </div>
+            <button onclick="eliminarFotoServicio(${f.id})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:16px;padding:2px" title="Eliminar">🗑</button>
           </div>
         </div>`).join('')}
-    </div>`;
+    </div>
+    ${window._galeriaSelec.size > 0 ? `
+      <div style="background:var(--red-bg,#2a1212);border:1px solid var(--red,#f06b6b);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--red,#f06b6b)">${window._galeriaSelec.size} foto(s) seleccionada(s)</span>
+        <button class="btn sm" onclick="eliminarFotosSeleccionadas()" style="background:var(--red,#f06b6b);border-color:var(--red,#f06b6b);color:#fff">🗑 Eliminar seleccionadas</button>
+      </div>` : ''}`;
   }
+
+  window.toggleSelecFoto = function(id) {
+    if (window._galeriaSelec.has(id)) window._galeriaSelec.delete(id);
+    else window._galeriaSelec.add(id);
+    document.getElementById('galeria-body').innerHTML = renderGaleria();
+  };
+
+  window.eliminarFotoServicio = async function(id) {
+    if (!confirm('¿Eliminar esta foto?')) return;
+    try {
+      await sb('servicios_fotos', 'DELETE', null, `?id=eq.${id}`);
+      window._galeriaFotos = window._galeriaFotos.filter(f => f.id !== id);
+      window._galeriaSelec.delete(id);
+      document.getElementById('galeria-body').innerHTML = renderGaleria();
+      toast('Foto eliminada ✓');
+    } catch (e) { toast('Error eliminando foto', 'err'); }
+  };
+
+  window.eliminarFotosSeleccionadas = async function() {
+    if (!confirm(`¿Eliminar ${window._galeriaSelec.size} foto(s)?`)) return;
+    for (const id of window._galeriaSelec) {
+      try { await sb('servicios_fotos', 'DELETE', null, `?id=eq.${id}`); } catch (_) {}
+    }
+    window._galeriaFotos = window._galeriaFotos.filter(f => !window._galeriaSelec.has(f.id));
+    window._galeriaSelec.clear();
+    document.getElementById('galeria-body').innerHTML = renderGaleria();
+    toast('Fotos eliminadas ✓');
+  };
+
+  window.abrirLightbox = function(url, tipo, fecha) {
+    let lb = document.getElementById('lightbox-servicio');
+    if (!lb) {
+      lb = document.createElement('div');
+      lb.id = 'lightbox-servicio';
+      lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:zoom-out';
+      lb.onclick = () => lb.style.display = 'none';
+      document.body.appendChild(lb);
+    }
+    lb.innerHTML = `
+      <div style="position:absolute;top:16px;right:20px;color:#fff;font-size:24px;cursor:pointer" onclick="document.getElementById('lightbox-servicio').style.display='none'">×</div>
+      <img src="${url}" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;box-shadow:0 0 40px rgba(0,0,0,0.8)">
+      <div style="margin-top:12px;color:#ccc;font-size:13px">${tipo} · ${fecha}</div>`;
+    lb.style.display = 'flex';
+  };
+
+  let modal = document.getElementById('modal-galeria-servicio');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'modal-galeria-servicio';
+    modal.className = 'overlay';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:640px">
+      <div class="modal-header">
+        <div class="modal-title">📸 Fotos — ${t?.cliente || ''} · ${t?.equipo || ''}</div>
+        <button class="close-btn" onclick="document.getElementById('modal-galeria-servicio').classList.remove('open')">×</button>
+      </div>
+      <div id="galeria-body">${renderGaleria()}</div>
+      <div class="modal-footer">
+        <button class="btn" onclick="document.getElementById('modal-galeria-servicio').classList.remove('open')">Cerrar</button>
+        <button class="btn primary" onclick="subirFotoProceso(${tecnicoId})">📷 Agregar foto proceso</button>
+      </div>
+    </div>`;
+  modal.classList.add('open');
+}
 
   let modal = document.getElementById('modal-galeria-servicio');
   if (!modal) {
