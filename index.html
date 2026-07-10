@@ -420,6 +420,29 @@
       </div>
     </div>
     <div class="form-group"><label>Observaciones</label><input id="t-obs" placeholder="Notas adicionales..."></div>
+
+    <!-- Fotos del servicio (opcionales) -->
+    <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px">📸 Fotos del servicio (opcionales)</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Foto entrada (estado inicial)</label>
+          <label class="ef-upload-btn">
+            📷 Seleccionar foto
+            <input type="file" accept="image/*" style="display:none" onchange="prevTecFoto(this,'entrada')">
+          </label>
+          <img id="tec-prev-entrada" class="ef-prev-img">
+        </div>
+        <div class="form-group">
+          <label>Foto salida (resultado final)</label>
+          <label class="ef-upload-btn">
+            📷 Seleccionar foto
+            <input type="file" accept="image/*" style="display:none" onchange="prevTecFoto(this,'salida')">
+          </label>
+          <img id="tec-prev-salida" class="ef-prev-img">
+        </div>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-tecnico')">Cancelar</button>
       <button class="btn primary" id="btn-st" onclick="guardarTecnico()">Guardar servicio</button>
