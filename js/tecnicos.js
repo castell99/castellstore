@@ -11,9 +11,15 @@ function abrirNuevoTecnico() {
   document.getElementById('t-equipo').value    = '';
   document.getElementById('t-diag').value      = '';
   document.getElementById('t-costo').value     = '';
-  document.getElementById('t-repuestos').value = '';
+  ddocument.getElementById('t-repuestos').value = '';
   document.getElementById('t-obs').value       = '';
   document.getElementById('t-estado').value    = 'Recibido';
+  // Limpiar fotos
+  window._tecFotos = { entrada: null, salida: null };
+  ['entrada','salida'].forEach(tipo => {
+    const prev = document.getElementById(`tec-prev-${tipo}`);
+    if (prev) { prev.src = ''; prev.style.display = 'none'; }
+  });
   openModal('modal-tecnico');
 }
 
@@ -143,6 +149,7 @@ function renderTecnicos() {
               📄 Paz y Salvo
             </button>`
           : ''}
+        <button class="btn sm" onclick="abrirGaleriaServicio(${t.id})" title="Fotos">📸</button>
         <button class="btn sm" onclick="editarTecnico(${t.id})" title="Editar">✏️</button>
         <button class="icon-btn" onclick="delTec(${t.id})" title="Eliminar">🗑</button>
       </td>
