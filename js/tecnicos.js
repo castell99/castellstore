@@ -204,6 +204,12 @@ window._tecFotos = { entrada: null, salida: null };
 function prevTecFoto(input, tipo) {
   const file = input.files[0];
   if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (['heic','heif'].includes(ext)) {
+    toast('Formato no soportado. Usa JPG o PNG', 'err');
+    input.value = '';
+    return;
+  }
   window._tecFotos[tipo] = file;
   const reader = new FileReader();
   reader.onload = e => {
