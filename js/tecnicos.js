@@ -64,6 +64,9 @@ async function guardarTecnico() {
       const [t] = await sb('tecnicos', 'POST', payload);
       tecnicos.unshift(t);
 
+      // Subir fotos si las hay
+      if (t?.id) await guardarFotosServicio(t.id);
+
       // Egreso automático por repuestos
       if (payload.costo_repuestos > 0) {
         await registrarMovCajaAuto('egreso', `Repuestos: ${payload.equipo} — ${cli}`, payload.costo_repuestos, 'tecnico', t.id);
