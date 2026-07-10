@@ -259,7 +259,7 @@ async function cargarFotosServicio(tecnicoId) {
 async function subirFotoProceso(tecnicoId) {
   const input = document.createElement('input');
   input.type  = 'file';
-  input.accept = 'image/*';
+  input.accept = 'image/jpeg,image/png,image/webp';
   input.onchange = async e => {
     const file = e.target.files[0];
     if (!file) return;
