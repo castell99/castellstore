@@ -29,25 +29,96 @@ async function renderPublic() {
 
 var marcaFiltro = '';
 
+const MARCA_LOGOS = {
+  'Samsung'  : 'https://logo.clearbit.com/samsung.com',
+  'Iphone'   : 'https://logo.clearbit.com/apple.com',
+  'iPhone'   : 'https://logo.clearbit.com/apple.com',
+  'Apple'    : 'https://logo.clearbit.com/apple.com',
+  'Xiaomi'   : 'https://logo.clearbit.com/xiaomi.com',
+  'Motorola' : 'https://logo.clearbit.com/motorola.com',
+  'Honor'    : 'https://logo.clearbit.com/honor.com',
+  'Huawei'   : 'https://logo.clearbit.com/huawei.com',
+  'Oppo'     : 'https://logo.clearbit.com/oppo.com',
+  'Vivo'     : 'https://logo.clearbit.com/vivo.com',
+  'Tecno'    : 'https://logo.clearbit.com/tecno-mobile.com',
+  'Infinix'  : 'https://logo.clearbit.com/infinixmobility.com',
+  'Realme'   : 'https://logo.clearbit.com/realme.com',
+  'OnePlus'  : 'https://logo.clearbit.com/oneplus.com',
+  'HONOR'    : 'https://logo.clearbit.com/honor.com',
+  'INFINIX'  : 'https://logo.clearbit.com/infinixmobility.com',
+  'MOTOROLA' : 'https://logo.clearbit.com/motorola.com',
+  'SAMSUNG'  : 'https://logo.clearbit.com/samsung.com',
+  'TECNO'    : 'https://logo.clearbit.com/tecno-mobile.com',
+  'Xiaomi'   : 'https://logo.clearbit.com/xiaomi.com',
+  'OPPO'     : 'https://logo.clearbit.com/oppo.com',
+  'VIVO'     : 'https://logo.clearbit.com/vivo.com',
+};
+
 function filterPub(cat, el) {
-  pubFilter = cat;
+  pubFilter   = cat;
   marcaFiltro = '';
   document.querySelectorAll('.pill').forEach(function(p) { p.classList.remove('active'); });
   if (el) el.classList.add('active');
 
-  // Mostrar/ocultar barra de marcas
   var marcaBar = document.getElementById('marca-bar');
-  if (cat === 'Teléfono' || cat === 'Telefonos' || cat === '') {
-    var marcas = [...new Set(equiposCatalogo.map(function(e) { return e.marca; }).filter(Boolean))].sort();
-    marcaBar.innerHTML = '<button class="pill active" onclick="filterMarca(\'\',this)">Todas las marcas</button>'
-      + marcas.map(function(m) {
-          return '<button class="pill" onclick="filterMarca(\'' + m + '\',this)">' + m + '</button>';
-        }).join('');
-    marcaBar.style.display = 'flex';
+  var esTelefono = (cat === '' || cat === 'Teléfono' || cat === 'Telefonos' || cat === 'Teléfonos');
+
+  if (esTelefono) {
+    var marcas = [];
+    equiposCatalogo.forEach(function(e) {
+      if (e.marca && marcas.indexOf(e.marca) === -1) marcas.push(e.marca);
+    });
+    marcas.sort();
+
+    var html = '<button onclick="filterMarca(\'\',this)" style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--border);border-radius:12px;background:var(--green);cursor:pointer;min-width:80px;transition:all .2s" id="btn-marca-todas">' +
+      '<span style="font-size:22px">🌐</span>' +
+      '<span style="font-size:11px;font-weight:600;color:var(--bg)">Todas</span></button>';
+
+    marcas.forEach(function(m) {
+      var logo = MARCA_LOGOS[m] || MARCA_LOGOS[m.toLowerCase()];
+      html += '<button onclick="filterMarca(\'' + m + '\',this)" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--border);border-radius:12px;background:var(--surface,var(--bg2));cursor:pointer;min-width:80px;transition:all .2s" ' +
+        'class="btn-marca-item" data-marca="' + m + '" ' +
+        'onmouseover="this.style.borderColor=\'var(--green)\'" ' +
+        'onmouseout="if(!this.classList.contains(\'activa\'))this.style.borderColor=\'var(--border)\'">' +
+        (logo
+          ? '<img src="' + logo + '" style="width:40px;height:40px;object-fit:contain;border-radius:8px;background:#fff;padding:4px" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">' +
+            '<span style="display:none;font-size:22px">📱</span>'
+          : '<span style="font-size:22px">📱</span>') +
+        '<span style="font-size:11px;font-weight:600;color:var(--text2)">' + m + '</span></button>';
+    });
+
+    marcaBar.innerHTML = html;
+    marcaBar.style.display    = 'flex';
+    marcaBar.style.flexWrap   = 'wrap';
+    marcaBar.style.gap        = '10px';
+    marcaBar.style.padding    = '12px 0';
   } else {
     marcaBar.style.display = 'none';
   }
 
+  renderPublic();
+}
+
+function filterMarca(marca, btn) {
+  marcaFiltro = marca;
+  document.querySelectorAll('.btn-marca-item').forEach(function(b) {
+    b.classList.remove('activa');
+    b.style.borderColor = 'var(--border)';
+    b.style.background  = 'var(--surface,var(--bg2))';
+    b.querySelector('span:last-child').style.color = 'var(--text2)';
+  });
+  var todas = document.getElementById('btn-marca-todas');
+  if (todas) {
+    todas.style.background = marca === '' ? 'var(--green)' : 'var(--surface,var(--bg2))';
+    todas.querySelector('span:last-child').style.color = marca === '' ? 'var(--bg)' : 'var(--text2)';
+  }
+  if (btn && btn !== todas) {
+    btn.classList.add('activa');
+    btn.style.borderColor = 'var(--green)';
+    btn.style.background  = 'rgba(57,255,20,0.1)';
+    btn.querySelector('span:last-child').style.color = 'var(--green)';
+  }
   renderPublic();
 }
 
