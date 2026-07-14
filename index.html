@@ -25,6 +25,10 @@
     CastellStore
   </div>
   <div class="nav-actions">
+    <button onclick="showSec('agenda',this);loadAgenda()" style="position:relative;background:none;border:none;cursor:pointer;font-size:20px;padding:4px 8px" title="Agenda">
+  📋
+  <span id="nav-ag-badge" style="display:none;position:absolute;top:0;right:0;background:#f06b6b;color:#fff;border-radius:50%;font-size:9px;font-weight:700;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:1">0</span>
+</button>
     <button class="nav-btn active" id="btn-pub" onclick="goPublic()">🛍 Catálogo</button>
     <button class="nav-btn" id="btn-adm" onclick="goAdmin()">⚙️ Admin</button>
     <button class="hamburger" id="hamburger" onclick="toggleSidebar()" style="display:none">
@@ -101,6 +105,7 @@
       <div class="sidebar-section">Inventario</div>
       <button class="sidebar-item" onclick="showSec('inventario',this)"><span class="ico">📦</span> Productos</button>
       <div class="sidebar-section">Herramientas</div>
+      <button class="sidebar-item" onclick="showSec('agenda',this);loadAgenda()"><span class="ico">📋</span> Agenda <span id="ag-badge" style="display:none;background:#f06b6b;color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:1px 7px;margin-left:4px">0</span></button>
       <button class="sidebar-item" onclick="showSec('caja',this);loadCaja()"><span class="ico">💰</span> Caja</button>
       <button class="sidebar-item" onclick="showSec('financiamiento',this);loadEquiposFin()"><span class="ico">🧮</span> Financiamiento</button>
       <div style="padding:16px 10px 0;border-top:1px solid var(--border);margin-top:16px">
