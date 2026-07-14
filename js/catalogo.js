@@ -90,11 +90,60 @@ function filterPub(cat, el) {
         '<span style="font-size:11px;font-weight:600;color:var(--text2)">' + m + '</span></button>';
     });
 
-    marcaBar.innerHTML = html;
-    marcaBar.style.display    = 'flex';
-    marcaBar.style.flexWrap   = 'wrap';
-    marcaBar.style.gap        = '10px';
-    marcaBar.style.padding    = '12px 0';
+    marcaBar.innerHTML =
+      '<div id="marcas-slider" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:12px 4px;scroll-behavior:smooth">' +
+      '<style>#marcas-slider::-webkit-scrollbar{display:none}</style>' +
+      '<button onclick="filterMarca(\'\',this)" id="btn-marca-todas" ' +
+        'style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--green);border-radius:12px;background:var(--green);cursor:pointer;min-width:80px;flex-shrink:0;scroll-snap-align:start;transition:all .2s">' +
+        '<span style="font-size:22px">🌐</span>' +
+        '<span style="font-size:11px;font-weight:600;color:var(--bg)">Todas</span></button>' +
+      marcas.map(function(m) {
+        var logo = MARCA_LOGOS[m];
+        return '<button onclick="filterMarca(\'' + m + '\',this)" ' +
+          'style="display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 14px;border:2px solid var(--border);border-radius:12px;background:var(--surface,var(--bg2));cursor:pointer;min-width:80px;flex-shrink:0;scroll-snap-align:start;transition:all .2s" ' +
+          'class="btn-marca-item" data-marca="' + m + '" ' +
+          'onmouseover="this.style.borderColor=\'var(--green)\'" ' +
+          'onmouseout="if(!this.classList.contains(\'activa\'))this.style.borderColor=\'var(--border)\'">' +
+          (logo
+            ? '<img src="' + logo + '" style="width:40px;height:40px;object-fit:contain;padding:4px" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">' +
+              '<span style="display:none;font-size:22px">📱</span>'
+            : '<span style="font-size:22px">📱</span>') +
+          '<span style="font-size:11px;font-weight:600;color:var(--text2)">' + m + '</span></button>';
+      }).join('') +
+      '</div>' +
+      '<div id="marcas-dots" style="display:flex;justify-content:center;gap:6px;margin-top:8px"></div>';
+
+    // Dots de navegación
+    var slider = marcaBar.querySelector('#marcas-slider');
+    var dots   = marcaBar.querySelector('#marcas-dots');
+    var total  = marcas.length + 1;
+    var visible = window.innerWidth < 600 ? 3 : 6;
+    var pages   = Math.ceil(total / visible);
+
+    if (pages > 1) {
+      for (var i = 0; i < pages; i++) {
+        var dot = document.createElement('div');
+        dot.style.cssText = 'width:' + (i===0?'20':'8') + 'px;height:8px;border-radius:4px;background:' + (i===0?'var(--green)':'var(--border)') + ';cursor:pointer;transition:all .3s';
+        dot.setAttribute('data-page', i);
+        dot.onclick = (function(idx) {
+          return function() {
+            var itemW = 100;
+            slider.scrollTo({ left: idx * visible * itemW, behavior: 'smooth' });
+          };
+        })(i);
+        dots.appendChild(dot);
+      }
+      slider.addEventListener('scroll', function() {
+        var page = Math.round(slider.scrollLeft / (visible * 100));
+        dots.querySelectorAll('div').forEach(function(d, idx) {
+          d.style.width      = idx === page ? '20px' : '8px';
+          d.style.background = idx === page ? 'var(--green)' : 'var(--border)';
+        });
+      });
+    }
+
+    marcaBar.style.display  = 'block';
+    marcaBar.style.padding  = '4px 0';
   } else {
     marcaBar.style.display = 'none';
   }
