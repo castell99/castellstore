@@ -622,6 +622,43 @@
   </div>
 </div>
 
+<!-- ══ MODAL NUEVA TAREA ══ -->
+<div class="overlay" id="modal-agenda">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-ag-title">📋 Nueva tarea</div>
+      <button class="close-btn" onclick="closeModal('modal-agenda')">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Tipo *</label>
+        <select id="ag-tipo">
+          <option value="cita">📅 Cita</option>
+          <option value="pedido">📦 Pedido</option>
+          <option value="servicio">🔧 Servicio</option>
+          <option value="otro">📌 Otro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Prioridad</label>
+        <select id="ag-prioridad">
+          <option value="normal">Normal</option>
+          <option value="urgente">🔴 Urgente</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Título *</label><input id="ag-titulo" placeholder="Ej: Visita técnica, Pedido audífonos..."></div>
+    <div class="form-group"><label>Cliente</label><input id="ag-cliente" placeholder="Nombre del cliente"></div>
+    <div class="form-group"><label>Descripción</label><input id="ag-desc" placeholder="Detalles adicionales..."></div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha</label><input type="date" id="ag-fecha"></div>
+      <div class="form-group"><label>Hora</label><input type="time" id="ag-hora"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-agenda')">Cancelar</button>
+      <button class="btn primary" id="btn-ag" onclick="guardarTarea()">Guardar tarea</button>
+    </div>
+  </div>
+</div>
+  
 <!-- ══ MODAL FECHA PLAN CUOTAS ══ -->
 <div class="overlay" id="modal-fecha-plan">
   <div class="modal" style="max-width:400px">
