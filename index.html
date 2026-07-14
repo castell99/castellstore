@@ -166,6 +166,38 @@
         </div>
       </div>
 
+      <!-- AGENDA -->
+<div id="sec-agenda" class="section">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Agenda</div>
+      <div class="page-sub">Tareas, citas y pedidos pendientes</div>
+    </div>
+    <button class="btn primary" onclick="abrirNuevaTarea()">+ Nueva tarea</button>
+  </div>
+
+  <div class="stats-grid" style="margin-bottom:18px">
+    <div class="stat-card"><div class="stat-accent red"></div><div class="stat-icon">🔴</div><div class="stat-label">Urgentes</div><div class="stat-value" id="ag-urgentes">0</div></div>
+    <div class="stat-card"><div class="stat-accent amber"></div><div class="stat-icon">📅</div><div class="stat-label">Para hoy</div><div class="stat-value" id="ag-hoy">0</div></div>
+    <div class="stat-card"><div class="stat-accent blue"></div><div class="stat-icon">📋</div><div class="stat-label">Pendientes</div><div class="stat-value" id="ag-pendientes">0</div></div>
+    <div class="stat-card"><div class="stat-accent green"></div><div class="stat-icon">✅</div><div class="stat-label">Completadas</div><div class="stat-value" id="ag-completadas">0</div></div>
+  </div>
+
+  <div class="card" style="padding:12px 16px;margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="pill active" onclick="filterAgenda('',this)">Todas</button>
+    <button class="pill" onclick="filterAgenda('cita',this)">📅 Citas</button>
+    <button class="pill" onclick="filterAgenda('pedido',this)">📦 Pedidos</button>
+    <button class="pill" onclick="filterAgenda('servicio',this)">🔧 Servicios</button>
+    <button class="pill" onclick="filterAgenda('otro',this)">📌 Otros</button>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="pill" onclick="filterAgendaEstado('pendiente',this)" id="ag-btn-pend" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">Pendientes</button>
+      <button class="pill" onclick="filterAgendaEstado('completado',this)" id="ag-btn-comp">Completadas</button>
+    </div>
+  </div>
+
+  <div id="ag-lista" style="display:flex;flex-direction:column;gap:8px"></div>
+</div>
+      
       <!-- CAJA -->
 <div id="sec-caja" class="section">
   <div class="page-header">
