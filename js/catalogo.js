@@ -30,28 +30,30 @@ async function renderPublic() {
 var marcaFiltro = '';
 
 const MARCA_LOGOS = {
-  'Samsung'  : 'https://logo.clearbit.com/samsung.com',
-  'Iphone'   : 'https://logo.clearbit.com/apple.com',
-  'iPhone'   : 'https://logo.clearbit.com/apple.com',
-  'Apple'    : 'https://logo.clearbit.com/apple.com',
-  'Xiaomi'   : 'https://logo.clearbit.com/xiaomi.com',
-  'Motorola' : 'https://logo.clearbit.com/motorola.com',
-  'Honor'    : 'https://logo.clearbit.com/honor.com',
-  'Huawei'   : 'https://logo.clearbit.com/huawei.com',
-  'Oppo'     : 'https://logo.clearbit.com/oppo.com',
-  'Vivo'     : 'https://logo.clearbit.com/vivo.com',
-  'Tecno'    : 'https://logo.clearbit.com/tecno-mobile.com',
-  'Infinix'  : 'https://logo.clearbit.com/infinixmobility.com',
-  'Realme'   : 'https://logo.clearbit.com/realme.com',
-  'OnePlus'  : 'https://logo.clearbit.com/oneplus.com',
-  'HONOR'    : 'https://logo.clearbit.com/honor.com',
-  'INFINIX'  : 'https://logo.clearbit.com/infinixmobility.com',
-  'MOTOROLA' : 'https://logo.clearbit.com/motorola.com',
-  'SAMSUNG'  : 'https://logo.clearbit.com/samsung.com',
-  'TECNO'    : 'https://logo.clearbit.com/tecno-mobile.com',
-  'Xiaomi'   : 'https://logo.clearbit.com/xiaomi.com',
-  'OPPO'     : 'https://logo.clearbit.com/oppo.com',
-  'VIVO'     : 'https://logo.clearbit.com/vivo.com',
+  'Samsung'  : 'https://cdn.simpleicons.org/samsung/ffffff',
+  'SAMSUNG'  : 'https://cdn.simpleicons.org/samsung/ffffff',
+  'iPhone'   : 'https://cdn.simpleicons.org/apple/ffffff',
+  'Iphone'   : 'https://cdn.simpleicons.org/apple/ffffff',
+  'IPHONE'   : 'https://cdn.simpleicons.org/apple/ffffff',
+  'Apple'    : 'https://cdn.simpleicons.org/apple/ffffff',
+  'Xiaomi'   : 'https://cdn.simpleicons.org/xiaomi/ffffff',
+  'XIAOMI'   : 'https://cdn.simpleicons.org/xiaomi/ffffff',
+  'Motorola' : 'https://cdn.simpleicons.org/motorola/ffffff',
+  'MOTOROLA' : 'https://cdn.simpleicons.org/motorola/ffffff',
+  'Honor'    : 'https://cdn.simpleicons.org/honor/ffffff',
+  'HONOR'    : 'https://cdn.simpleicons.org/honor/ffffff',
+  'Huawei'   : 'https://cdn.simpleicons.org/huawei/ffffff',
+  'HUAWEI'   : 'https://cdn.simpleicons.org/huawei/ffffff',
+  'Oppo'     : 'https://cdn.simpleicons.org/oppo/ffffff',
+  'OPPO'     : 'https://cdn.simpleicons.org/oppo/ffffff',
+  'Vivo'     : 'https://cdn.simpleicons.org/vivo/ffffff',
+  'VIVO'     : 'https://cdn.simpleicons.org/vivo/ffffff',
+  'OnePlus'  : 'https://cdn.simpleicons.org/oneplus/ffffff',
+  'Realme'   : 'https://cdn.simpleicons.org/realme/ffffff',
+  'Infinix'  : 'https://cdn.simpleicons.org/infinix/ffffff',
+  'INFINIX'  : 'https://cdn.simpleicons.org/infinix/ffffff',
+  'Tecno'    : 'https://cdn.simpleicons.org/tecno/ffffff',
+  'TECNO'    : 'https://cdn.simpleicons.org/tecno/ffffff',
 };
 
 function filterPub(cat, el) {
@@ -82,7 +84,7 @@ function filterPub(cat, el) {
         'onmouseover="this.style.borderColor=\'var(--green)\'" ' +
         'onmouseout="if(!this.classList.contains(\'activa\'))this.style.borderColor=\'var(--border)\'">' +
         (logo
-          ? '<img src="' + logo + '" style="width:40px;height:40px;object-fit:contain;border-radius:8px;background:#fff;padding:4px" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">' +
+          ? '<img src="' + logo + '" style="width:40px;height:40px;object-fit:contain;border-radius:8px;background:transparent;padding:4px" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'">' +
             '<span style="display:none;font-size:22px">📱</span>'
           : '<span style="font-size:22px">📱</span>') +
         '<span style="font-size:11px;font-weight:600;color:var(--text2)">' + m + '</span></button>';
