@@ -35,11 +35,18 @@ function showAdminView() {
   document.getElementById('btn-adm').classList.add('active');
   document.getElementById('btn-pub').classList.remove('active');
   document.getElementById('hamburger').style.display = 'flex';
+
+  // Mostrar botones de admin, ocultar botón de ingresar
+  document.getElementById('btn-adm').style.display       = '';
+  document.getElementById('btn-login').style.display     = 'none';
+  document.getElementById('nav-agenda-btn').style.display = 'inline-block';
+
   loadAll().then(() => {
     renderVentas();
     renderTecnicos();
     renderInventario();
     renderDashboard();
+    loadAgenda();
   });
 }
 
@@ -49,6 +56,12 @@ function goPublic() {
   document.getElementById('btn-pub').classList.add('active');
   document.getElementById('btn-adm').classList.remove('active');
   document.getElementById('hamburger').style.display = 'none';
+
+  // Ocultar botones admin, mostrar botón ingresar
+  document.getElementById('btn-adm').style.display        = 'none';
+  document.getElementById('btn-login').style.display      = '';
+  document.getElementById('nav-agenda-btn').style.display = 'none';
+
   closeSidebar();
   renderPublic();
 }
