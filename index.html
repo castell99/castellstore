@@ -25,12 +25,16 @@
     CastellStore
   </div>
   <div class="nav-actions">
-    <button onclick="showSec('agenda',this);loadAgenda()" style="position:relative;background:none;border:none;cursor:pointer;font-size:20px;padding:4px 8px" title="Agenda">
-  📋
-  <span id="nav-ag-badge" style="display:none;position:absolute;top:0;right:0;background:#f06b6b;color:#fff;border-radius:50%;font-size:9px;font-weight:700;width:16px;height:16px;display:flex;align-items:center;justify-content:center;line-height:1">0</span>
-</button>
+    <!-- Visible solo cuando el admin está logueado -->
+    <button id="nav-agenda-btn" onclick="showSec('agenda',this);loadAgenda()" style="display:none;position:relative;background:none;border:none;cursor:pointer;font-size:20px;padding:4px 8px" title="Agenda">
+      📋
+      <span id="nav-ag-badge" style="display:none;position:absolute;top:0;right:0;background:#f06b6b;color:#fff;border-radius:50%;font-size:9px;font-weight:700;width:16px;height:16px;align-items:center;justify-content:center;line-height:1">0</span>
+    </button>
     <button class="nav-btn active" id="btn-pub" onclick="goPublic()">🛍 Catálogo</button>
-    <button class="nav-btn" id="btn-adm" onclick="goAdmin()">⚙️ Admin</button>
+    <!-- Admin logueado: muestra botón Admin normal -->
+    <button class="nav-btn" id="btn-adm" onclick="goAdmin()" style="display:none">⚙️ Admin</button>
+    <!-- No logueado: muestra botón discreto Ingresar -->
+    <button class="nav-btn" id="btn-login" onclick="goAdmin()" style="opacity:0.5;font-size:12px">🔒 Ingresar</button>
     <button class="hamburger" id="hamburger" onclick="toggleSidebar()" style="display:none">
       <span></span><span></span><span></span>
     </button>
