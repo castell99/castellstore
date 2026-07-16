@@ -119,7 +119,9 @@ function renderTecnicos() {
       '<td style="font-size:11px;color:var(--text3)">' + t.fecha + '</td>' +
       '<td><strong>' + t.cliente + '</strong></td>' +
       '<td>' + t.equipo + '</td>' +
-      '<td style="color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (t.diagnostico || '—') + '</td>' +
+      '<td style="color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (t.diagnostico || '—') +
+        (t.tipo_bloqueo ? '<div style="margin-top:3px">' + mostrarBloqueoServicio(t) + '</div>' : '') +
+      '</td>'
       '<td style="font-family:var(--mono)">' + fmt(t.costo) +
         (parseFloat(t.costo_repuestos||0) > 0 ? '<div style="font-size:10px;color:var(--text3)">Repuestos: ' + fmt(t.costo_repuestos) + '</div><div style="font-size:11px;color:var(--green);font-weight:600">Ganancia: ' + fmt(t.costo - t.costo_repuestos) + '</div>' : '') +
       '</td>' +
