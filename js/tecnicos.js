@@ -14,6 +14,7 @@ function abrirNuevoTecnico() {
   document.getElementById('t-obs').value       = '';
   document.getElementById('t-estado').value    = 'Recibido';
   window._tecFotos = { entrada: null, salida: null };
+  limpiarBloqueoForm();
   ['entrada','salida'].forEach(tipo => {
     const prev = document.getElementById('tec-prev-' + tipo);
     if (prev) { prev.src = ''; prev.style.display = 'none'; }
@@ -42,7 +43,8 @@ async function guardarTecnico() {
   const eq  = document.getElementById('t-equipo').value.trim();
   if (!cli || !eq) { toast('Completa los campos requeridos', 'err'); return; }
 
-  const payload = {
+  var bloqueo = getBloqueoPayload();
+  var payload = {
     cliente         : cli,
     equipo          : eq,
     diagnostico     : document.getElementById('t-diag').value,
@@ -50,6 +52,9 @@ async function guardarTecnico() {
     costo_repuestos : parseFloat(document.getElementById('t-repuestos').value) || 0,
     estado          : document.getElementById('t-estado').value,
     obs             : document.getElementById('t-obs').value,
+    tipo_bloqueo    : bloqueo.tipo_bloqueo,
+    clave_bloqueo   : bloqueo.clave_bloqueo,
+    patron_bloqueo  : bloqueo.patron_bloqueo,
   };
 
   setBtn('btn-st', true, 'Guardar servicio');
@@ -358,3 +363,58 @@ async function abrirGaleriaServicio(tecnicoId) {
     '</div></div>';
   modal.classList.add('open');
 }
+
+// ── Módulo de bloqueo ─────────────────────
+var _tipoBloqueo   = 'pin';
+var _patronSecuencia = [];
+var _patronDrawing   = false;
+var _patronCtx       = null;
+var _patronNodes     = [];
+
+function setTipoBloqueo(tipo) {
+  _tipoBloqueo = tipo;
+  ['pin','password','patron'].forEach(function(t) {
+    var b = document.getElementById('tbl-btn-' + t);
+    if (!b) return;
+    b.style.background  = t === tipo ? 'var(--green-bg)' : 'transparent';
+    b.style.color       = t === tipo ? 'var(--green)'    : 'var(--text2)';
+    b.style.borderColor = t === tipo ? 'var(--green-bd)' : 'var(--border)';
+    b.style.fontWeight  = t === tipo ? '600'             : '400';
+  });
+  document.getElementById('tbl-panel-clave').style.display  = tipo !== 'patron' ? 'block' : 'none';
+  document.getElementById('tbl-panel-patron').style.display = tipo === 'patron' ? 'flex'  : 'none';
+  if (tipo === 'patron') iniciarPatronTec();
+}
+
+function iniciarPatronTec() {
+  var canvas = document.getElementById('tbl-patron-canvas');
+  if (!canvas || _patronCtx) return;
+  _patronCtx = canvas.getContext('2d');
+  var size = 210, pad = 42, step = (size - pad*2) / 2;
+  _patronNodes = [];
+  for (var r = 0; r < 3; r++) {
+    for (var c = 0; c < 3; c++) {
+      _patronNodes.push({ x: pad + c*step, y: pad + r*step, idx: r*3+c });
+    }
+  }
+  dibujarPatronTec([]);
+
+  canvas.addEventListener('mousedown',  patronStart);
+  canvas.addEventListener('mousemove',  patronMove);
+  canvas.addEventListener('mouseup',    patronEnd);
+  canvas.addEventListener('touchstart', function(e){ e.preventDefault(); patronStart(e); }, {passive:false});
+  canvas.addEventListener('touchmove',  function(e){ e.preventDefault(); patronMove(e);  }, {passive:false});
+  canvas.addEventListener('touchend',   function(e){ e.preventDefault(); patronEnd();    }, {passive:false});
+}
+
+function getPatronPos(e) {
+  var canvas = document.getElementById('tbl-patron-canvas');
+  var rect   = canvas.getBoundingClientRect();
+  var scale  = 210 / rect.width;
+  var cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  var cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  return { x: cx*scale, y: cy*scale };
+}
+
+function nearPatronNode(pos) {
+  var best = null, bestD = 999;
