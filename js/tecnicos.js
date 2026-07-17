@@ -150,8 +150,39 @@ function renderTecnicos() {
         '<button class="icon-btn" onclick="delTec(' + t.id + ')" title="Eliminar">🗑</button>' +
       '</td></tr>';
   }).join('');
-}
 
+  // Vista móvil
+  var mc = document.getElementById('mobile-tecnicos');
+  if (mc) {
+    if (!tecnicos.length) { mc.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px">No hay servicios registrados</div>'; return; }
+    mc.innerHTML = tecnicos.map(function(t) {
+      var ab  = abonadoPor('tecnico', t.id);
+      var sal = saldoPendiente('tecnico', t.id, t.costo);
+      var colorSal = sal > 0 ? 'var(--amber)' : 'var(--green)';
+      var estadoColor = { 'Recibido':'muted','En diagnostico':'blue','En reparacion':'amber','Listo para entrega':'green','Entregado':'green' };
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+          '<div><div style="font-size:14px;font-weight:600">' + t.cliente + '</div>' +
+          '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + t.equipo + '</div></div>' +
+          '<span class="badge ' + (estadoColor[t.estado]||'muted') + '" style="font-size:10px;white-space:nowrap">' + t.estado + '</span>' +
+        '</div>' +
+        (t.diagnostico ? '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + t.diagnostico + '</div>' : '') +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:10px">' +
+          '<span style="font-size:12px;color:var(--text3)">Costo: <strong style="font-family:var(--mono)">' + fmt(t.costo) + '</strong></span>' +
+          '<span style="font-size:12px;color:var(--text3)">Saldo: <strong style="color:' + colorSal + ';font-family:var(--mono)">' + fmt(sal) + '</strong></span>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+          (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">Abono</button>' : '') +
+          (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
+          '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">Fotos</button>' +
+          '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">Bloqueo</button>' +
+          '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">Editar</button>' +
+          '<button class="icon-btn" onclick="delTec(' + t.id + ')">x</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+}
 function openAbonoT(id) {
   abonoTId = id;
   var t   = tecnicos.find(function(x) { return x.id === id; });
