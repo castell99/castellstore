@@ -142,11 +142,12 @@ function renderTecnicos() {
       '</select></td>' +
       '<td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
         (parseFloat(t.costo || 0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">Abono</button>' : '') +
-        (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">Paz y Salvo</button>' : '') +
-        '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')" title="Fotos">Fotos</button>' +
-        '<button class="btn sm" onclick="verBloqueo(' + t.id + ')" title="Bloqueo">Bloqueo</button>' +
-        '<button class="btn sm" onclick="editarTecnico(' + t.id + ')" title="Editar">Editar</button>' +
-        '<button class="icon-btn" onclick="delTec(' + t.id + ')" title="Eliminar">x</button>' +
+        (parseFloat(t.costo || 0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
+        (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
+        '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')" title="Fotos">📸 Fotos</button>' +
+        '<button class="btn sm" onclick="verBloqueo(' + t.id + ')" title="Bloqueo">🔒 Bloqueo</button>' +
+        '<button class="btn sm" onclick="editarTecnico(' + t.id + ')" title="Editar">✏️</button>' +
+        '<button class="icon-btn" onclick="delTec(' + t.id + ')" title="Eliminar">🗑</button>' +
       '</td></tr>';
   }).join('');
 }
