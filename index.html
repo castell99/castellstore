@@ -462,6 +462,33 @@
     </div>
     <div class="form-group"><label>Observaciones</label><input id="t-obs" placeholder="Notas adicionales..."></div>
 
+    <!-- Bloqueo del dispositivo -->
+<div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+  <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px">🔒 Bloqueo del dispositivo <span style="font-weight:400;color:var(--text3)">(opcional)</span></div>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <button type="button" id="tbl-btn-pin" onclick="setTipoBloqueo('pin')"
+      style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);cursor:pointer;font-weight:600">PIN</button>
+    <button type="button" id="tbl-btn-password" onclick="setTipoBloqueo('password')"
+      style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer">Contraseña</button>
+    <button type="button" id="tbl-btn-patron" onclick="setTipoBloqueo('patron')"
+      style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer">Patrón</button>
+  </div>
+  <div id="tbl-panel-clave" style="margin-bottom:8px">
+    <input type="password" id="t-clave-bloqueo" placeholder="Ingresa el PIN o contraseña"
+      style="letter-spacing:0.15em;font-size:15px">
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">🔐 Información confidencial — solo visible para el técnico</div>
+  </div>
+  <div id="tbl-panel-patron" style="display:none;flex-direction:column;align-items:center;gap:8px">
+    <canvas id="tbl-patron-canvas" width="210" height="210"
+      style="border-radius:12px;background:var(--bg3);cursor:crosshair;touch-action:none;border:1px solid var(--border)"></canvas>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button type="button" onclick="limpiarPatronTec()" class="btn sm">Limpiar</button>
+      <span id="tbl-patron-txt" style="font-size:12px;color:var(--text3)">Sin patrón</span>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">🔐 Información confidencial — solo visible para el técnico</div>
+  </div>
+</div>
+    
     <!-- Fotos del servicio (opcionales) -->
     <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
       <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px">📸 Fotos del servicio (opcionales)</div>
