@@ -142,7 +142,7 @@ function renderTecnicos() {
         '<button class="icon-btn" onclick="delTec(' + t.id + ')" title="Eliminar">🗑</button>' +
       '</td></tr>';
   }).join('');
-}
+}}
 
 function openAbonoT(id) {
   abonoTId  = id;
