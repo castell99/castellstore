@@ -258,3 +258,35 @@ select option { background: var(--bg3); color: var(--text); }
   .stats-grid { grid-template-columns: 1fr; }
   .prod-grid  { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── RESPONSIVE MÓVIL ── */
+@media (max-width: 600px) {
+  /* Navbar */
+  .nav { padding: 0 12px; height: 52px; }
+  .brand { font-size: 14px; gap: 6px; }
+  #nav-logo { width: 28px; height: 28px; }
+
+  /* Ocultar texto de botones nav en móvil */
+  .nav-btn { font-size: 0; padding: 7px 10px; min-width: 36px; }
+  .nav-btn::before { font-size: 16px; }
+  #btn-pub::before  { content: '🛍'; font-size: 18px; }
+  #btn-adm::before  { content: '⚙️'; font-size: 18px; }
+  #btn-login::before { content: '🔒'; font-size: 18px; }
+
+  /* Tablas → ocultar en móvil */
+  .table-wrap table { display: none; }
+
+  /* Cards móvil para servicios */
+  .mobile-cards { display: flex !important; }
+
+  /* Stats en 2 columnas */
+  .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+
+  /* Secciones con menos padding */
+  .section { padding: 14px 10px !important; }
+  .page-header { flex-wrap: wrap; gap: 8px; }
+  .page-title { font-size: 18px !important; }
+}
+
+/* Cards móvil ocultas en desktop */
+.mobile-cards { display: none; }
