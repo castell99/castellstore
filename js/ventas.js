@@ -191,8 +191,40 @@ function renderVentas() {
       </td>
     </tr>`;
   }).join('');
-}
 
+  // Vista móvil
+  var mc = document.getElementById('mobile-ventas');
+  if (mc) {
+    if (!ventas.length) { mc.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px">No hay ventas registradas</div>'; return; }
+    mc.innerHTML = ventas.map(function(v) {
+      var ab   = abonadoPor('venta', v.id);
+      var sal  = saldoPendiente('venta', v.id, v.precio);
+      var esF  = v.estado === 'Financiada' || v.cuotas > 0;
+      var pct  = Math.min(100, Math.round((ab / parseFloat(v.precio||1)) * 100));
+      var colorSal = sal > 0 ? 'var(--amber)' : 'var(--green)';
+      var estadoColor = { 'Completada':'green','Cancelada':'red','Financiada':'amber','Pendiente':'muted' };
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
+          '<div><div style="font-size:14px;font-weight:600">' + v.cliente + '</div>' +
+          '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + v.producto + '</div></div>' +
+          '<span class="badge ' + (estadoColor[v.estado]||'muted') + '" style="font-size:10px;white-space:nowrap">' + v.estado + '</span>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px">' +
+          '<span style="font-size:12px;color:var(--text3)">Total: <strong style="font-family:var(--mono)">' + fmt(v.precio) + '</strong></span>' +
+          '<span style="font-size:12px;color:var(--text3)">Saldo: <strong style="color:' + colorSal + ';font-family:var(--mono)">' + fmt(sal) + '</strong></span>' +
+        '</div>' +
+        (esF ? '<div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' : '') +
+        '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">' + v.pago + (v.cuotas > 0 ? ' · ' + v.cuotas + ' meses' : '') + ' · ' + v.fecha + '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+          '<button class="btn sm" onclick="openFinanciamiento(' + v.id + ')">' + (esF ? 'Cuotas' : 'Financiar') + '</button>' +
+          (v.estado === 'Completada' ? '<button class="btn sm" onclick="generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
+          '<button class="btn sm" onclick="editarVenta(' + v.id + ')">Editar</button>' +
+          '<button class="icon-btn" onclick="delVenta(' + v.id + ')">x</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+}
 let finVentaId = null;
 
 function openFinanciamiento(id) {
