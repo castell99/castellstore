@@ -177,7 +177,7 @@ function renderTecnicos() {
           '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">Fotos</button>' +
           '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">Bloqueo</button>' +
           '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">Editar</button>' +
-          '<button class="icon-btn" onclick="delTec(' + t.id + ')">x</button>' +
+          '<button class="icon-btn" onclick="delTec(' + t.id + ')">🗑️</button>' +
         '</div>' +
       '</div>';
     }).join('');
