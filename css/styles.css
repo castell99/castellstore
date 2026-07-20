@@ -274,7 +274,7 @@ select option { background: var(--bg3); color: var(--text); }
   #btn-login::before { content: '🔒'; font-size: 18px; }
 
   /* Tablas → ocultar en móvil */
-  .table-wrap table { display: none; }
+  .table-wrap { display: none; }
 
   /* Cards móvil para servicios */
   .mobile-cards { display: flex !important; }
