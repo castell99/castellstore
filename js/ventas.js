@@ -592,3 +592,15 @@ function renderAbonoLista(tipo, id, elId) {
     </div>`).join('')}
   </div>`;
 }
+
+function toggleModoLibre() {
+  const libre = document.getElementById('v-modo-libre').checked;
+  document.getElementById('v-prod').style.display     = libre ? 'none' : '';
+  document.getElementById('v-prod-txt').style.display = libre ? ''     : 'none';
+  document.getElementById('v-fin-prev').style.display = 'none';
+  if (libre) {
+    document.getElementById('v-prod').value = '';
+  } else {
+    document.getElementById('v-prod-txt').value = '';
+  }
+}
