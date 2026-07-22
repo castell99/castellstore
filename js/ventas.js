@@ -27,9 +27,11 @@ async function abrirNuevaVenta() {
   document.getElementById('v-imei').value    = '';
   document.getElementById('v-inicial').value = '';
   document.getElementById('v-obs').value     = '';
-  document.getElementById('v-fin-prev').style.display = 'none';
-  document.getElementById('v-prod').style.display     = '';
-  document.getElementById('v-prod-txt').style.display = 'none';
+  document.getElementById('v-fin-prev').style.display  = 'none';
+  document.getElementById('v-prod').style.display      = '';
+  document.getElementById('v-prod-txt').style.display  = 'none';
+  const modoLibreChk = document.getElementById('v-modo-libre');
+  if (modoLibreChk) modoLibreChk.checked = false;
   fillProdSel();
   openModal('modal-venta');
 }
