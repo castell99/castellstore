@@ -102,9 +102,16 @@ async function guardarVenta() {
       renderVentas();
       renderDashboard();
     } else {
-      if (!pid) { toast('Selecciona un producto', 'err'); setBtn('btn-sv', false, 'Guardar venta'); return; }
-      const eq = equiposFin.find(x => x.id == pid);
-      payload.producto = `${eq.marca} ${eq.modelo}`;
+      const modoLibre = document.getElementById('v-modo-libre')?.checked;
+      if (modoLibre) {
+        const nombreLibre = document.getElementById('v-prod-txt')?.value.trim();
+        if (!nombreLibre) { toast('Escribe el nombre del producto', 'err'); setBtn('btn-sv', false, 'Guardar venta'); return; }
+        payload.producto = nombreLibre;
+      } else {
+        if (!pid) { toast('Selecciona un producto', 'err'); setBtn('btn-sv', false, 'Guardar venta'); return; }
+        const eq = equiposFin.find(x => x.id == pid);
+        payload.producto = `${eq.marca} ${eq.modelo}`;
+      }
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
       ventas.unshift(v);
