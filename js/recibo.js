@@ -198,15 +198,17 @@ async function dibujarRecibo(datos, tipo, refId) {
     ctx.fillText(truncate(datos.diagnostico, 70), 60, y + 124);
   }
 
-  // Forma de pago (lado derecho, sin superposición)
-  ctx.fillStyle = '#8a9aa1';
-  ctx.font      = '11px Outfit, sans-serif';
-  ctx.textAlign = 'right';
-  ctx.fillText('FORMA DE PAGO', W - 60, y + 68);
-  ctx.fillStyle = '#e8f0f5';
-  ctx.font      = '13px Outfit, sans-serif';
-  ctx.fillText(datos.pago || 'Servicio técnico', W - 60, y + 88);
-  ctx.textAlign = 'left';
+ // Forma de pago — solo para ventas, no servicios técnicos
+  if (datos.tipo !== 'SERVICIO TÉCNICO') {
+    ctx.fillStyle = '#8a9aa1';
+    ctx.font      = '11px Outfit, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('FORMA DE PAGO', W - 60, y + 68);
+    ctx.fillStyle = '#e8f0f5';
+    ctx.font      = '13px Outfit, sans-serif';
+    ctx.fillText(datos.pago || '', W - 60, y + 88);
+    ctx.textAlign = 'left';
+  }
 
   // Fecha ingreso (derecha)
   ctx.fillStyle = '#8a9aa1';
