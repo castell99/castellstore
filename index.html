@@ -705,7 +705,79 @@
     </div>
   </div>
 </div>
-  
+
+<!-- ══ MODAL CONTRATO FINANCIAMIENTO ══ -->
+<div class="overlay" id="modal-contrato">
+  <div class="modal" style="max-width:620px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title">📄 Contrato de Financiamiento</div>
+      <button class="close-btn" onclick="closeModal('modal-contrato')">×</button>
+    </div>
+
+    <!-- Info del contrato -->
+    <div id="contrato-resumen" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px"></div>
+
+    <!-- Cédula del cliente -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:10px">📸 Foto de cédula del cliente</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cédula frontal *</label>
+          <label class="ef-upload-btn">
+            📷 Seleccionar foto
+            <input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="prevContratoCedula(this,'front')">
+          </label>
+          <img id="contrato-prev-front" class="ef-prev-img">
+        </div>
+        <div class="form-group">
+          <label>Cédula posterior *</label>
+          <label class="ef-upload-btn">
+            📷 Seleccionar foto
+            <input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="prevContratoCedula(this,'back')">
+          </label>
+          <img id="contrato-prev-back" class="ef-prev-img">
+        </div>
+      </div>
+    </div>
+
+    <!-- Cédula del cliente (número) -->
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Número de cédula del cliente *</label>
+      <input id="contrato-cedula" placeholder="Ej: 1234567890">
+    </div>
+
+    <!-- Firma cliente -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">✍️ Firma del cliente</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg3)">
+        <canvas id="firma-cliente-canvas" width="560" height="160"
+          style="width:100%;height:160px;cursor:crosshair;touch-action:none;display:block"></canvas>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn sm" onclick="limpiarFirma('cliente')">🗑 Limpiar firma</button>
+        <span style="font-size:11px;color:var(--text3);align-self:center">Firma con el dedo, mouse o lápiz táctil</span>
+      </div>
+    </div>
+
+    <!-- Firma vendedor -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:8px">✍️ Firma del vendedor (Carlos Castro)</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg3)">
+        <canvas id="firma-vendedor-canvas" width="560" height="160"
+          style="width:100%;height:160px;cursor:crosshair;touch-action:none;display:block"></canvas>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn sm" onclick="limpiarFirma('vendedor')">🗑 Limpiar firma</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-contrato')">Cancelar</button>
+      <button class="btn primary" id="btn-contrato" onclick="generarContrato()">📄 Generar contrato</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL FECHA PLAN CUOTAS ══ -->
 <div class="overlay" id="modal-fecha-plan">
   <div class="modal" style="max-width:400px">
