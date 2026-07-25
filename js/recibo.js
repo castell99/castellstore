@@ -199,7 +199,7 @@ async function dibujarRecibo(datos, tipo, refId) {
   }
 
  // Forma de pago — solo para ventas, no servicios técnicos
-  if (datos.tipo !== 'SERVICIO TÉCNICO') {
+  if (datos.tipo === 'VENTA') {
     ctx.fillStyle = '#8a9aa1';
     ctx.font      = '11px Outfit, sans-serif';
     ctx.textAlign = 'right';
