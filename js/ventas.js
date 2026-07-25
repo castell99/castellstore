@@ -227,7 +227,8 @@ function renderVentas() {
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
           '<button class="btn sm" onclick="openFinanciamiento(' + v.id + ')">' + (esF ? 'Cuotas' : 'Financiar') + '</button>' +
           (v.estado === 'Completada' ? '<button class="btn sm" onclick="generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
-          '<button class="btn sm" onclick="editarVenta(' + v.id + ')">Editar</button>' +
+        (esF ? '<button class="btn sm" onclick="abrirContrato(' + v.id + ')" style="background:var(--blue-bg,rgba(91,163,201,0.1));border-color:var(--blue,#5ba3c9);color:var(--blue,#5ba3c9)">📄 Contrato</button>' : '') +  
+        '<button class="btn sm" onclick="editarVenta(' + v.id + ')">Editar ✏️</button>' +
           '<button class="icon-btn" onclick="delVenta(' + v.id + ')">x</button>' +
         '</div>' +
       '</div>';
