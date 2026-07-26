@@ -244,7 +244,7 @@ async function generarContrato() {
 
 // ── Dibujar contrato en Canvas → PNG ─────
 async function dibujarContrato(datos, firmaCliImg, firmaVenImg, urlFront, urlBack) {
-  var W = 900, H = 1800;
+  var W = 816, H = 1056; // Tamaño carta en píxeles a 96dpi
   var canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   var ctx = canvas.getContext('2d');
@@ -254,7 +254,7 @@ async function dibujarContrato(datos, firmaCliImg, firmaVenImg, urlFront, urlBac
   ctx.fillRect(0, 0, W, H);
 
   // Márgenes
-  var mx = 60;
+  var mx = 55;
 
   // ── Encabezado ──
   // Franja superior
@@ -268,7 +268,7 @@ async function dibujarContrato(datos, firmaCliImg, firmaVenImg, urlFront, urlBac
   ctx.drawImage(logo, mx, 10, 80, 80);
 
   ctx.fillStyle = '#a4d65e';
-  ctx.font      = 'bold 24px Outfit, sans-serif';
+  ctx.font = 'bold 20px Outfit, sans-serif';
   ctx.fillText(VENDEDOR.negocio, mx + 90, 42);
   ctx.fillStyle = '#8a9aa1';
   ctx.font      = '13px Outfit, sans-serif';
@@ -288,10 +288,10 @@ async function dibujarContrato(datos, firmaCliImg, firmaVenImg, urlFront, urlBac
 
   // ── Título ──
   ctx.fillStyle = '#101f2b';
-  ctx.font      = 'bold 20px Outfit, sans-serif';
+  ctx.font = 'bold 16px Outfit, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('CONTRATO DE COMPRAVENTA A CRÉDITO', W/2, y);
-  ctx.font      = '13px Outfit, sans-serif';
+  ctx.font = '12px Outfit, sans-serif';
   ctx.fillStyle = '#555';
   ctx.fillText('(Persona Natural — Régimen Simplificado)', W/2, y + 22);
   ctx.textAlign = 'left';
