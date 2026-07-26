@@ -269,7 +269,7 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
   }
 
   function checkPage() {
-    if (y > 240) { doc.addPage(); y = 20; }
+    if (y > 255) { doc.addPage(); y = 20; }
   }
 
   // ── Comparecientes ──
@@ -374,7 +374,8 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
   }
 
   // ── Firmas ──
-  checkPage();
+  doc.addPage();
+  y = 20;
   doc.setDrawColor(200,200,200);
   doc.setLineWidth(0.3);
   doc.line(mx, y, W-mx, y);
