@@ -216,7 +216,7 @@ function renderTarjetaEquipo(eq) {
 
   var nombre = (eq.marca || '') + ' ' + (eq.modelo || '');
 
-  return '<div class="prod-card" style="padding:0;overflow:hidden">'
+  return '<div class="prod-card" style="padding:0;overflow:hidden">' +
     '<div style="position:relative">' +
     imgHtml +
     '<div style="position:absolute;top:8px;left:8px;z-index:10">' +
