@@ -212,14 +212,14 @@ function renderTarjetaEquipo(eq) {
   if (eq.g5) specs += '<span style="background:var(--surface2);color:var(--blue);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">📶 5G</span>';
 
   var masVendido = tags.indexOf('Más vendido') !== -1
-    ? '<div style="position:absolute;top:8px;right:8px"><span class="badge amber">⭐ Más vendido</span></div>' : '';
+    ? '<div style="position:absolute;top:8px;right:8px;z-index:10"><span class="badge amber">⭐ Más vendido</span></div>' : '';
 
   var nombre = (eq.marca || '') + ' ' + (eq.modelo || '');
 
   return '<div class="prod-card" style="padding:0;overflow:hidden">'
-    + '<div style="position:relative">'
-    + imgHtml
-    + '<div style="position:absolute;top:8px;left:8px">'
+    '<div style="position:relative">' +
+    imgHtml +
+    '<div style="position:absolute;top:8px;left:8px;z-index:10">' +
     + '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>'
     + (eq.g5 ? ' <span class="badge blue" style="font-size:10px">5G</span>' : '')
     + '</div>'
