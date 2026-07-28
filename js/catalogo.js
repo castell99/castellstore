@@ -189,16 +189,21 @@ function renderTarjetaEquipo(eq) {
 
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
-    imgHtml = '<div style="position:relative;height:200px;overflow:hidden;cursor:pointer" onclick="toggleCatImg(this)">'
-      + '<img src="' + eq.imagen1 + '" data-img1="' + eq.imagen1 + '" data-img2="' + eq.imagen2 + '" style="width:100%;height:200px;object-fit:cover" onerror="this.style.display=\'none\'">'
-      + '<div style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.6);color:#fff;font-size:10px;padding:2px 8px;border-radius:10px">1/2 ver otra</div>'
-      + '</div>';
+    imgHtml = '<div style="position:relative;height:200px;overflow:hidden" ' +
+      'onmouseenter="this.querySelector(\'.cat-img-main\').style.opacity=\'0\';this.querySelector(\'.cat-img-hover\').style.opacity=\'1\'" ' +
+      'onmouseleave="this.querySelector(\'.cat-img-main\').style.opacity=\'1\';this.querySelector(\'.cat-img-hover\').style.opacity=\'0\'">' +
+      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.35s;position:absolute;top:0;left:0;opacity:1">' +
+      '<img src="' + eq.imagen2 + '" class="cat-img-hover" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.35s;position:absolute;top:0;left:0;opacity:0">' +
+      '</div>';
   } else if (eq.imagen1) {
-    imgHtml = '<div style="height:200px;overflow:hidden">'
-      + '<img src="' + eq.imagen1 + '" style="width:100%;height:200px;object-fit:cover">'
-      + '</div>';
+    imgHtml = '<div style="height:200px;overflow:hidden;position:relative">' +
+      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.3s;position:absolute;top:0;left:0">' +
+      (eq.imagen2
+        ? '<img src="' + eq.imagen2 + '" class="cat-img-hover" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.3s;position:absolute;top:0;left:0;opacity:0">'
+        : '') +
+      '</div>';
   } else {
-    imgHtml = '<div style="height:200px;display:flex;align-items:center;justify-content:center;font-size:56px;background:var(--surface2)">📱</div>';
+    imgHtml = '<div style="height:200px;display:flex;align-items:center;justify-content:center;font-size:56px;background:var(--surface2,var(--bg3))">📱</div>';
   }
 
   var specs = '';
