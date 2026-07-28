@@ -224,15 +224,15 @@ function renderTarjetaEquipo(eq) {
     (eq.g5 ? ' <span class="badge blue" style="font-size:10px">5G</span>' : '') +
     '</div>' +
     + masVendido
-    + '</div>'
-    + '<div class="prod-body">'
-    + '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + (eq.marca || '') + '</div>'
-    + '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.modelo || '') + '</div>'
-    + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + specs + '</div>'
-    + '<div class="prod-price">' + fmt(eq.precio_contado) + '</div>'
-    + '<button class="consultar-btn" onclick="consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>'
-    + '</div>'
-    + '</div>';
+    '</div>' +
+    '<div class="prod-body">' +
+    '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + (eq.marca || '') + '</div>' +
+    '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.modelo || '') + '</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + specs + '</div>' +
+    '<div class="prod-price">' + fmt(eq.precio_contado) + '</div>' +
+    '<button class="consultar-btn" onclick="consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>' +
+    '</div>' +
+    '</div>';
 }
 
 function toggleCatImg(container) {
