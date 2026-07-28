@@ -291,3 +291,9 @@ select option { background: var(--bg3); color: var(--text); }
 
 /* Cards móvil ocultas en desktop */
 .mobile-cards { display: none; }
+
+/* En móvil no hay hover — solo muestra imagen principal */
+@media (max-width: 600px) {
+  .cat-img-hover { display: none !important; }
+  .cat-img-main  { position: relative !important; opacity: 1 !important; }
+}
