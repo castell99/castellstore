@@ -220,9 +220,9 @@ function renderTarjetaEquipo(eq) {
     '<div style="position:relative">' +
     imgHtml +
     '<div style="position:absolute;top:8px;left:8px;z-index:10">' +
-    + '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>'
-    + (eq.g5 ? ' <span class="badge blue" style="font-size:10px">5G</span>' : '')
-    + '</div>'
+    '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>' +
+    (eq.g5 ? ' <span class="badge blue" style="font-size:10px">5G</span>' : '') +
+    '</div>' +
     + masVendido
     + '</div>'
     + '<div class="prod-body">'
