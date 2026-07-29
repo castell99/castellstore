@@ -281,13 +281,16 @@ window._tecFotos = { entrada: null, salida: null };
 function prevTecFoto(input, tipo) {
   var file = input.files[0];
   if (!file) return;
-  var ext = file.name.split('.').pop().toLowerCase();
-  if (['heic','heif'].includes(ext)) { toast('Formato no soportado. Usa JPG o PNG', 'err'); input.value = ''; return; }
   window._tecFotos[tipo] = file;
   var reader = new FileReader();
   reader.onload = function(e) {
     var prev = document.getElementById('tec-prev-' + tipo);
     if (prev) { prev.src = e.target.result; prev.style.display = 'block'; }
+  };
+  reader.onerror = function() {
+    var prev = document.getElementById('tec-prev-' + tipo);
+    if (prev) { prev.style.display = 'none'; }
+    toast('Vista previa no disponible para este formato, pero se subirá correctamente', 'inf');
   };
   reader.readAsDataURL(file);
 }
