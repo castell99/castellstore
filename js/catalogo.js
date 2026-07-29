@@ -185,22 +185,16 @@ function renderTarjetaEquipo(eq) {
   try { tags = typeof eq.etiquetas === 'string' ? JSON.parse(eq.etiquetas || '[]') : (eq.etiquetas || []); } catch(e) {}
 
   var gamaColor = { 'Entrada':'green', 'Media':'blue', 'Premium':'amber' };
-  var tagColor  = { 'Economico':'green','Mas vendido':'amber','Recomendado':'blue','Premium':'muted','5G':'blue' };
 
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
-    imgHtml = '<div style="position:relative;height:200px;overflow:hidden" ' +
-      'onmouseenter="this.querySelector(\'.cat-img-main\').style.opacity=\'0\';this.querySelector(\'.cat-img-hover\').style.opacity=\'1\'" ' +
-      'onmouseleave="this.querySelector(\'.cat-img-main\').style.opacity=\'1\';this.querySelector(\'.cat-img-hover\').style.opacity=\'0\'">' +
-      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.35s;position:absolute;top:0;left:0;opacity:1">' +
-      '<img src="' + eq.imagen2 + '" class="cat-img-hover" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.35s;position:absolute;top:0;left:0;opacity:0">' +
+    imgHtml = '<div class="cat-img-wrap">' +
+      '<img src="' + eq.imagen1 + '" class="cat-img-main">' +
+      '<img src="' + eq.imagen2 + '" class="cat-img-hover">' +
       '</div>';
   } else if (eq.imagen1) {
-    imgHtml = '<div style="height:200px;overflow:hidden;position:relative">' +
-      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.3s;position:absolute;top:0;left:0">' +
-      (eq.imagen2
-        ? '<img src="' + eq.imagen2 + '" class="cat-img-hover" style="width:100%;height:200px;object-fit:cover;transition:opacity 0.3s;position:absolute;top:0;left:0;opacity:0">'
-        : '') +
+    imgHtml = '<div class="cat-img-wrap">' +
+      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="position:relative;opacity:1">' +
       '</div>';
   } else {
     imgHtml = '<div style="height:200px;display:flex;align-items:center;justify-content:center;font-size:56px;background:var(--surface2,var(--bg3))">📱</div>';
@@ -212,27 +206,29 @@ function renderTarjetaEquipo(eq) {
   if (eq.g5) specs += '<span style="background:var(--surface2);color:var(--blue);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">📶 5G</span>';
 
   var masVendido = tags.indexOf('Más vendido') !== -1
-    ? '<div style="position:absolute;top:8px;right:8px;z-index:10"><span class="badge amber">⭐ Más vendido</span></div>' : '';
+    ? '<div style="position:absolute;top:8px;right:8px;z-index:10"><span class="badge amber">⭐ Más vendido</span></div>'
+    : '';
 
-  var nombre = (eq.marca || '') + ' ' + (eq.modelo || '');
+  var precio = parseFloat(eq.precio_contado) || 0;
 
-  return '<div class="prod-card" style="padding:0;overflow:hidden">' +
-    '<div style="position:relative">' +
-    imgHtml +
-    '<div style="position:absolute;top:8px;left:8px;z-index:10">' +
-    '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>' +
-    (eq.g5 ? ' <span class="badge blue" style="font-size:10px">5G</span>' : '') +
-    '</div>' +
-    + masVendido
-    '</div>' +
-    '<div class="prod-body">' +
-    '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + (eq.marca || '') + '</div>' +
-    '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.modelo || '') + '</div>' +
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + specs + '</div>' +
-    '<div class="prod-price">' + fmt(eq.precio_contado) + '</div>' +
-    '<button class="consultar-btn" onclick="consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>' +
-    '</div>' +
-    '</div>';
+  var html = '<div class="prod-card" style="padding:0;overflow:hidden">';
+  html += '<div style="position:relative">';
+  html += imgHtml;
+  html += '<div style="position:absolute;top:8px;left:8px;z-index:10">';
+  html += '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>';
+  if (eq.g5) html += ' <span class="badge blue" style="font-size:10px">5G</span>';
+  html += '</div>';
+  html += masVendido;
+  html += '</div>';
+  html += '<div class="prod-body">';
+  html += '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + (eq.marca || '') + '</div>';
+  html += '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.modelo || '') + '</div>';
+  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + specs + '</div>';
+  html += '<div class="prod-price">' + fmt(precio) + '</div>';
+  html += '<button class="consultar-btn" onclick="consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>';
+  html += '</div>';
+  html += '</div>';
+  return html;
 }
 
 function toggleCatImg(container) {
