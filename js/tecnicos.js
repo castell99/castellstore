@@ -100,7 +100,7 @@ async function updateTecEst(id, val) {
 }
 
 async function delTec(id) {
-  if (!confirm('Eliminar este servicio? Tambien se eliminaran sus abonos.')) return;
+  if (!confirm('Eliminar este servicio?')) return;
   try {
     await sb('tecnicos', 'DELETE', null, '?id=eq.' + id);
     await sb('abonos',   'DELETE', null, '?tipo=eq.tecnico&ref_id=eq.' + id);
@@ -116,72 +116,76 @@ function renderTecnicos() {
   var tb = document.getElementById('tb-tecnicos');
   if (!tecnicos.length) {
     tb.innerHTML = '<tr class="empty-row"><td colspan="9">No hay servicios tecnicos registrados</td></tr>';
-    return;
+  } else {
+    tb.innerHTML = tecnicos.map(function(t) {
+      var ab  = abonadoPor('tecnico', t.id);
+      var sal = saldoPendiente('tecnico', t.id, t.costo);
+      var pct = parseFloat(t.costo || 0) > 0 ? Math.min(100, Math.round((ab / parseFloat(t.costo)) * 100)) : 0;
+      var bloqueoHtml = t.tipo_bloqueo ? '<div style="margin-top:3px">' + mostrarBloqueoServicio(t) + '</div>' : '';
+      return '<tr>' +
+        '<td style="font-size:11px;color:var(--text3)">' + t.fecha + '</td>' +
+        '<td><strong>' + t.cliente + '</strong></td>' +
+        '<td>' + t.equipo + '</td>' +
+        '<td style="color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (t.diagnostico || '-') + bloqueoHtml + '</td>' +
+        '<td style="font-family:var(--mono)">' + fmt(t.costo) +
+          (parseFloat(t.costo_repuestos||0) > 0 ? '<div style="font-size:10px;color:var(--text3)">Repuestos: ' + fmt(t.costo_repuestos) + '</div><div style="font-size:11px;color:var(--green);font-weight:600">Ganancia: ' + fmt(t.costo - t.costo_repuestos) + '</div>' : '') +
+        '</td>' +
+        '<td style="font-family:var(--mono);color:var(--green)">' + fmt(ab) +
+          (parseFloat(t.costo || 0) > 0 ? '<div class="progress-bar" style="width:70px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' : '') +
+        '</td>' +
+        '<td style="font-family:var(--mono);color:' + (sal > 0 ? 'var(--amber)' : 'var(--green)') + '">' + fmt(sal) + '</td>' +
+        '<td><select class="status-sel" onchange="updateTecEst(' + t.id + ', this.value)">' +
+          ['Recibido','En diagnostico','En reparacion','Listo para entrega','Entregado'].map(function(s) {
+            return '<option' + (s === t.estado ? ' selected' : '') + '>' + s + '</option>';
+          }).join('') +
+        '</select></td>' +
+        '<td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
+          (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
+          (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
+          '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">📸 Fotos</button>' +
+          '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">🔒 Bloqueo</button>' +
+          '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">✏️</button>' +
+          '<button class="icon-btn" onclick="delTec(' + t.id + ')">🗑</button>' +
+        '</td></tr>';
+    }).join('');
   }
-  tb.innerHTML = tecnicos.map(function(t) {
-    var ab  = abonadoPor('tecnico', t.id);
-    var sal = saldoPendiente('tecnico', t.id, t.costo);
-    var pct = parseFloat(t.costo || 0) > 0 ? Math.min(100, Math.round((ab / parseFloat(t.costo)) * 100)) : 0;
-    var bloqueoHtml = t.tipo_bloqueo ? '<div style="margin-top:3px">' + mostrarBloqueoServicio(t) + '</div>' : '';
-    return '<tr>' +
-      '<td style="font-size:11px;color:var(--text3)">' + t.fecha + '</td>' +
-      '<td><strong>' + t.cliente + '</strong></td>' +
-      '<td>' + t.equipo + '</td>' +
-      '<td style="color:var(--text2);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (t.diagnostico || '-') + bloqueoHtml + '</td>' +
-      '<td style="font-family:var(--mono)">' + fmt(t.costo) +
-        (parseFloat(t.costo_repuestos||0) > 0 ? '<div style="font-size:10px;color:var(--text3)">Repuestos: ' + fmt(t.costo_repuestos) + '</div><div style="font-size:11px;color:var(--green);font-weight:600">Ganancia: ' + fmt(t.costo - t.costo_repuestos) + '</div>' : '') +
-      '</td>' +
-      '<td style="font-family:var(--mono);color:var(--green)">' + fmt(ab) +
-        (parseFloat(t.costo || 0) > 0 ? '<div class="progress-bar" style="width:70px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' : '') +
-      '</td>' +
-      '<td style="font-family:var(--mono);color:' + (sal > 0 ? 'var(--amber)' : 'var(--green)') + '">' + fmt(sal) + '</td>' +
-      '<td><select class="status-sel" onchange="updateTecEst(' + t.id + ', this.value)">' +
-        ['Recibido','En diagnostico','En reparacion','Listo para entrega','Entregado'].map(function(s) {
-          return '<option' + (s === t.estado ? ' selected' : '') + '>' + s + '</option>';
-        }).join('') +
-      '</select></td>' +
-      '<td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
-        (parseFloat(t.costo || 0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
-        (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
-        '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')" title="Fotos">📸 Fotos</button>' +
-        '<button class="btn sm" onclick="verBloqueo(' + t.id + ')" title="Bloqueo">🔒 Bloqueo</button>' +
-        '<button class="btn sm" onclick="editarTecnico(' + t.id + ')" title="Editar">✏️</button>' +
-        '<button class="icon-btn" onclick="delTec(' + t.id + ')" title="Eliminar">🗑️</button>' +
-      '</td></tr>';
-  }).join('');
 
   // Vista móvil
   var mc = document.getElementById('mobile-tecnicos');
   if (mc) {
-    if (!tecnicos.length) { mc.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px">No hay servicios registrados</div>'; return; }
-    mc.innerHTML = tecnicos.map(function(t) {
-      var ab  = abonadoPor('tecnico', t.id);
-      var sal = saldoPendiente('tecnico', t.id, t.costo);
-      var colorSal = sal > 0 ? 'var(--amber)' : 'var(--green)';
-      var estadoColor = { 'Recibido':'muted','En diagnostico':'blue','En reparacion':'amber','Listo para entrega':'green','Entregado':'green' };
-      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px">' +
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
-          '<div><div style="font-size:14px;font-weight:600">' + t.cliente + '</div>' +
-          '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + t.equipo + '</div></div>' +
-          '<span class="badge ' + (estadoColor[t.estado]||'muted') + '" style="font-size:10px;white-space:nowrap">' + t.estado + '</span>' +
-        '</div>' +
-        (t.diagnostico ? '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + t.diagnostico + '</div>' : '') +
-        '<div style="display:flex;justify-content:space-between;margin-bottom:10px">' +
-          '<span style="font-size:12px;color:var(--text3)">Costo: <strong style="font-family:var(--mono)">' + fmt(t.costo) + '</strong></span>' +
-          '<span style="font-size:12px;color:var(--text3)">Saldo: <strong style="color:' + colorSal + ';font-family:var(--mono)">' + fmt(sal) + '</strong></span>' +
-        '</div>' +
-        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-          (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">Abono</button>' : '') +
-          (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
-          '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">Fotos</button>' +
-          '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">Bloqueo</button>' +
-          '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">Editar</button>' +
-          '<button class="icon-btn" onclick="delTec(' + t.id + ')">🗑️</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+    if (!tecnicos.length) {
+      mc.innerHTML = '<div style="text-align:center;color:var(--text3);padding:24px">No hay servicios registrados</div>';
+    } else {
+      mc.innerHTML = tecnicos.map(function(t) {
+        var ab  = abonadoPor('tecnico', t.id);
+        var sal = saldoPendiente('tecnico', t.id, t.costo);
+        var colorSal = sal > 0 ? 'var(--amber)' : 'var(--green)';
+        var estadoColor = { 'Recibido':'muted','En diagnostico':'blue','En reparacion':'amber','Listo para entrega':'green','Entregado':'green' };
+        return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+            '<div><div style="font-size:14px;font-weight:600">' + t.cliente + '</div>' +
+            '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + t.equipo + '</div></div>' +
+            '<span class="badge ' + (estadoColor[t.estado]||'muted') + '" style="font-size:10px;white-space:nowrap">' + t.estado + '</span>' +
+          '</div>' +
+          (t.diagnostico ? '<div style="font-size:12px;color:var(--text2);margin-bottom:8px">' + t.diagnostico + '</div>' : '') +
+          '<div style="display:flex;justify-content:space-between;margin-bottom:10px">' +
+            '<span style="font-size:12px;color:var(--text3)">Costo: <strong style="font-family:var(--mono)">' + fmt(t.costo) + '</strong></span>' +
+            '<span style="font-size:12px;color:var(--text3)">Saldo: <strong style="color:' + colorSal + ';font-family:var(--mono)">' + fmt(sal) + '</strong></span>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+            (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
+            (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 P&S</button>' : '') +
+            '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">📸</button>' +
+            '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">🔒</button>' +
+            '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">✏️</button>' +
+            '<button class="icon-btn" onclick="delTec(' + t.id + ')">🗑</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
   }
 }
+
 function openAbonoT(id) {
   abonoTId = id;
   var t   = tecnicos.find(function(x) { return x.id === id; });
@@ -219,7 +223,6 @@ async function guardarAbonoT() {
   } catch (e) { toast('Error: ' + e.message, 'err'); }
 }
 
-// ── Ver bloqueo ───────────────────────────
 function verBloqueo(id) {
   var t = tecnicos.find(function(x) { return x.id === id; });
   if (!t) return;
@@ -236,7 +239,7 @@ function verBloqueo(id) {
     setTimeout(function() {
       var canvas = document.getElementById('bloqueo-canvas-view');
       if (!canvas) return;
-      var ctx  = canvas.getContext('2d');
+      var ctx = canvas.getContext('2d');
       var size = 210, pad = 42, step = (size - pad*2) / 2;
       var nodes = [];
       for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) nodes.push({ x: pad+c*step, y: pad+r*step, idx: r*3+c });
@@ -246,27 +249,19 @@ function verBloqueo(id) {
         ctx.stroke();
       }
       nodes.forEach(function(n) {
-        var activo = seq.indexOf(n.idx) !== -1;
-        ctx.beginPath(); ctx.arc(n.x,n.y,activo?14:9,0,Math.PI*2);
-        ctx.fillStyle = activo ? 'rgba(57,255,20,0.25)' : 'rgba(150,180,200,0.2)'; ctx.fill();
-        ctx.beginPath(); ctx.arc(n.x,n.y,activo?6:4,0,Math.PI*2);
-        ctx.fillStyle = activo ? '#39ff14' : 'rgba(150,180,200,0.5)'; ctx.fill();
+        var a = seq.indexOf(n.idx) !== -1;
+        ctx.beginPath(); ctx.arc(n.x,n.y,a?14:9,0,Math.PI*2); ctx.fillStyle=a?'rgba(57,255,20,0.25)':'rgba(150,180,200,0.2)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(n.x,n.y,a?6:4,0,Math.PI*2); ctx.fillStyle=a?'#39ff14':'rgba(150,180,200,0.5)'; ctx.fill();
       });
     }, 100);
   } else {
     html = '<div style="padding:10px 0">' +
       '<p style="font-size:13px;color:var(--text2);margin-bottom:8px">Tipo: <strong>' + (t.tipo_bloqueo === 'pin' ? 'PIN' : 'Contrasena') + '</strong></p>' +
       '<div style="background:var(--bg3);border-radius:10px;padding:14px;font-size:20px;letter-spacing:.2em;text-align:center;font-family:var(--mono)">' + (t.clave_bloqueo || '(no registrada)') + '</div>' +
-      '<p style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">Informacion confidencial - solo visible para el tecnico</p></div>';
+      '</div>';
   }
-
   var modal = document.getElementById('modal-bloqueo-view');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'modal-bloqueo-view';
-    modal.className = 'overlay';
-    document.body.appendChild(modal);
-  }
+  if (!modal) { modal=document.createElement('div'); modal.id='modal-bloqueo-view'; modal.className='overlay'; document.body.appendChild(modal); }
   modal.innerHTML = '<div class="modal" style="max-width:340px">' +
     '<div class="modal-header"><div class="modal-title">Bloqueo - ' + t.cliente + '</div>' +
     '<button class="close-btn" onclick="document.getElementById(\'modal-bloqueo-view\').classList.remove(\'open\')">x</button></div>' +
@@ -289,8 +284,8 @@ function prevTecFoto(input, tipo) {
   };
   reader.onerror = function() {
     var prev = document.getElementById('tec-prev-' + tipo);
-    if (prev) { prev.style.display = 'none'; }
-    toast('Vista previa no disponible para este formato, pero se subirá correctamente', 'inf');
+    if (prev) prev.style.display = 'none';
+    toast('Vista previa no disponible, pero se subira correctamente', 'inf');
   };
   reader.readAsDataURL(file);
 }
@@ -306,8 +301,9 @@ async function subirFotoServicio(file, tipo) {
 }
 
 async function guardarFotosServicio(tecnicoId) {
-  for (var i = 0; i < ['entrada','salida'].length; i++) {
-    var tipo = ['entrada','salida'][i];
+  var tipos = ['entrada', 'salida'];
+  for (var i = 0; i < tipos.length; i++) {
+    var tipo = tipos[i];
     var file = window._tecFotos[tipo];
     if (!file) continue;
     try {
@@ -327,7 +323,7 @@ async function cargarFotosServicio(tecnicoId) {
 
 async function subirFotoProceso(tecnicoId) {
   var input = document.createElement('input');
-input.type = 'file'; input.accept = 'image/*';.
+  input.type = 'file'; input.accept = 'image/*';
   input.onchange = async function(e) {
     var file = e.target.files[0]; if (!file) return;
     try {
@@ -359,21 +355,40 @@ async function abrirGaleriaServicio(tecnicoId) {
         '<div style="padding:6px 8px;background:var(--bg3);display:flex;justify-content:space-between;align-items:center">' +
         '<div><span class="badge ' + (TIPO_COLOR[f.tipo]||'muted') + '" style="font-size:10px">' + (TIPO_LABEL[f.tipo]||f.tipo) + '</span>' +
         '<div style="font-size:10px;color:var(--text3);margin-top:2px">' + (f.fecha||'') + '</div></div>' +
-        '<button onclick="eliminarFotoServicio(' + f.id + ')" style="background:none;border:none;cursor:pointer;font-size:16px;padding:2px">x</button></div></div>';
+        '<button onclick="eliminarFotoServicio(' + f.id + ')" style="background:none;border:none;cursor:pointer;font-size:16px;padding:2px">🗑</button></div></div>';
     });
     html += '</div>';
-    if (sel.size > 0) html += '<div style="background:rgba(240,107,107,0.1);border:1px solid #f06b6b;border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#f06b6b">' + sel.size + ' foto(s) seleccionada(s)</span><button class="btn sm" onclick="eliminarFotosSeleccionadas()" style="background:#f06b6b;border-color:#f06b6b;color:#fff">Eliminar seleccionadas</button></div>';
+    if (sel.size > 0) {
+      html += '<div style="background:rgba(240,107,107,0.1);border:1px solid #f06b6b;border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="font-size:13px;color:#f06b6b">' + sel.size + ' foto(s) seleccionada(s)</span>' +
+        '<button class="btn sm" onclick="eliminarFotosSeleccionadas()" style="background:#f06b6b;border-color:#f06b6b;color:#fff">Eliminar seleccionadas</button></div>';
+    }
     return html;
   };
 
-  window.toggleSelecFoto = function(id) { if (window._galeriaSelec.has(id)) window._galeriaSelec.delete(id); else window._galeriaSelec.add(id); document.getElementById('galeria-body').innerHTML = window.renderGaleriaBody(); };
-  window.eliminarFotoServicio = async function(id) { if (!confirm('Eliminar esta foto?')) return; try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); window._galeriaFotos=window._galeriaFotos.filter(function(f){return f.id!==id;}); window._galeriaSelec.delete(id); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Foto eliminada'); } catch(e){toast('Error','err');} };
-  window.eliminarFotosSeleccionadas = async function() { if (!confirm('Eliminar '+window._galeriaSelec.size+' foto(s)?')) return; for (var id of window._galeriaSelec) { try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); } catch(_){} } var ids=window._galeriaSelec; window._galeriaFotos=window._galeriaFotos.filter(function(f){return !ids.has(f.id);}); window._galeriaSelec.clear(); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Fotos eliminadas'); };
-  window.abrirLightbox = function(url, tipo, fecha) { var lb=document.getElementById('lightbox-servicio'); if(!lb){lb=document.createElement('div');lb.id='lightbox-servicio';lb.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;cursor:zoom-out';document.body.appendChild(lb);} lb.innerHTML='<div style="position:absolute;top:16px;right:20px;color:#fff;font-size:32px;cursor:pointer;line-height:1" onclick="document.getElementById(\'lightbox-servicio\').style.display=\'none\'">x</div><img src="'+url+'" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px" onclick="event.stopPropagation()"><div style="margin-top:12px;color:#ccc;font-size:13px">'+tipo+' - '+fecha+'</div>'; lb.style.display='flex'; lb.onclick=function(e){if(e.target===lb)lb.style.display='none';}; };
+  window.toggleSelecFoto = function(id) {
+    if (window._galeriaSelec.has(id)) window._galeriaSelec.delete(id); else window._galeriaSelec.add(id);
+    document.getElementById('galeria-body').innerHTML = window.renderGaleriaBody();
+  };
+  window.eliminarFotoServicio = async function(id) {
+    if (!confirm('Eliminar esta foto?')) return;
+    try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); window._galeriaFotos=window._galeriaFotos.filter(function(f){return f.id!==id;}); window._galeriaSelec.delete(id); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Foto eliminada'); } catch(e){toast('Error','err');}
+  };
+  window.eliminarFotosSeleccionadas = async function() {
+    if (!confirm('Eliminar '+window._galeriaSelec.size+' foto(s)?')) return;
+    for (var id of window._galeriaSelec) { try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); } catch(_){} }
+    var ids=window._galeriaSelec; window._galeriaFotos=window._galeriaFotos.filter(function(f){return !ids.has(f.id);}); window._galeriaSelec.clear(); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Fotos eliminadas');
+  };
+  window.abrirLightbox = function(url, tipo, fecha) {
+    var lb=document.getElementById('lightbox-servicio');
+    if(!lb){lb=document.createElement('div');lb.id='lightbox-servicio';lb.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;cursor:zoom-out';document.body.appendChild(lb);}
+    lb.innerHTML='<div style="position:absolute;top:16px;right:20px;color:#fff;font-size:32px;cursor:pointer;line-height:1" onclick="document.getElementById(\'lightbox-servicio\').style.display=\'none\'">×</div><img src="'+url+'" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px" onclick="event.stopPropagation()"><div style="margin-top:12px;color:#ccc;font-size:13px">'+tipo+' - '+fecha+'</div>';
+    lb.style.display='flex'; lb.onclick=function(e){if(e.target===lb)lb.style.display='none';};
+  };
 
   var modal = document.getElementById('modal-galeria-servicio');
   if (!modal) { modal=document.createElement('div'); modal.id='modal-galeria-servicio'; modal.className='overlay'; document.body.appendChild(modal); }
-  modal.innerHTML = '<div class="modal" style="max-width:640px"><div class="modal-header"><div class="modal-title">Fotos - ' + (t?t.cliente:'') + ' - ' + (t?t.equipo:'') + '</div><button class="close-btn" onclick="document.getElementById(\'modal-galeria-servicio\').classList.remove(\'open\')">x</button></div><div id="galeria-body">' + window.renderGaleriaBody() + '</div><div class="modal-footer"><button class="btn" onclick="document.getElementById(\'modal-galeria-servicio\').classList.remove(\'open\')">Cerrar</button><button class="btn primary" onclick="subirFotoProceso(' + tecnicoId + ')">Agregar foto proceso</button></div></div>';
+  modal.innerHTML = '<div class="modal" style="max-width:640px"><div class="modal-header"><div class="modal-title">Fotos - ' + (t?t.cliente:'') + ' - ' + (t?t.equipo:'') + '</div><button class="close-btn" onclick="document.getElementById(\'modal-galeria-servicio\').classList.remove(\'open\')">×</button></div><div id="galeria-body">' + window.renderGaleriaBody() + '</div><div class="modal-footer"><button class="btn" onclick="document.getElementById(\'modal-galeria-servicio\').classList.remove(\'open\')">Cerrar</button><button class="btn primary" onclick="subirFotoProceso(' + tecnicoId + ')">📷 Agregar foto proceso</button></div></div>';
   modal.classList.add('open');
 }
 
@@ -450,7 +465,7 @@ function getBloqueoPayload() {
 }
 
 function limpiarBloqueoForm() {
-  _tipoBloqueo=_patronSecuencia=[];_patronCtx=null;_patronNodes=[];_tipoBloqueo='pin';
+  _tipoBloqueo='pin'; _patronSecuencia=[]; _patronCtx=null; _patronNodes=[];
   setTipoBloqueo('pin');
   var inp=document.getElementById('t-clave-bloqueo'); if(inp)inp.value='';
   var txt=document.getElementById('tbl-patron-txt'); if(txt)txt.textContent='Sin patron';
