@@ -77,21 +77,78 @@
       <h1>Tu tienda de <span>tecnología</span></h1>
       <p>Equipos, accesorios y servicios técnicos con garantía y financiamiento</p>
     </div>
-    
+
     <div class="pub-content">
-      <div class="filter-bar">
+
+      <!-- Barra superior categorías -->
+      <div class="filter-bar" style="margin-bottom:0">
         <button class="pill active" onclick="filterPub('',this)">Todos</button>
         <button class="pill" onclick="filterPub('Computador',this)">💻 Computadores</button>
         <button class="pill" onclick="filterPub('Teléfono',this)">📱 Teléfonos</button>
         <button class="pill" onclick="filterPub('Accesorio',this)">🎧 Accesorios</button>
         <button class="pill" onclick="filterPub('Servicio',this)">🔧 Servicios</button>
       </div>
-      <div id="marca-bar" style="display:none;flex-wrap:wrap;gap:8px;margin-bottom:16px">
-        <button class="pill active" onclick="filterMarca('',this)">Todas las marcas</button>
+
+      <!-- Carrusel de marcas -->
+      <div id="marca-bar" style="display:none;margin-bottom:16px"></div>
+
+      <!-- Layout principal: sidebar + grid -->
+      <div class="pub-layout">
+
+        <!-- SIDEBAR FILTROS (desktop) -->
+        <aside class="pub-sidebar" id="pub-sidebar">
+          <div class="sidebar-filter-title">Filtros</div>
+
+          <div class="filter-group">
+            <div class="filter-group-title" onclick="toggleFilterGroup(this)">Gama <span>▾</span></div>
+            <div class="filter-group-body">
+              <label class="filter-check"><input type="checkbox" value="Entrada" onchange="aplicarFiltrosCatalogo()"> Entrada</label>
+              <label class="filter-check"><input type="checkbox" value="Media" onchange="aplicarFiltrosCatalogo()"> Media</label>
+              <label class="filter-check"><input type="checkbox" value="Premium" onchange="aplicarFiltrosCatalogo()"> Premium</label>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title" onclick="toggleFilterGroup(this)">Conectividad <span>▾</span></div>
+            <div class="filter-group-body">
+              <label class="filter-check"><input type="checkbox" value="5g" onchange="aplicarFiltrosCatalogo()"> Solo 5G</label>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <div class="filter-group-title" onclick="toggleFilterGroup(this)">Ordenar por <span>▾</span></div>
+            <div class="filter-group-body">
+              <label class="filter-check"><input type="radio" name="cat-orden" value="" onchange="aplicarFiltrosCatalogo()" checked> Relevancia</label>
+              <label class="filter-check"><input type="radio" name="cat-orden" value="precio-asc" onchange="aplicarFiltrosCatalogo()"> Precio: menor a mayor</label>
+              <label class="filter-check"><input type="radio" name="cat-orden" value="precio-desc" onchange="aplicarFiltrosCatalogo()"> Precio: mayor a menor</label>
+              <label class="filter-check"><input type="radio" name="cat-orden" value="nombre" onchange="aplicarFiltrosCatalogo()"> Nombre A-Z</label>
+            </div>
+          </div>
+
+          <button class="btn sm" style="width:100%;margin-top:8px" onclick="limpiarFiltrosCatalogo()">Limpiar filtros</button>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="pub-main">
+
+          <!-- Barra superior móvil + contador + ordenar -->
+          <div class="pub-top-bar">
+            <button class="btn sm" id="btn-filtros-movil" onclick="toggleSidebarMovil()">⚙️ Filtros</button>
+            <span id="cat-contador" style="font-size:13px;color:var(--text2)">0 productos</span>
+            <select id="cat-orden-movil" onchange="aplicarFiltrosCatalogo()" style="font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text)">
+              <option value="">Ordenar por</option>
+              <option value="precio-asc">Precio: menor a mayor</option>
+              <option value="precio-desc">Precio: mayor a menor</option>
+              <option value="nombre">Nombre A-Z</option>
+            </select>
+          </div>
+
+          <div id="pub-grid" class="prod-grid cat-grid-4">
+            <div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">Cargando productos...</div>
+          </div>
+        </div>
       </div>
-      <div id="pub-grid" class="prod-grid">
-        <div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">Cargando productos...</div>
-      </div>
+
     </div>
   </div>
 </div>
