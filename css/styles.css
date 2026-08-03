@@ -304,3 +304,103 @@ select option { background: var(--bg3); color: var(--text); }
   .cat-img-hover { display:none !important; }
   .cat-img-main  { position:relative !important; opacity:1 !important; }
 }
+
+
+/* ── CATÁLOGO REDISEÑO ── */
+.pub-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Sidebar filtros */
+.pub-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: sticky;
+  top: 70px;
+}
+
+.sidebar-filter-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-group { margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+.filter-group:last-of-type { border-bottom: none; }
+
+.filter-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  user-select: none;
+}
+
+.filter-group-body { display: flex; flex-direction: column; gap: 6px; }
+.filter-group-body.collapsed { display: none; }
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text2);
+  cursor: pointer;
+}
+.filter-check input { accent-color: var(--green); cursor: pointer; }
+
+/* Contenido principal */
+.pub-main { flex: 1; min-width: 0; }
+
+/* Barra superior móvil */
+.pub-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+/* Grid 4 columnas desktop */
+.cat-grid-4 {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 16px !important;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .pub-sidebar { display: none; }
+  .cat-grid-4  { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 600px) {
+  .pub-layout  { flex-direction: column; }
+  .cat-grid-4  { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+  .pub-top-bar { justify-content: space-between; }
+}
+
+/* Sidebar móvil overlay */
+.pub-sidebar.movil-open {
+  display: block !important;
+  position: fixed;
+  top: 0; left: 0;
+  width: 280px;
+  height: 100vh;
+  z-index: 500;
+  overflow-y: auto;
+  border-radius: 0;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+}
