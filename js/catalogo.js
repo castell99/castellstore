@@ -192,13 +192,25 @@ async function aplicarFiltrosCatalogo() {
 
  var esTelefono = (!pubFilter || pubFilter === 'Teléfono' || pubFilter === 'Telefonos' || pubFilter === 'Teléfonos');
 
-  var lista = equiposCatalogo.filter(function(eq) {
-    if (!esTelefono) return false;
+  // Equipos financiados (teléfonos)
+  var listaEquipos = esTelefono ? equiposCatalogo.filter(function(eq) {
     if (marcaFiltro && eq.marca !== marcaFiltro) return false;
     if (gamas.length && gamas.indexOf(eq.gama) === -1) return false;
     if (solo5g && !eq.g5) return false;
     return true;
-  });
+  }) : [];
+
+  // Productos normales (accesorios, servicios, etc.)
+  var listaProductos = [];
+  if (typeof productos !== 'undefined') {
+    listaProductos = productos.filter(function(p) {
+      if (esTelefono) return false; // en teléfonos no mostrar productos
+      if (pubFilter && p.categoria !== pubFilter) return false;
+      return true;
+    }).map(function(p) { return renderTarjetaProducto(p); });
+  }
+
+  var lista = listaEquipos;
 
   if (orden === 'precio-asc')  lista.sort(function(a,b) { return parseFloat(a.precio_contado) - parseFloat(b.precio_contado); });
   if (orden === 'precio-desc') lista.sort(function(a,b) { return parseFloat(b.precio_contado) - parseFloat(a.precio_contado); });
