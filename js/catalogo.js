@@ -239,14 +239,17 @@ async function aplicarFiltrosCatalogo() {
 
 function renderTarjetaProducto(p) {
   var disp = p.stock > 0;
-  return '<div class="prod-card' + (!disp ? ' agotado' : '') + '">' +
-    '<div class="prod-img">' + (p.emoji || '📦') +
-    '<span class="stock-tag"><span class="badge ' + (disp ? 'green' : 'red') + '">' + (disp ? 'Disponible' : 'Agotado') + '</span></span></div>' +
-    '<div class="prod-body">' +
-    '<div class="prod-cat">' + (p.categoria || '') + '</div>' +
-    '<div class="prod-name">' + (p.nombre || '') + '</div>' +
-    '<div class="prod-price">' + fmt(parseFloat(p.precio) || 0) + '</div>' +
-    '<button class="consultar-btn" onclick="consultarEquipo(\'' + (p.nombre||'').replace(/[^a-zA-Z0-9 ]/g,'') + '\')" ' + (!disp ? 'disabled' : '') + '>' +
-    (disp ? '💬 Consultar / Comprar' : 'No disponible') + '</button>' +
-    '</div></div>';
-}
+  var imgHtml = '';
+  if (p.imagen1) {
+    imgHtml = '<div class="cat-img-wrap">' +
+      '<img src="' + p.imagen1 + '" class="cat-img-main" style="position:relative;opacity:1">' +
+      (p.imagen2 ? '<img src="' + p.imagen2 + '" class="cat-img-hover">' : '') +
+      '</div>';
+  } else {
+    imgHtml = '<div class="prod-img">' + (p.emoji || '📦') +
+      '<span class="stock-tag"><span class="badge ' + (disp ? 'green' : 'red') + '">' + (disp ? 'Disponible' : 'Agotado') + '</span></span></div>';
+  }
+  return '<div class="prod-card' + (!disp ? ' agotado' : '') + '" style="padding:0;overflow:hidden">' +
+    '<div style="position:relative">' + imgHtml +
+    (p.imagen1 ? '<div style="position:absolute;top:8px;left:8px;z-index:10"><span class="badge ' + (disp ? 'green' : 'red') + '">' + (disp ? 'Disponible' : 'Agotado') + '</span></div>' : '') +
+    '</div>' +
