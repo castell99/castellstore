@@ -12,8 +12,8 @@ async function loadCatalogo() {
 }
 
 async function renderPublic() {
-  if (!equiposCatalogo.length) await loadCatalogo();
-  
+  await loadCatalogo();
+  await aplicarFiltrosCatalogo();
   var grid = document.getElementById('pub-grid');
   if (!grid) return;
   var equipos = equiposCatalogo.filter(function(e) {
