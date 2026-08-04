@@ -14,20 +14,7 @@ async function loadCatalogo() {
 async function renderPublic() {
   await loadCatalogo();
   await aplicarFiltrosCatalogo();
-  var grid = document.getElementById('pub-grid');
-  if (!grid) return;
-  var equipos = equiposCatalogo.filter(function(e) {
-    if (marcaFiltro && e.marca !== marcaFiltro) return false;
-    return true;
-  });
-  if (!equipos.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos disponibles.</div>';
-    return;
-  }
-  grid.innerHTML = equipos.map(function(eq) { return renderTarjetaEquipo(eq); }).join('');
 }
-
-var marcaFiltro = '';
 
 const MARCA_LOGOS = {
   'Samsung'  : 'https://cdn.simpleicons.org/samsung/ffffff',
