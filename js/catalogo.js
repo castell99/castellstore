@@ -179,6 +179,10 @@ function limpiarFiltrosCatalogo() {
 async function aplicarFiltrosCatalogo() {
   if (!equiposCatalogo.length) await loadCatalogo();
 
+  if (typeof productos === 'undefined' || !productos.length) {
+    try { var pd = await sb('productos','GET',null,'?order=id.asc'); if(Array.isArray(pd)) productos=pd; } catch(e){}
+  }
+
   var gamas = Array.from(document.querySelectorAll('.filter-check input[value="Entrada"],.filter-check input[value="Media"],.filter-check input[value="Premium"]'))
     .filter(function(cb) { return cb.checked; })
     .map(function(cb) { return cb.value; });
@@ -205,7 +209,7 @@ async function aplicarFiltrosCatalogo() {
   if (typeof productos !== 'undefined') {
     listaProductos = productos.filter(function(p) {
       if (esTelefono) return false; // en teléfonos no mostrar productos
-      if (pubFilter && p.categoria !== pubFilter) return false;
+      if (pubFilter && p.categoria !== pubFilter && p.categoria !== pubFilter + 's') return false;
       return true;
     }).map(function(p) { return renderTarjetaProducto(p); });
   }
