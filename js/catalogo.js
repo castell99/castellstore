@@ -253,3 +253,69 @@ function consultarEquipo(nombre) {
 }
 
 function updPubPrice() {}
+
+// ── Filtros avanzados catálogo ────────────
+function toggleFilterGroup(el) {
+  var body = el.nextElementSibling;
+  if (body) body.classList.toggle('collapsed');
+  var span = el.querySelector('span');
+  if (span) span.textContent = body.classList.contains('collapsed') ? '▸' : '▾';
+}
+
+function toggleSidebarMovil() {
+  var sb = document.getElementById('pub-sidebar');
+  if (!sb) return;
+  sb.classList.toggle('movil-open');
+  sb.style.display = sb.classList.contains('movil-open') ? 'block' : '';
+}
+
+function limpiarFiltrosCatalogo() {
+  document.querySelectorAll('.filter-check input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+  var radios = document.querySelectorAll('input[name="cat-orden"]');
+  if (radios.length) radios[0].checked = true;
+  document.getElementById('cat-orden-movil').value = '';
+  aplicarFiltrosCatalogo();
+}
+
+async function aplicarFiltrosCatalogo() {
+  if (!equiposCatalogo.length) await loadCatalogo();
+
+  // Gamas seleccionadas
+  var gamas = Array.from(document.querySelectorAll('.filter-check input[value="Entrada"],.filter-check input[value="Media"],.filter-check input[value="Premium"]'))
+    .filter(function(cb) { return cb.checked; })
+    .map(function(cb) { return cb.value; });
+
+  // Solo 5G
+  var solo5g = document.querySelector('.filter-check input[value="5g"]')?.checked;
+
+  // Ordenar
+  var ordenDesktop = document.querySelector('input[name="cat-orden"]:checked')?.value || '';
+  var ordenMovil   = document.getElementById('cat-orden-movil')?.value || '';
+  var orden = ordenDesktop || ordenMovil;
+
+  // Filtrar
+  var lista = equiposCatalogo.filter(function(eq) {
+    if (marcaFiltro && eq.marca !== marcaFiltro) return false;
+    if (gamas.length && gamas.indexOf(eq.gama) === -1) return false;
+    if (solo5g && !eq.g5) return false;
+    return true;
+  });
+
+  // Ordenar
+  if (orden === 'precio-asc')  lista.sort(function(a,b) { return parseFloat(a.precio_contado) - parseFloat(b.precio_contado); });
+  if (orden === 'precio-desc') lista.sort(function(a,b) { return parseFloat(b.precio_contado) - parseFloat(a.precio_contado); });
+  if (orden === 'nombre')      lista.sort(function(a,b) { return (a.marca+' '+a.modelo).localeCompare(b.marca+' '+b.modelo); });
+
+  // Contador
+  var contador = document.getElementById('cat-contador');
+  if (contador) contador.textContent = lista.length + ' producto' + (lista.length !== 1 ? 's' : '');
+
+  // Render
+  var grid = document.getElementById('pub-grid');
+  if (!grid) return;
+  if (!lista.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos con estos filtros.</div>';
+    return;
+  }
+  grid.innerHTML = lista.map(function(eq) { return renderTarjetaEquipo(eq); }).join('');
+}
