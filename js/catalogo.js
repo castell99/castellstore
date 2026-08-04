@@ -163,8 +163,32 @@ function toggleFilterGroup(el) {
 function toggleSidebarMovil() {
   var sb = document.getElementById('pub-sidebar');
   if (!sb) return;
-  sb.classList.toggle('movil-open');
-  sb.style.display = sb.classList.contains('movil-open') ? 'block' : '';
+  var isOpen = sb.classList.contains('movil-open');
+  if (isOpen) {
+    sb.classList.remove('movil-open');
+    sb.style.display = '';
+    var overlay = document.getElementById('sidebar-overlay');
+    if (overlay) overlay.remove();
+  } else {
+    sb.classList.add('movil-open');
+    sb.style.display = 'block';
+    // Agregar botón cerrar dentro del sidebar
+    if (!document.getElementById('btn-cerrar-sidebar')) {
+      var btnCerrar = document.createElement('button');
+      btnCerrar.id = 'btn-cerrar-sidebar';
+      btnCerrar.className = 'btn';
+      btnCerrar.style.cssText = 'width:100%;margin-bottom:12px;justify-content:center';
+      btnCerrar.textContent = '× Cerrar filtros';
+      btnCerrar.onclick = toggleSidebarMovil;
+      sb.insertBefore(btnCerrar, sb.firstChild);
+    }
+    // Overlay oscuro para cerrar al tocar fuera
+    var overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:499;';
+    overlay.onclick = toggleSidebarMovil;
+    document.body.appendChild(overlay);
+  }
 }
 
 function limpiarFiltrosCatalogo() {
@@ -178,7 +202,9 @@ function limpiarFiltrosCatalogo() {
 
 async function aplicarFiltrosCatalogo() {
   if (!equiposCatalogo.length) await loadCatalogo();
-
+  // Cerrar sidebar móvil al aplicar filtro
+  var sb = document.getElementById('pub-sidebar');
+  if (sb && sb.classList.contains('movil-open')) toggleSidebarMovil();
   if (typeof productos === 'undefined' || !productos.length) {
     try { var pd = await sb('productos','GET',null,'?order=id.asc'); if(Array.isArray(pd)) productos=pd; } catch(e){}
   }
