@@ -190,10 +190,10 @@ async function aplicarFiltrosCatalogo() {
   var ordenMovilEl   = document.getElementById('cat-orden-movil');
   var orden = (ordenDesktopEl ? ordenDesktopEl.value : '') || (ordenMovilEl ? ordenMovilEl.value : '');
 
-  var esTelefono = (pubFilter === '' || pubFilter === 'Teléfono' || pubFilter === 'Telefonos' || pubFilter === 'Teléfonos');
+ var esTelefono = (!pubFilter || pubFilter === 'Teléfono' || pubFilter === 'Telefonos' || pubFilter === 'Teléfonos');
 
   var lista = equiposCatalogo.filter(function(eq) {
-    if (!esTelefono) return false; // equiposCatalogo solo tiene teléfonos
+    if (!esTelefono) return false;
     if (marcaFiltro && eq.marca !== marcaFiltro) return false;
     if (gamas.length && gamas.indexOf(eq.gama) === -1) return false;
     if (solo5g && !eq.g5) return false;
