@@ -225,8 +225,7 @@ async function aplicarFiltrosCatalogo() {
 
   var grid = document.getElementById('pub-grid');
   if (!grid) return;
-  console.log('DEBUG equipos:', htmlEquipos.length, 'productos:', htmlProductos.length);
-  if (!lista.length) {
+ if (!lista.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos con estos filtros.</div>';
     return;
   }
