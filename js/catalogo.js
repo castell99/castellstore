@@ -225,12 +225,9 @@ async function aplicarFiltrosCatalogo() {
 
   var grid = document.getElementById('pub-grid');
   if (!grid) return;
-  if (!lista.length) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos con estos filtros.</div>';
-    return;
-  }
+
   var htmlEquipos   = lista.map(function(eq) { return renderTarjetaEquipo(eq); });
-  var htmlProductos = listaProductos;
+  var htmlProductos = listaProductos || [];
   var todoHtml      = htmlEquipos.concat(htmlProductos);
 
   if (!todoHtml.length) {
