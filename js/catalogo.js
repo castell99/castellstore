@@ -235,3 +235,17 @@ async function aplicarFiltrosCatalogo() {
   }
   grid.innerHTML = todoHtml.join('');
 }
+
+function renderTarjetaProducto(p) {
+  var disp = p.stock > 0;
+  return '<div class="prod-card' + (!disp ? ' agotado' : '') + '">' +
+    '<div class="prod-img">' + (p.emoji || '📦') +
+    '<span class="stock-tag"><span class="badge ' + (disp ? 'green' : 'red') + '">' + (disp ? 'Disponible' : 'Agotado') + '</span></span></div>' +
+    '<div class="prod-body">' +
+    '<div class="prod-cat">' + (p.categoria || '') + '</div>' +
+    '<div class="prod-name">' + (p.nombre || '') + '</div>' +
+    '<div class="prod-price">' + fmt(parseFloat(p.precio) || 0) + '</div>' +
+    '<button class="consultar-btn" onclick="consultarEquipo(\'' + (p.nombre||'').replace(/[^a-zA-Z0-9 ]/g,'') + '\')" ' + (!disp ? 'disabled' : '') + '>' +
+    (disp ? '💬 Consultar / Comprar' : 'No disponible') + '</button>' +
+    '</div></div>';
+}
