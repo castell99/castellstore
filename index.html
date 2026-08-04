@@ -593,21 +593,48 @@
       <div class="modal-title" id="modal-prod-title">📦 Agregar Producto</div>
       <button class="close-btn" onclick="closeModal('modal-producto')">×</button>
     </div>
-    <div class="form-group"><label>Nombre del producto *</label><input id="p-nom" placeholder="Ej: Laptop Dell Inspiron 15"></div>
+    <div class="form-group"><label>Nombre del producto *</label><input id="p-nom" placeholder="Ej: Airpods Pro 2"></div>
     <div class="form-row">
       <div class="form-group"><label>Categoría</label>
         <select id="p-cat" onchange="toggleVar()">
-          <option value="Computador">💻 Computador</option><option value="Teléfono">📱 Teléfono</option>
-          <option value="Accesorio">🎧 Accesorio</option><option value="Servicio">🔧 Servicio</option>
+          <option value="Computador">💻 Computador</option>
+          <option value="Teléfono">📱 Teléfono</option>
+          <option value="Accesorio">🎧 Accesorio</option>
+          <option value="Servicio">🔧 Servicio</option>
           <option value="Otro">📦 Otro</option>
         </select>
       </div>
       <div class="form-group"><label>Emoji / Ícono</label><input id="p-emoji" placeholder="💻" maxlength="2"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Precio base (COP $) *</label><input type="number" id="p-precio" placeholder="0"></div>
-      <div class="form-group"><label>Stock disponible</label><input type="number" id="p-stock" value="1" min="0"></div>
+      <div class="form-group"><label>Precio proveedor (COP $)</label><input type="number" id="p-precio-prov" placeholder="0"></div>
+      <div class="form-group"><label>Precio venta (COP $) *</label><input type="number" id="p-precio" placeholder="0"></div>
     </div>
+    <div class="form-group"><label>Stock disponible</label><input type="number" id="p-stock" value="1" min="0"></div>
+
+    <!-- Fotos del producto -->
+    <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px">📸 Fotos del producto (opcionales)</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Foto principal</label>
+          <label class="ef-upload-btn">
+            📷 Seleccionar foto
+            <input type="file" accept="image/*" style="display:none" onchange="prevProdFoto(this,1)">
+          </label>
+          <img id="prod-prev1" class="ef-prev-img">
+        </div>
+        <div class="form-group">
+          <label>Foto secundaria</label>
+          <label class="ef-upload-btn">
+            📷 Seleccionar foto
+            <input type="file" accept="image/*" style="display:none" onchange="prevProdFoto(this,2)">
+          </label>
+          <img id="prod-prev2" class="ef-prev-img">
+        </div>
+      </div>
+    </div>
+
     <div id="sec-var" style="display:none;border-top:1px solid var(--border);padding-top:16px;margin-top:4px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div>
