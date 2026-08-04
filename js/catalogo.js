@@ -225,5 +225,13 @@ async function aplicarFiltrosCatalogo() {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos con estos filtros.</div>';
     return;
   }
-  grid.innerHTML = lista.map(function(eq) { return renderTarjetaEquipo(eq); }).join('');
+  var htmlEquipos   = lista.map(function(eq) { return renderTarjetaEquipo(eq); });
+  var htmlProductos = listaProductos;
+  var todoHtml      = htmlEquipos.concat(htmlProductos);
+
+  if (!todoHtml.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos disponibles.</div>';
+    return;
+  }
+  grid.innerHTML = todoHtml.join('');
 }
