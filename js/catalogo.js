@@ -247,9 +247,17 @@ function renderTarjetaProducto(p) {
       '</div>';
   } else {
     imgHtml = '<div class="prod-img">' + (p.emoji || '📦') +
-      '<span class="stock-tag"><span class="badge ' + (disp ? 'green' : 'red') + '">' + (disp ? 'Disponible' : 'Agotado') + '</span></span></div>';
+      '<span class="stock-tag"><span class="badge ' + (disp?'green':'red') + '">' + (disp?'Disponible':'Agotado') + '</span></span></div>';
   }
-  return '<div class="prod-card' + (!disp ? ' agotado' : '') + '" style="padding:0;overflow:hidden">' +
-    '<div style="position:relative">' + imgHtml +
-    (p.imagen1 ? '<div style="position:absolute;top:8px;left:8px;z-index:10"><span class="badge ' + (disp ? 'green' : 'red') + '">' + (disp ? 'Disponible' : 'Agotado') + '</span></div>' : '') +
-    '</div>' +
+  var html = '<div class="prod-card' + (!disp?' agotado':'') + '" style="padding:0;overflow:hidden">';
+  html += '<div style="position:relative">' + imgHtml;
+  if (p.imagen1) html += '<div style="position:absolute;top:8px;left:8px;z-index:10"><span class="badge ' + (disp?'green':'red') + '">' + (disp?'Disponible':'Agotado') + '</span></div>';
+  html += '</div>';
+  html += '<div class="prod-body">';
+  html += '<div class="prod-cat">' + (p.categoria || '') + '</div>';
+  html += '<div class="prod-name">' + (p.nombre || '') + '</div>';
+  html += '<div class="prod-price">' + fmt(parseFloat(p.precio) || 0) + '</div>';
+  html += '<button class="consultar-btn" onclick="consultarEquipo(\'' + (p.nombre||'').replace(/[^a-zA-Z0-9 ]/g,'') + '\')" ' + (!disp?'disabled':'') + '>' + (disp?'💬 Consultar / Comprar':'No disponible') + '</button>';
+  html += '</div></div>';
+  return html;
+}
