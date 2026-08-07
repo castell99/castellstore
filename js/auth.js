@@ -51,6 +51,13 @@ function showAdminView() {
 }
 
 function goPublic() {
+  // Cerrar login overlay si está abierto
+  var loginOverlay = document.getElementById('login-overlay');
+  if (loginOverlay) loginOverlay.style.display = 'none';
+  
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  
+function goPublic() {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-public').classList.add('active');
   document.getElementById('btn-pub').classList.add('active');
