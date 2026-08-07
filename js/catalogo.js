@@ -243,8 +243,25 @@ async function aplicarFiltrosCatalogo() {
   var lista = listaEquipos;
 
   if (orden === 'precio-asc')  lista.sort(function(a,b) { return parseFloat(a.precio_contado) - parseFloat(b.precio_contado); });
-  if (orden === 'precio-desc') lista.sort(function(a,b) { return parseFloat(b.precio_contado) - parseFloat(a.precio_contado); });
-  if (orden === 'nombre')      lista.sort(function(a,b) { return (a.marca+' '+a.modelo).localeCompare(b.marca+' '+b.modelo); });
+  else if (orden === 'precio-desc') lista.sort(function(a,b) { return parseFloat(b.precio_contado) - parseFloat(a.precio_contado); });
+  else if (orden === 'nombre') lista.sort(function(a,b) { return (a.marca+' '+a.modelo).localeCompare(b.marca+' '+b.modelo); });
+  else {
+    // Orden inteligente por defecto: Destacados primero, luego recientes
+    var peso = function(eq) {
+      var tags = [];
+      try { tags = typeof eq.etiquetas === 'string' ? JSON.parse(eq.etiquetas||'[]') : (eq.etiquetas||[]); } catch(e) {}
+      var p = 0;
+      if (tags.indexOf('Más vendido') !== -1)  p += 100;
+      if (tags.indexOf('Recomendado') !== -1)   p += 80;
+      if (tags.indexOf('Premium') !== -1)       p += 60;
+      if (eq.gama === 'Premium')                p += 40;
+      if (eq.gama === 'Media')                  p += 20;
+      if (eq.imagen1)                           p += 30; // tiene foto
+      if (eq.g5)                                p += 10;
+      return p;
+    };
+    lista.sort(function(a,b) { return peso(b) - peso(a); });
+  }
 
   var contador = document.getElementById('cat-contador');
   if (contador) contador.textContent = lista.length + ' producto' + (lista.length !== 1 ? 's' : '');
