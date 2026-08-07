@@ -99,7 +99,8 @@ function renderCaja() {
 
   const ingresos = movsFiltrados.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + parseFloat(m.monto || 0), 0);
   const egresos  = movsFiltrados.filter(m => m.tipo === 'egreso').reduce((s, m) => s + parseFloat(m.monto || 0), 0);
-  const saldo    = ingresos - egresos;
+  const capitalVentasTotal = (typeof ventas !== 'undefined') ? ventas.reduce(function(s,v){ return s + (parseFloat(v.costo_proveedor)||0); }, 0) : 0;
+  const saldo = ingresos - egresos - capitalVentasTotal;
 
   const el = id => document.getElementById(id);
   if (el('caja-saldo'))    el('caja-saldo').textContent    = fmt(saldo);
