@@ -212,7 +212,10 @@ async function guardarAbonoT() {
   try {
     var res = await sb('abonos', 'POST', { tipo: 'tecnico', ref_id: abonoTId, monto: monto, obs: obs, fecha: today() });
     abonos.push(res[0]);
-    await registrarMovCajaAuto('ingreso', 'Abono servicio #' + abonoTId + (obs ? ' - ' + obs : ''), monto, 'tecnico', abonoTId);
+    var tec = tecnicos.find(function(x) { return x.id === abonoTId; });
+    var descTec = tec ? tec.cliente + ' · ' + tec.equipo : '#' + abonoTId;
+    await registrarMovCajaAuto('ingreso', 'Abono servicio — ' + descTec + (obs ? ' · ' + obs : ''), monto, 'tecnico', abonoTId);
+    
     document.getElementById('at-monto').value = '';
     document.getElementById('at-obs').value   = '';
     openAbonoT(abonoTId);
