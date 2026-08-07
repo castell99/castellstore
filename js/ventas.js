@@ -366,8 +366,10 @@ async function registrarAbonoLibre() {
     // Registrar abono
     const [a] = await sb('abonos', 'POST', { tipo: 'venta', ref_id: finVentaId, monto, obs, fecha: today() });
     abonos.push(a);
-    await registrarMovCajaAuto('ingreso', `Abono venta #${finVentaId}${obs ? ' — ' + obs : ''}`, monto, 'venta', finVentaId);
-
+    const vAbono = ventas.find(x => x.id === finVentaId);
+      const descVenta = vAbono ? vAbono.cliente + ' · ' + vAbono.producto : '#' + finVentaId;
+      await registrarMovCajaAuto('ingreso', `Abono venta — ${descVenta}${obs ? ' · ' + obs : ''}`, monto, 'venta', finVentaId);
+    
     // Aplicar abono a cuotas pendientes
     const misCuotas = cuotas.filter(c => c.venta_id === finVentaId && c.estado !== 'Pagada').sort((a, b) => a.numero - b.numero);
     let restante = monto;
