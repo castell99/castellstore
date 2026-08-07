@@ -1,15 +1,14 @@
 // ═══════════════════════════════════════════
 //  auth.js — Autenticación y navegación
 // ═══════════════════════════════════════════
-
 function goAdmin() {
   if (isAdmin) { showAdminView(); return; }
   document.getElementById('login-overlay').style.display = 'flex';
 }
 
 function doLogin() {
-  const u = document.getElementById('l-user').value.trim();
-  const p = document.getElementById('l-pass').value;
+  const u   = document.getElementById('l-user').value.trim();
+  const p   = document.getElementById('l-pass').value;
   const err = document.getElementById('login-error');
   if (u === ADMIN_USER && p === ADMIN_PASS) {
     isAdmin = true;
@@ -35,12 +34,9 @@ function showAdminView() {
   document.getElementById('btn-adm').classList.add('active');
   document.getElementById('btn-pub').classList.remove('active');
   document.getElementById('hamburger').style.display = 'flex';
-
-  // Mostrar botones de admin, ocultar botón de ingresar
-  document.getElementById('btn-adm').style.display       = '';
-  document.getElementById('btn-login').style.display     = 'none';
+  document.getElementById('btn-adm').style.display        = '';
+  document.getElementById('btn-login').style.display      = 'none';
   document.getElementById('nav-agenda-btn').style.display = 'inline-block';
-
   loadAll().then(() => {
     renderVentas();
     renderTecnicos();
@@ -51,24 +47,16 @@ function showAdminView() {
 }
 
 function goPublic() {
-  // Cerrar login overlay si está abierto
   var loginOverlay = document.getElementById('login-overlay');
   if (loginOverlay) loginOverlay.style.display = 'none';
-  
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  
-function goPublic() {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-public').classList.add('active');
   document.getElementById('btn-pub').classList.add('active');
   document.getElementById('btn-adm').classList.remove('active');
   document.getElementById('hamburger').style.display = 'none';
-
-  // Ocultar botones admin, mostrar botón ingresar
   document.getElementById('btn-adm').style.display        = 'none';
   document.getElementById('btn-login').style.display      = '';
   document.getElementById('nav-agenda-btn').style.display = 'none';
-
   closeSidebar();
   renderPublic();
 }
@@ -87,8 +75,8 @@ function showSec(s, el) {
   document.getElementById('sec-' + s).classList.add('active');
   if (el) el.classList.add('active');
   closeSidebar();
-  if (s === 'ventas')        renderVentas();
-  if (s === 'tecnicos')      renderTecnicos();
-  if (s === 'inventario')    renderInventario();
-  if (s === 'dashboard')     renderDashboard();
+  if (s === 'ventas')     renderVentas();
+  if (s === 'tecnicos')   renderTecnicos();
+  if (s === 'inventario') renderInventario();
+  if (s === 'dashboard')  renderDashboard();
 }
