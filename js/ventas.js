@@ -126,7 +126,8 @@ async function guardarVenta() {
         abonos.push(a);
       }
 
-      const montoCaja = metodoPago === 'Financiado' ? inicialVal : precioFinal;
+      // Contado: entra precio contado. Financiado: entra solo la inicial
+      const montoCaja = metodoPago === 'Financiado' ? inicialVal : (parseFloat(document.getElementById('v-precio').value) || 0);
       if (montoCaja > 0) {
         await registrarMovCajaAuto('ingreso', `Venta: ${payload.producto} — ${cli}`, montoCaja, 'venta', v.id);
       }
