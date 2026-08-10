@@ -89,6 +89,7 @@ async function guardarVenta() {
     telefono_cliente : document.getElementById('v-tel')?.value.trim() || '',
     color            : document.getElementById('v-color')?.value.trim() || '',
     imei             : document.getElementById('v-imei')?.value.trim() || '',
+    imei2            : document.getElementById('v-imei2')?.value.trim() || '',
     inicial_pagada   : parseFloat(document.getElementById('v-inicial')?.value) || 0,
     observaciones    : document.getElementById('v-obs')?.value.trim() || '',
   };
