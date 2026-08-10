@@ -122,7 +122,7 @@ function renderTecnicos() {
       var sal = saldoPendiente('tecnico', t.id, t.costo);
       var pct = parseFloat(t.costo || 0) > 0 ? Math.min(100, Math.round((ab / parseFloat(t.costo)) * 100)) : 0;
       var bloqueoHtml = t.tipo_bloqueo ? '<div style="margin-top:3px">' + mostrarBloqueoServicio(t) + '</div>' : '';
-      return '<tr>' +
+      return '<tr onclick="toggleDetalleTecnico(' + t.id + ')" style="cursor:pointer">' +
         '<td style="font-size:11px;color:var(--text3)">' + t.fecha + '</td>' +
         '<td><strong>' + t.cliente + '</strong></td>' +
         '<td>' + t.equipo + '</td>' +
@@ -161,7 +161,7 @@ function renderTecnicos() {
         var sal = saldoPendiente('tecnico', t.id, t.costo);
         var colorSal = sal > 0 ? 'var(--amber)' : 'var(--green)';
         var estadoColor = { 'Recibido':'muted','En diagnostico':'blue','En reparacion':'amber','Listo para entrega':'green','Entregado':'green' };
-        return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px">' +
+       return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer" onclick="toggleDetalleTecnico(' + t.id + ')">' +
           '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
             '<div><div style="font-size:14px;font-weight:600">' + t.cliente + '</div>' +
             '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + t.equipo + '</div></div>' +
@@ -172,7 +172,7 @@ function renderTecnicos() {
             '<span style="font-size:12px;color:var(--text3)">Costo: <strong style="font-family:var(--mono)">' + fmt(t.costo) + '</strong></span>' +
             '<span style="font-size:12px;color:var(--text3)">Saldo: <strong style="color:' + colorSal + ';font-family:var(--mono)">' + fmt(sal) + '</strong></span>' +
           '</div>' +
-          '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">' +
             (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
             (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 P&S</button>' : '') +
             '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">📸</button>' +
