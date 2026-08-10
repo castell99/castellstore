@@ -479,3 +479,62 @@ function mostrarBloqueoServicio(t) {
   if (t.tipo_bloqueo==='patron') { var seq=[]; try{seq=JSON.parse(t.patron_bloqueo||'[]');}catch(e){} return '<div style="font-size:12px;color:var(--text2)">Bloqueo: Patron de '+seq.length+' puntos</div>'; }
   return '<div style="font-size:12px;color:var(--text2)">Bloqueo: '+(t.tipo_bloqueo==='pin'?'PIN':'Contrasena')+(t.clave_bloqueo?' registrada':' no registrada')+'</div>';
 }
+
+function toggleDetalleTecnico(id) {
+  var t   = tecnicos.find(function(x) { return x.id === id; });
+  if (!t) return;
+  var ab  = abonadoPor('tecnico', t.id);
+  var sal = saldoPendiente('tecnico', t.id, t.costo);
+  var pct = parseFloat(t.costo||0) > 0 ? Math.min(100, Math.round((ab / parseFloat(t.costo)) * 100)) : 0;
+  var estadoColor = { 'Recibido':'muted','En diagnostico':'blue','En reparacion':'amber','Listo para entrega':'green','Entregado':'green' };
+
+  document.getElementById('detalle-tecnico-title').textContent = '🔧 ' + t.cliente + ' — ' + t.equipo;
+
+  document.getElementById('detalle-tecnico-body').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+      '<div style="background:var(--bg3);border-radius:10px;padding:12px">' +
+        '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Cliente</div>' +
+        '<div style="font-size:14px;font-weight:600">' + t.cliente + '</div>' +
+      '</div>' +
+      '<div style="background:var(--bg3);border-radius:10px;padding:12px">' +
+        '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Estado</div>' +
+        '<span class="badge ' + (estadoColor[t.estado]||'muted') + '">' + t.estado + '</span>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:4px">' + t.fecha + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Equipo</div>' +
+      '<div style="font-size:15px;font-weight:600">' + t.equipo + '</div>' +
+      (t.diagnostico ? '<div style="font-size:12px;color:var(--text2);margin-top:4px">🔍 ' + t.diagnostico + '</div>' : '') +
+      (t.tipo_bloqueo ? '<div style="font-size:12px;color:var(--text2);margin-top:4px">' + mostrarBloqueoServicio(t) + '</div>' : '') +
+    '</div>' +
+
+    '<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:12px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Costos</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">' +
+        '<div><div style="font-size:10px;color:var(--text3)">Costo</div><div style="font-family:var(--mono);font-weight:700;font-size:14px">' + fmt(t.costo) + '</div></div>' +
+        '<div><div style="font-size:10px;color:var(--text3)">Abonado</div><div style="font-family:var(--mono);font-weight:700;font-size:14px;color:var(--green)">' + fmt(ab) + '</div></div>' +
+        '<div><div style="font-size:10px;color:var(--text3)">Saldo</div><div style="font-family:var(--mono);font-weight:700;font-size:14px;color:' + (sal > 0 ? 'var(--amber)' : 'var(--green)') + '">' + fmt(sal) + '</div></div>' +
+      '</div>' +
+      (parseFloat(t.costo||0) > 0 ? '<div class="progress-bar" style="margin-top:10px"><div class="progress-fill" style="width:' + pct + '%"></div></div><div style="font-size:11px;color:var(--text2);margin-top:4px;text-align:center">' + pct + '% pagado</div>' : '') +
+      (parseFloat(t.costo_repuestos||0) > 0 ? '<div style="font-size:12px;color:var(--text3);margin-top:8px;text-align:center">Repuestos: <strong>' + fmt(t.costo_repuestos) + '</strong> · Ganancia: <strong style="color:var(--green)">' + fmt(t.costo - t.costo_repuestos) + '</strong></div>' : '') +
+    '</div>' +
+
+    (t.obs ? '<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Observaciones</div><div style="font-size:13px">' + t.obs + '</div></div>' : '') +
+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      (parseFloat(t.costo||0) > 0 ? '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
+      (t.estado === 'Entregado' ? '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');abrirGaleriaServicio(' + t.id + ')">📸 Fotos</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');verBloqueo(' + t.id + ')">🔒 Bloqueo</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');editarTecnico(' + t.id + ')">✏️ Editar</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');delTec(' + t.id + ')" style="background:rgba(240,107,107,0.1);border-color:#f06b6b;color:#f06b6b">🗑 Eliminar</button>' +
+    '</div>';
+
+  openModal('modal-detalle-tecnico');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal('modal-detalle-tecnico');
+});
