@@ -25,6 +25,7 @@ async function abrirNuevaVenta() {
   document.getElementById('v-tel').value     = '';
   document.getElementById('v-color').value   = '';
   document.getElementById('v-imei').value    = '';
+  document.getElementById('v-imei2').value   = '';
   document.getElementById('v-inicial').value = '';
   document.getElementById('v-obs').value     = '';
   document.getElementById('v-fin-prev').style.display  = 'none';
@@ -53,6 +54,7 @@ function editarVenta(id) {
   document.getElementById('v-tel').value     = v.telefono_cliente || '';
   document.getElementById('v-color').value   = v.color || '';
   document.getElementById('v-imei').value    = v.imei || '';
+  document.getElementById('v-imei2').value   = v.imei2 || '';
   document.getElementById('v-inicial').value = v.inicial_pagada || '';
   document.getElementById('v-obs').value     = v.observaciones || '';
   document.getElementById('v-fin-prev').style.display = 'none';
