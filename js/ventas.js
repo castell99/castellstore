@@ -215,7 +215,7 @@ function renderVentas() {
       var pct  = Math.min(100, Math.round((ab / parseFloat(v.precio||1)) * 100));
       var colorSal = sal > 0 ? 'var(--amber)' : 'var(--green)';
       var estadoColor = { 'Completada':'green','Cancelada':'red','Financiada':'amber','Pendiente':'muted' };
-      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px">' +
+      return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer" onclick="toggleDetalleVenta(' + v.id + ')">' +
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
           '<div><div style="font-size:14px;font-weight:600">' + v.cliente + '</div>' +
           '<div style="font-size:12px;color:var(--text2);margin-top:2px">' + v.producto + '</div></div>' +
