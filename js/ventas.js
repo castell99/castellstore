@@ -201,18 +201,6 @@ function renderVentas() {
         <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
       </td>
     </tr>
-    <tr id="detalle-venta-${v.id}" style="display:none">
-      <td colspan="9" style="padding:0;background:var(--bg3)">
-        <div style="padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;border-bottom:1px solid var(--border)">
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Teléfono</div><div style="font-size:13px;margin-top:2px">${v.telefono_cliente || '—'}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Color</div><div style="font-size:13px;margin-top:2px">${v.color || '—'}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">IMEI</div><div style="font-size:13px;margin-top:2px">${v.imei || '—'}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Inicial pagada</div><div style="font-size:13px;margin-top:2px;font-family:var(--mono)">${fmt(v.inicial_pagada || 0)}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Costo proveedor</div><div style="font-size:13px;margin-top:2px;font-family:var(--mono)">${fmt(v.costo_proveedor || 0)}</div></div>
-          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Ganancia</div><div style="font-size:13px;margin-top:2px;font-family:var(--mono);color:var(--green)">${fmt(v.ganancia || 0)}</div></div>
-          ${v.observaciones ? `<div style="grid-column:1/-1"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Observaciones</div><div style="font-size:13px;margin-top:2px">${v.observaciones}</div></div>` : ''}
-        </div>
-      </td>
     </tr>`;
   }).join('');
 
@@ -633,8 +621,61 @@ function toggleModoLibre() {
 }
 
 function toggleDetalleVenta(id) {
-  var fila = document.getElementById('detalle-venta-' + id);
-  if (!fila) return;
-  var visible = fila.style.display !== 'none';
-  fila.style.display = visible ? 'none' : 'table-row';
+  var v   = ventas.find(function(x) { return x.id === id; });
+  if (!v) return;
+  var ab  = abonadoPor('venta', v.id);
+  var sal = saldoPendiente('venta', v.id, v.precio);
+  var pct = Math.min(100, Math.round((ab / parseFloat(v.precio || 1)) * 100));
+  var esF = v.estado === 'Financiada' || v.cuotas > 0;
+  var estadoColor = { 'Completada':'green','Cancelada':'red','Financiada':'amber','Pendiente':'muted' };
+
+  document.getElementById('detalle-venta-title').textContent = '📋 ' + v.cliente + ' — ' + v.producto;
+
+  document.getElementById('detalle-venta-body').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+      '<div style="background:var(--bg3);border-radius:10px;padding:12px">' +
+        '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Cliente</div>' +
+        '<div style="font-size:14px;font-weight:600">' + v.cliente + '</div>' +
+        (v.telefono_cliente ? '<div style="font-size:12px;color:var(--text2);margin-top:2px">📞 ' + v.telefono_cliente + '</div>' : '') +
+      '</div>' +
+      '<div style="background:var(--bg3);border-radius:10px;padding:12px">' +
+        '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Estado</div>' +
+        '<span class="badge ' + (estadoColor[v.estado]||'muted') + '">' + v.estado + '</span>' +
+        '<div style="font-size:11px;color:var(--text3);margin-top:4px">' + v.fecha + '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px">' +
+      '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Equipo</div>' +
+      '<div style="font-size:15px;font-weight:600;margin-bottom:4px">' + v.producto + '</div>' +
+      '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2)">' +
+        (v.color ? '<span>🎨 ' + v.color + '</span>' : '') +
+        (v.imei  ? '<span>📟 IMEI: ' + v.imei + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+
+    '<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:12px;margin-bottom:12px">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+        '<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Financiamiento</div>' +
+        '<span class="badge blue">' + v.pago + (v.cuotas > 0 ? ' · ' + v.cuotas + 'm' : '') + '</span>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">' +
+        '<div><div style="font-size:10px;color:var(--text3)">Total</div><div style="font-family:var(--mono);font-weight:700;font-size:14px">' + fmt(v.precio) + '</div></div>' +
+        '<div><div style="font-size:10px;color:var(--text3)">Abonado</div><div style="font-family:var(--mono);font-weight:700;font-size:14px;color:var(--green)">' + fmt(ab) + '</div></div>' +
+        '<div><div style="font-size:10px;color:var(--text3)">Saldo</div><div style="font-family:var(--mono);font-weight:700;font-size:14px;color:' + (sal > 0 ? 'var(--amber)' : 'var(--green)') + '">' + fmt(sal) + '</div></div>' +
+      '</div>' +
+      (esF ? '<div class="progress-bar" style="margin-top:10px"><div class="progress-fill" style="width:' + pct + '%"></div></div><div style="font-size:11px;color:var(--text2);margin-top:4px;text-align:center">' + pct + '% pagado</div>' : '') +
+    '</div>' +
+
+    (v.observaciones ? '<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Observaciones</div><div style="font-size:13px">' + v.observaciones + '</div></div>' : '') +
+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+      (esF ? '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');openFinanciamiento(' + v.id + ')">📋 Cuotas</button>' : '') +
+      (v.estado === 'Completada' ? '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
+      (esF ? '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');abrirContrato(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Contrato</button>' : '') +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');editarVenta(' + v.id + ')">✏️ Editar</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');delVenta(' + v.id + ')" style="background:rgba(240,107,107,0.1);border-color:#f06b6b;color:#f06b6b">🗑 Eliminar</button>' +
+    '</div>';
+
+  openModal('modal-detalle-venta');
 }
