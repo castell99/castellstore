@@ -660,6 +660,7 @@ function toggleDetalleVenta(id) {
       '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--text2)">' +
         (v.color ? '<span>🎨 ' + v.color + '</span>' : '') +
         (v.imei  ? '<span>📟 IMEI: ' + v.imei + '</span>' : '') +
+        (v.imei2 ? '<span>📟 IMEI 2: ' + v.imei2 + '</span>' : '') +
       '</div>' +
     '</div>' +
 
