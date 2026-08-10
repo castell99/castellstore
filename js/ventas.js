@@ -174,7 +174,7 @@ function renderVentas() {
     const pct  = Math.min(100, Math.round((ab / parseFloat(v.precio || 1)) * 100));
     const esF  = v.estado === 'Financiada' || v.cuotas > 0;
     const venc = cuotas.filter(c => c.venta_id === v.id && c.estado === 'Vencida').length;
-    return `<tr>
+    return `<tr onclick="toggleDetalleVenta(${v.id}, this)" style="cursor:pointer">
       <td style="font-size:11px;color:var(--text3)">${v.fecha}</td>
       <td><strong>${v.cliente}</strong></td>
       <td style="color:var(--text2)">${v.producto}</td>
