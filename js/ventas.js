@@ -679,3 +679,7 @@ function toggleDetalleVenta(id) {
 
   openModal('modal-detalle-venta');
 }
+// para salir usando escape esc
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal('modal-detalle-venta');
+});
