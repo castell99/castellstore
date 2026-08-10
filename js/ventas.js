@@ -175,6 +175,7 @@ function renderVentas() {
     const esF  = v.estado === 'Financiada' || v.cuotas > 0;
     const venc = cuotas.filter(c => c.venta_id === v.id && c.estado === 'Vencida').length;
     return `<tr onclick="toggleDetalleVenta(${v.id}, this)" style="cursor:pointer">
+      return `<tr onclick="toggleDetalleVenta(${v.id})" style="cursor:pointer">
       <td style="font-size:11px;color:var(--text3)">${v.fecha}</td>
       <td><strong>${v.cliente}</strong></td>
       <td style="color:var(--text2)">${v.producto}</td>
@@ -199,6 +200,19 @@ function renderVentas() {
           ${esF ? `<button class="btn sm" onclick="abrirContrato(${v.id})" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Contrato</button>` : ''}
         <button class="btn sm" onclick="editarVenta(${v.id})">✏️</button>
         <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
+      </td>
+    </tr>
+    <tr id="detalle-venta-${v.id}" style="display:none">
+      <td colspan="9" style="padding:0;background:var(--bg3)">
+        <div style="padding:14px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;border-bottom:1px solid var(--border)">
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Teléfono</div><div style="font-size:13px;margin-top:2px">${v.telefono_cliente || '—'}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Color</div><div style="font-size:13px;margin-top:2px">${v.color || '—'}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">IMEI</div><div style="font-size:13px;margin-top:2px">${v.imei || '—'}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Inicial pagada</div><div style="font-size:13px;margin-top:2px;font-family:var(--mono)">${fmt(v.inicial_pagada || 0)}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Costo proveedor</div><div style="font-size:13px;margin-top:2px;font-family:var(--mono)">${fmt(v.costo_proveedor || 0)}</div></div>
+          <div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Ganancia</div><div style="font-size:13px;margin-top:2px;font-family:var(--mono);color:var(--green)">${fmt(v.ganancia || 0)}</div></div>
+          ${v.observaciones ? `<div style="grid-column:1/-1"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px">Observaciones</div><div style="font-size:13px;margin-top:2px">${v.observaciones}</div></div>` : ''}
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -617,4 +631,11 @@ function toggleModoLibre() {
   } else {
     document.getElementById('v-prod-txt').value = '';
   }
+}
+
+function toggleDetalleVenta(id) {
+  var fila = document.getElementById('detalle-venta-' + id);
+  if (!fila) return;
+  var visible = fila.style.display !== 'none';
+  fila.style.display = visible ? 'none' : 'table-row';
 }
