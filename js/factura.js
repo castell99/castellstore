@@ -427,7 +427,7 @@ async function construirPazSalvoPDF(ventaId, tamano) {
   doc.rect(mx,y,cw,isSmall?5:6,'F');
   doc.setTextColor(255,255,255); bold(fs);
   doc.text('FECHA', mx+2, y+(isSmall?3.5:4.5));
-  doc.text('CONCEPTO', mx+30, y+(isSmall?3.5:4.5));
+  doc.text('CONCEPTO', mx+40, y+(isSmall?3.5:4.5));
   doc.text('MONTO', W-mx-2, y+(isSmall?3.5:4.5),{align:'right'});
   doc.setTextColor(0,0,0); y+=isSmall?6:7;
 
@@ -435,8 +435,10 @@ async function construirPazSalvoPDF(ventaId, tamano) {
   misAbonos.forEach(function(a){
     chk(6);
     doc.text(a.fecha||'', mx+2, y);
-    doc.text(a.obs||'Abono', mx+30, y);
+    var obsLines = doc.splitTextToSize(a.obs||'Abono', cw-60);
+    doc.text(obsLines, mx+40, y);
     doc.text(fmt(a.monto), W-mx-2, y,{align:'right'});
+    y += (obsLines.length-1)*4;
     y+=5;
   });
   ln(y); y+=2;
