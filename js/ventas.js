@@ -199,6 +199,7 @@ function renderVentas() {
               📄 Paz y Salvo
             </button>`
           : ''}
+          <button class="btn sm" onclick="generarFacturaVenta(${v.id})" style="background:rgba(0,0,0,0.1);border-color:#333;color:var(--text)">🧾 Factura</button>
           ${esF ? `<button class="btn sm" onclick="abrirContrato(${v.id})" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Contrato</button>` : ''}
         <button class="btn sm" onclick="editarVenta(${v.id})">✏️</button>
         <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
