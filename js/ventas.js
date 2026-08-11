@@ -227,9 +227,8 @@ function renderVentas() {
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">' +
           '<button class="btn sm" onclick="openFinanciamiento(' + v.id + ')">' + (esF ? 'Cuotas' : 'Financiar') + '</button>' +
-          (v.estado === 'Completada' ? '<button class="btn sm" onclick="generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
-        (esF ? '<button class="btn sm" onclick="abrirContrato(' + v.id + ')" style="background:var(--blue-bg,rgba(91,163,201,0.1));border-color:var(--blue,#5ba3c9);color:var(--blue,#5ba3c9)">📄 Contrato</button>' : '') +  
-        '<button class="btn sm" onclick="editarVenta(' + v.id + ')">Editar ✏️</button>' +
+          '<button class="btn sm" onclick="abrirDocumentos(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
+          '<button class="btn sm" onclick="editarVenta(' + v.id + ')">✏️</button>' +
           '<button class="icon-btn" onclick="delVenta(' + v.id + ')">x</button>' +
         '</div>' +
           (v.estado === 'Completada' ? '<button class="btn sm" onclick="generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
@@ -302,7 +301,7 @@ function renderModalFin(v) {
   if (tieneplan) {
     planHtml = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div style="font-size:13px;font-weight:600">Plan de ${misCuotas.length} cuotas</div>
-      <button class="btn danger" onclick="eliminarPlan()">🗑 Eliminar plan</button>
+      <button class="btn danger" onclick="eliminarPlan()">🗑️ plan</button>
     </div>
     ${misCuotas.map(c => {
       const colorMap = { Pagada: 'green', Vencida: 'red', Pendiente: 'amber' };
@@ -675,10 +674,9 @@ function toggleDetalleVenta(id) {
 
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
       (esF ? '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');openFinanciamiento(' + v.id + ')">📋 Cuotas</button>' : '') +
-      (v.estado === 'Completada' ? '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
-      (esF ? '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');abrirContrato(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Contrato</button>' : '') +
-      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');editarVenta(' + v.id + ')">✏️ Editar</button>' +
-      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');delVenta(' + v.id + ')" style="background:rgba(240,107,107,0.1);border-color:#f06b6b;color:#f06b6b">🗑 Eliminar</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');abrirDocumentos(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');editarVenta(' + v.id + ')">✏️</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');delVenta(' + v.id + ')" style="background:rgba(240,107,107,0.1);border-color:#f06b6b;color:#f06b6b">🗑️</button>' +
     '</div>';
 
   openModal('modal-detalle-venta');
