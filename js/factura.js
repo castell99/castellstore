@@ -13,10 +13,10 @@ var FACTURA_VENDEDOR = {
 };
 
 var GARANTIA_NO_APLICA = [
-  'Danos de display',
+  'Daños de display',
   'Humedad',
   'Bloqueo de telefono por no registro',
-  'Danos fisicos del equipo',
+  'Daños fisicos del equipo',
   'Equipos abiertos',
   'Baterias en mal uso',
 ];
@@ -219,7 +219,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   bold(fs-1); doc.text('DATOS DEL EQUIPO', mx, y); y+=4;
   norm(fs);
   // Solo modelo
-  var modelo = eq ? eq.modelo : v.producto;
+  var modelo = eq ? eq.modelo : v.producto.replace(/^[^\s]+\s/, '');
   doc.text(modelo, mx, y); y+=4;
   if(v.color){ doc.text('Color: '+v.color, mx, y); y+=4; }
   if(eq && eq.almacenamiento){ doc.text('Almacenamiento: '+eq.almacenamiento, mx, y); y+=4; }
@@ -258,12 +258,16 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   doc.setLineWidth(0.2); doc.setDrawColor(100);
   doc.rect(mx,y,cw,isSmall?9:10);
   doc.setDrawColor(0);
-  bold(fs-1); doc.text('PRECIO EN LETRAS:', mx+2, y+(isSmall?4:4.5));
+  bold(fs-1); doc.text('PRECIO EN LETRAS:', mx+2, y+4);
   norm(fs-1);
   var letras = numeroALetras(Math.round(parseFloat(v.precio)||0))+' PESOS M/CTE';
-  var lL = doc.splitTextToSize(letras, cw-38);
-  doc.text(lL, mx+38, y+(isSmall?4:4.5));
-  y+=isSmall?11:12;
+  var lL = doc.splitTextToSize(letras, cw-4);
+  doc.text(lL, mx+2, y+9);
+  var altoCaja = lL.length * 4 + 10;
+  doc.setLineWidth(0.2); doc.setDrawColor(100);
+  doc.rect(mx, y, cw, altoCaja);
+  doc.setDrawColor(0);
+  y += altoCaja + 2;
 
   // ── Método de pago ──
   chk(12); bold(fs-1); doc.text('METODO DE PAGO:', mx, y); y+=4;
