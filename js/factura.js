@@ -267,7 +267,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   doc.setLineWidth(0.2); doc.setDrawColor(100);
   doc.rect(mx, y, cw, altoCaja);
   doc.setDrawColor(0);
-  y += altoCaja + 6;
+  y += altoCaja + 8;
 
   // ── Método de pago ──
   chk(12); bold(fs-1); doc.text('METODO DE PAGO:', mx, y); y+=4;
