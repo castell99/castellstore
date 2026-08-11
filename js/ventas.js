@@ -189,20 +189,13 @@ function renderVentas() {
         ${venc > 0 ? `<span class="badge red" style="margin-left:4px">${venc} venc.</span>` : ''}</td>
       <td><span class="badge ${v.estado === 'Completada' ? 'green' : v.estado === 'Cancelada' ? 'red' : v.estado === 'Financiada' ? 'amber' : 'muted'}">${v.estado}</span></td>
       <td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-        <button class="btn sm" onclick="openFinanciamiento(${v.id})"
+       <button class="btn sm" onclick="openFinanciamiento(${v.id})"
           style="${esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : ''}">
           ${esF ? '📋 Cuotas' : '💳 Financiar'}
         </button>
-        ${v.estado === 'Completada'
-          ? `<button class="btn sm" onclick="generarRecibo('venta',${v.id})"
-              style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">
-              📄 Paz y Salvo
-            </button>`
-          : ''}
-          <button class="btn sm" onclick="generarFacturaVenta(${v.id})" style="background:rgba(0,0,0,0.1);border-color:#333;color:var(--text)">🧾 Factura</button>
-          ${esF ? `<button class="btn sm" onclick="abrirContrato(${v.id})" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Contrato</button>` : ''}
+        <button class="btn sm" onclick="abrirDocumentos(${v.id})" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>
         <button class="btn sm" onclick="editarVenta(${v.id})">✏️</button>
-        <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
+        <button class="icon-btn" onclick="delVenta(${v.id})">🗑️</button>
       </td>
     </tr>
     </tr>`;
