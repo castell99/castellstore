@@ -189,7 +189,7 @@ function renderVentas() {
         ${venc > 0 ? `<span class="badge red" style="margin-left:4px">${venc} venc.</span>` : ''}</td>
       <td><span class="badge ${v.estado === 'Completada' ? 'green' : v.estado === 'Cancelada' ? 'red' : v.estado === 'Financiada' ? 'amber' : 'muted'}">${v.estado}</span></td>
       <td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap" onclick="event.stopPropagation()">
-        <button class="btn sm" onclick="openFinanciamiento(${v.id})" style="${esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : ''}">💳 Gestionar</button>
+        <button class="btn sm" onclick="openFinanciamiento(${v.id})" style="${esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : ''}">🤑</button>
         <button class="btn sm" onclick="abrirDocumentos(${v.id})" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>
         <button class="btn sm" onclick="editarVenta(${v.id})">✏️</button>
         <button class="icon-btn" onclick="delVenta(${v.id})">🗑️</button>
@@ -223,7 +223,7 @@ function renderVentas() {
         '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">' + v.pago + (v.cuotas > 0 ? ' · ' + v.cuotas + ' meses' : '') + ' · ' + v.fecha + '</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">' +
-          '<button class="btn sm" onclick="openFinanciamiento(' + v.id + ')" style="' + (esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : '') + '">💳 Gestionar</button>' +
+          '<button class="btn sm" onclick="openFinanciamiento(' + v.id + ')" style="' + (esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : '') + '">🤑</button>' +
           '<button class="btn sm" onclick="abrirDocumentos(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
           '<button class="btn sm" onclick="editarVenta(' + v.id + ')">✏️</button>' +
           '<button class="icon-btn" onclick="delVenta(' + v.id + ')">x</button>' +
@@ -670,7 +670,7 @@ function toggleDetalleVenta(id) {
     (v.observaciones ? '<div style="background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Observaciones</div><div style="font-size:13px">' + v.observaciones + '</div></div>' : '') +
 
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');openFinanciamiento(' + v.id + ')" style="' + (esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : '') + '">💳 Gestionar</button>' +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');openFinanciamiento(' + v.id + ')" style="' + (esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : '') + '">🤑</button>' +
       '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');abrirDocumentos(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
       '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');editarVenta(' + v.id + ')">✏️</button>' +
       '<button class="btn" onclick="closeModal(\'modal-detalle-venta\');delVenta(' + v.id + ')" style="background:rgba(240,107,107,0.1);border-color:#f06b6b;color:#f06b6b">🗑️</button>' +
