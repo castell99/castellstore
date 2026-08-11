@@ -680,7 +680,14 @@ function toggleDetalleVenta(id) {
 }
 // para salir usando escape esc
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeModal('modal-detalle-venta');
+  if (e.key === 'Escape') {
+    closeModal('modal-detalle-venta');
+    closeModal('modal-documentos');
+    closeModal('modal-factura-opciones');
+    closeModal('modal-factura-firma');
+    closeModal('modal-factura-canvas');
+    closeModal('modal-ps-opciones');
+  }
 });
 
 function abrirDocumentos(ventaId) {
