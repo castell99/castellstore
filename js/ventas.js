@@ -685,3 +685,48 @@ function toggleDetalleVenta(id) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal('modal-detalle-venta');
 });
+
+function abrirDocumentos(ventaId) {
+  var v   = ventas.find(function(x) { return x.id === ventaId; });
+  if (!v) return;
+  var esF = v.estado === 'Financiada' || v.cuotas > 0;
+  var sal = saldoPendiente('venta', ventaId, v.precio);
+  var pS  = sal <= 0;
+
+  var m = document.getElementById('modal-documentos');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'modal-documentos';
+    m.className = 'overlay';
+    document.body.appendChild(m);
+  }
+
+  m.innerHTML = '<div class="modal" style="max-width:400px">' +
+    '<div class="modal-header"><div class="modal-title">📄 Docs — ' + v.cliente + '</div>' +
+    '<button class="close-btn" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\')">×</button></div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">' +
+
+    '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');generarFacturaVenta(' + ventaId + ')">' +
+      '<span style="font-size:24px">🧾</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Factura de venta</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Documento de compra con garantía y términos</div></div>' +
+    '</button>' +
+
+    (esF ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');abrirContrato(' + ventaId + ')">' +
+      '<span style="font-size:24px">📋</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Contrato de financiamiento</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Contrato legal con firmas digitales y clausulas</div></div>' +
+    '</button>' : '') +
+
+    (pS ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px;background:var(--green-bg);border-color:var(--green-bd)" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');generarPazSalvoFactura(' + ventaId + ')">' +
+      '<span style="font-size:24px">✅</span>' +
+      '<div style="text-align:left"><div style="font-weight:600;color:var(--green)">Paz y Salvo</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Certificado de pago total del equipo</div></div>' +
+    '</button>' : '') +
+
+    '</div>' +
+    '<div class="modal-footer"><button class="btn" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\')">Cerrar</button></div>' +
+    '</div>';
+
+  m.classList.add('open');
+}
