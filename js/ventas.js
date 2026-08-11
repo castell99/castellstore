@@ -188,11 +188,11 @@ function renderVentas() {
       <td style="font-family:var(--mono);color:${sal > 0 ? 'var(--amber)' : 'var(--green)'}">${fmt(sal)}
         ${venc > 0 ? `<span class="badge red" style="margin-left:4px">${venc} venc.</span>` : ''}</td>
       <td><span class="badge ${v.estado === 'Completada' ? 'green' : v.estado === 'Cancelada' ? 'red' : v.estado === 'Financiada' ? 'amber' : 'muted'}">${v.estado}</span></td>
-      <td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">
-       <button class="btn sm" onclick="openFinanciamiento(${v.id})" style="${esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : ''}">💳 Gestionar</button>
+      <td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap" onclick="event.stopPropagation()">
+        <button class="btn sm" onclick="openFinanciamiento(${v.id})" style="${esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : ''}">💳 Gestionar</button>
         <button class="btn sm" onclick="abrirDocumentos(${v.id})" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>
         <button class="btn sm" onclick="editarVenta(${v.id})">✏️</button>
-        <button class="icon-btn" onclick="delVenta(${v.id})">🗑️</button>
+        <button class="icon-btn" onclick="delVenta(${v.id})">🗑</button>
       </td>
     </tr>
     </tr>`;
