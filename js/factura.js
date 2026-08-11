@@ -219,7 +219,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   bold(fs-1); doc.text('DATOS DEL EQUIPO', mx, y); y+=4;
   norm(fs);
   // Solo modelo
-  var modelo = eq ? eq.modelo : v.producto.replace(/^[^\s]+\s/, '');
+  var modelo = v.producto;
   doc.text(modelo, mx, y); y+=4;
   if(v.color){ doc.text('Color: '+v.color, mx, y); y+=4; }
   if(eq && eq.almacenamiento){ doc.text('Almacenamiento: '+eq.almacenamiento, mx, y); y+=4; }
@@ -267,7 +267,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   doc.setLineWidth(0.2); doc.setDrawColor(100);
   doc.rect(mx, y, cw, altoCaja);
   doc.setDrawColor(0);
-  y += altoCaja + 2;
+  y += altoCaja + 6;
 
   // ── Método de pago ──
   chk(12); bold(fs-1); doc.text('METODO DE PAGO:', mx, y); y+=4;
@@ -442,9 +442,9 @@ async function construirPazSalvoPDF(ventaId, tamano) {
   ln(y); y+=2;
   bold(fs); doc.text('TOTAL PAGADO', mx+2, y+4);
   bold(isSmall?9:11); doc.text(fmt(ab), W-mx-2, y+4,{align:'right'});
-  y+=8; ln(y); y+=4;
+  y+=8; ln(y); y+=8;
 
-  // Letras
+  // ── Precio en letras ──
   chk(10);
   doc.setLineWidth(0.2); doc.setDrawColor(100);
   doc.rect(mx,y,cw,isSmall?9:10);
