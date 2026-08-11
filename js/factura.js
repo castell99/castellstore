@@ -434,13 +434,17 @@ async function construirPazSalvoPDF(ventaId, tamano) {
   norm(fs);
   misAbonos.forEach(function(a){
     chk(6);
-    doc.text(a.fecha||'', mx+2, y);
+    doc.text(a.fecha||'', mx+2, y+3);
     var obsLines = doc.splitTextToSize(a.obs||'Abono', cw-60);
-    doc.text(obsLines, mx+40, y);
-    doc.text(fmt(a.monto), W-mx-2, y,{align:'right'});
-    y += (obsLines.length-1)*4;
-    y+=5;
+    doc.text(obsLines, mx+40, y+3);
+    doc.text(fmt(a.monto), W-mx-2, y+3, {align:'right'});
+    var rowH = Math.max(obsLines.length * 4, 6) + 4;
+    doc.setDrawColor(200); doc.setLineWidth(0.1);
+    doc.line(mx, y+rowH, W-mx, y+rowH);
+    doc.setDrawColor(0);
+    y += rowH;
   });
+  y += 4;
   ln(y); y+=2;
   bold(fs); doc.text('TOTAL PAGADO', mx+2, y+4);
   bold(isSmall?9:11); doc.text(fmt(ab), W-mx-2, y+4,{align:'right'});
