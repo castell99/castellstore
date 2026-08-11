@@ -683,6 +683,7 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
     closeModal('modal-detalle-venta');
     closeModal('modal-documentos');
+    closeModal('modal-financiamiento');
     closeModal('modal-factura-opciones');
     closeModal('modal-factura-firma');
     closeModal('modal-factura-canvas');
