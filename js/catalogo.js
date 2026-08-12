@@ -147,7 +147,7 @@ function renderTarjetaEquipo(eq) {
 
 function consultarEquipo(nombre) {
   var msg = 'Hola, estoy interesado en el *' + nombre + '*. Me pueden dar mas informacion y opciones de pago?';
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  window.open('https://wa.me/573046019483?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function updPubPrice() {}
