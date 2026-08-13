@@ -364,3 +364,10 @@ function toggleDetImg() {
   main.style.opacity  = showing ? '1' : '0';
   hover.style.opacity = showing ? '0' : '1';
 }
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    var m = document.getElementById('modal-detalle-equipo');
+    if (m) m.classList.remove('open');
+  }
+});
