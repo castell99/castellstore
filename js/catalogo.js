@@ -313,13 +313,14 @@ function abrirDetalleEquipo(id) {
   var gamaColor = { 'Entrada':'green','Media':'blue','Premium':'amber' };
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
-    imgHtml = '<div class="cat-img-wrap" style="height:260px">' +
-      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="height:260px">' +
-      '<img src="' + eq.imagen2 + '" class="cat-img-hover" style="height:260px">' +
+    imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative">' +
+      '<img src="' + eq.imagen1 + '" id="det-img-main" style="max-height:280px;max-width:100%;object-fit:contain;transition:opacity .3s">' +
+      '<img src="' + eq.imagen2 + '" id="det-img-hover" style="max-height:280px;max-width:100%;object-fit:contain;position:absolute;opacity:0;transition:opacity .3s">' +
+      '<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;cursor:pointer" onclick="toggleDetImg()">Ver otra foto</div>' +
       '</div>';
   } else if (eq.imagen1) {
-    imgHtml = '<div style="height:260px;overflow:hidden;border-radius:var(--radius)">' +
-      '<img src="' + eq.imagen1 + '" style="width:100%;height:260px;object-fit:cover"></div>';
+    imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center">' +
+      '<img src="' + eq.imagen1 + '" style="max-height:280px;max-width:100%;object-fit:contain"></div>';
   } else {
     imgHtml = '<div style="height:200px;display:flex;align-items:center;justify-content:center;font-size:72px;background:var(--bg3);border-radius:var(--radius)">📱</div>';
   }
@@ -355,3 +356,11 @@ function abrirDetalleEquipo(id) {
   m.classList.add('open');
 }
 
+function toggleDetImg() {
+  var main  = document.getElementById('det-img-main');
+  var hover = document.getElementById('det-img-hover');
+  if (!main || !hover) return;
+  var showing = main.style.opacity === '0';
+  main.style.opacity  = showing ? '1' : '0';
+  hover.style.opacity = showing ? '0' : '1';
+}
