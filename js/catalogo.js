@@ -126,7 +126,7 @@ function renderTarjetaEquipo(eq) {
   if (eq.g5) specs += '<span style="background:var(--surface2);color:var(--blue);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">📶 5G</span>';
   var masVendido = tags.indexOf('Más vendido') !== -1 ? '<div style="position:absolute;top:8px;right:8px;z-index:10"><span class="badge amber">⭐ Más vendido</span></div>' : '';
   var precio = parseFloat(eq.precio_contado) || 0;
-  var html = '<div class="prod-card" style="padding:0;overflow:hidden">';
+  var html = '<div class="prod-card" style="padding:0;overflow:hidden;cursor:pointer" onclick="abrirDetalleEquipo(' + eq.id + ')">';
   html += '<div style="position:relative">';
   html += imgHtml;
   html += '<div style="position:absolute;top:8px;left:8px;z-index:10">';
@@ -140,7 +140,7 @@ function renderTarjetaEquipo(eq) {
   html += '<div class="prod-name" style="font-size:17px;margin-bottom:8px">' + (eq.modelo || '') + '</div>';
   html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">' + specs + '</div>';
   html += '<div class="prod-price">' + fmt(precio) + '</div>';
-  html += '<button class="consultar-btn" onclick="consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>';
+  html += '<button class="consultar-btn" onclick="event.stopPropagation();consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>';
   html += '</div></div>';
   return html;
 }
@@ -304,3 +304,54 @@ function renderTarjetaProducto(p) {
   html += '</div></div>';
   return html;
 }
+
+function abrirDetalleEquipo(id) {
+  var eq = equiposCatalogo.find(function(e) { return e.id === id; });
+  if (!eq) return;
+  var tags = [];
+  try { tags = typeof eq.etiquetas==='string' ? JSON.parse(eq.etiquetas||'[]') : (eq.etiquetas||[]); } catch(e){}
+  var gamaColor = { 'Entrada':'green','Media':'blue','Premium':'amber' };
+  var imgHtml = '';
+  if (eq.imagen1 && eq.imagen2) {
+    imgHtml = '<div class="cat-img-wrap" style="height:260px">' +
+      '<img src="' + eq.imagen1 + '" class="cat-img-main" style="height:260px">' +
+      '<img src="' + eq.imagen2 + '" class="cat-img-hover" style="height:260px">' +
+      '</div>';
+  } else if (eq.imagen1) {
+    imgHtml = '<div style="height:260px;overflow:hidden;border-radius:var(--radius)">' +
+      '<img src="' + eq.imagen1 + '" style="width:100%;height:260px;object-fit:cover"></div>';
+  } else {
+    imgHtml = '<div style="height:200px;display:flex;align-items:center;justify-content:center;font-size:72px;background:var(--bg3);border-radius:var(--radius)">📱</div>';
+  }
+  var specs = '';
+  if (eq.ram)           specs += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px"><div style="font-size:10px;color:var(--text3)">RAM</div><div style="font-weight:600">' + eq.ram + '</div></div>';
+  if (eq.almacenamiento) specs += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px"><div style="font-size:10px;color:var(--text3)">Almacenamiento</div><div style="font-weight:600">' + eq.almacenamiento + '</div></div>';
+  if (eq.g5)            specs += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px"><div style="font-size:10px;color:var(--text3)">Conectividad</div><div style="font-weight:600;color:var(--blue)">5G</div></div>';
+
+  var m = document.getElementById('modal-detalle-equipo');
+  if (!m) { m=document.createElement('div'); m.id='modal-detalle-equipo'; m.className='overlay'; document.body.appendChild(m); }
+
+  m.innerHTML = '<div class="modal" style="max-width:500px" onclick="event.stopPropagation()">' +
+    '<div class="modal-header">' +
+    '<div class="modal-title">' + eq.marca + ' ' + eq.modelo + '</div>' +
+    '<button class="close-btn" onclick="document.getElementById(\'modal-detalle-equipo\').classList.remove(\'open\')">×</button></div>' +
+    imgHtml +
+    '<div style="margin:14px 0 10px;display:flex;gap:6px;flex-wrap:wrap">' +
+    '<span class="badge ' + (gamaColor[eq.gama]||'muted') + '">' + (eq.gama||'') + '</span>' +
+    (eq.g5?'<span class="badge blue">5G</span>':'') +
+    (tags.indexOf('Más vendido')!==-1?'<span class="badge amber">⭐ Más vendido</span>':'') +
+    '</div>' +
+    (specs ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:14px">' + specs + '</div>' : '') +
+    '<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">' +
+    '<div><div style="font-size:11px;color:var(--text3)">Precio contado</div>' +
+    '<div style="font-size:26px;font-weight:800;color:var(--green)">' + fmt(eq.precio_contado) + '</div></div>' +
+    '</div>' +
+    '<div class="modal-footer" style="padding:0">' +
+    '<button class="btn" onclick="document.getElementById(\'modal-detalle-equipo\').classList.remove(\'open\')">Cerrar</button>' +
+    '<button class="consultar-btn" style="flex:1;margin:0" onclick="consultarEquipo(\'' + (eq.marca+' '+eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>' +
+    '</div></div>';
+
+  m.onclick = function(e) { if(e.target===m) m.classList.remove('open'); };
+  m.classList.add('open');
+}
+
