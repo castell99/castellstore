@@ -104,16 +104,16 @@
       <p>Ingresa tus credenciales para continuar</p>
     </div>
     <div class="login-card">
-      <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+      <div class="login-error" id="login-error">Correo o contraseña incorrectos</div>
       <div class="form-group">
-        <label>Usuario</label>
-        <input id="l-user" type="text" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()">
+        <label>Correo</label>
+        <input id="l-user" type="email" autocomplete="username" placeholder="tucorreo@dominio.com" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <div class="form-group">
         <label>Contraseña</label>
-        <input id="l-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <input id="l-pass" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
       </div>
-      <button class="btn primary" style="width:100%;margin-top:6px;justify-content:center;font-size:14px" onclick="doLogin()">Ingresar →</button>
+      <button class="btn primary" style="width:100%;margin-top:6px;justify-content:center;font-size:14px" id="btn-login-submit" onclick="doLogin()">Ingresar →</button>
       <div style="text-align:center;margin-top:14px">
         <button class="btn sm" style="color:var(--text2);background:none;border:none" onclick="goPublic()">← Volver al catálogo</button>
       </div>
