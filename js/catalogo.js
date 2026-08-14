@@ -313,10 +313,13 @@ function abrirDetalleEquipo(id) {
   var gamaColor = { 'Entrada':'green','Media':'blue','Premium':'amber' };
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
-    imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative">' +
-      '<img src="' + eq.imagen1 + '" id="det-img-main" style="max-height:280px;max-width:100%;object-fit:contain;transition:opacity .3s">' +
-      '<img src="' + eq.imagen2 + '" id="det-img-hover" style="max-height:280px;max-width:100%;object-fit:contain;position:absolute;opacity:0;transition:opacity .3s">' +
-      '<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:#fff;font-size:10px;padding:3px 10px;border-radius:20px;cursor:pointer" onclick="toggleDetImg()">Ver otra foto</div>' +
+    imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative" onclick="toggleDetImg()">' +
+      '<img src="' + eq.imagen1 + '" id="det-img-main" style="max-height:280px;max-width:100%;object-fit:contain;transition:opacity .4s;cursor:pointer">' +
+      '<img src="' + eq.imagen2 + '" id="det-img-hover" style="max-height:280px;max-width:100%;object-fit:contain;position:absolute;opacity:0;transition:opacity .4s;cursor:pointer">' +
+      '<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px">' +
+        '<div id="det-dot-1" style="width:20px;height:6px;border-radius:3px;background:#fff;transition:all .3s"></div>' +
+        '<div id="det-dot-2" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.5);transition:all .3s"></div>' +
+      '</div>' +
       '</div>';
   } else if (eq.imagen1) {
     imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center">' +
@@ -352,21 +355,48 @@ function abrirDetalleEquipo(id) {
     '<button class="consultar-btn" style="flex:1;margin:0" onclick="consultarEquipo(\'' + (eq.marca+' '+eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>' +
     '</div></div>';
 
-  m.onclick = function(e) { if(e.target===m) m.classList.remove('open'); };
-  m.classList.add('open');
-}
+  m.onclick = function(e) { 
+  if(e.target===m) { 
+    detenerCarruselDetalle();
+    m.classList.remove('open'); 
+  } 
+};
+
+var _detImgTimer = null;
 
 function toggleDetImg() {
   var main  = document.getElementById('det-img-main');
   var hover = document.getElementById('det-img-hover');
+  var dot1  = document.getElementById('det-dot-1');
+  var dot2  = document.getElementById('det-dot-2');
   if (!main || !hover) return;
   var showing = main.style.opacity === '0';
   main.style.opacity  = showing ? '1' : '0';
   hover.style.opacity = showing ? '0' : '1';
+  if (dot1 && dot2) {
+    dot1.style.width      = showing ? '20px' : '6px';
+    dot1.style.background = showing ? '#fff' : 'rgba(255,255,255,0.5)';
+    dot2.style.width      = showing ? '6px' : '20px';
+    dot2.style.background = showing ? 'rgba(255,255,255,0.5)' : '#fff';
+  }
+}
+
+function iniciarCarruselDetalle() {
+  if (_detImgTimer) clearInterval(_detImgTimer);
+  _detImgTimer = setInterval(function() {
+    var main = document.getElementById('det-img-main');
+    if (!main) { clearInterval(_detImgTimer); return; }
+    toggleDetImg();
+  }, 3000);
+}
+
+function detenerCarruselDetalle() {
+  if (_detImgTimer) { clearInterval(_detImgTimer); _detImgTimer = null; }
 }
 
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') {
+    detenerCarruselDetalle();
     var m = document.getElementById('modal-detalle-equipo');
     if (m) m.classList.remove('open');
   }
