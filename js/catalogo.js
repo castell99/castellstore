@@ -3,6 +3,35 @@
 // ═══════════════════════════════════════════
 
 var equiposCatalogo = [];
+var SERVICIOS_CATALOGO = [
+  {
+    id: 's1', nombre: 'Celulares', color: 'accent',
+    descripcion: 'Reparación especializada para tu celular',
+    items: ['Cambio de pantalla', 'Cambio de batería', 'Diagnóstico y reparación', 'Cambio de componentes', 'Mantenimiento y limpieza']
+  },
+  {
+    id: 's2', nombre: 'Computadores', color: 'warning',
+    descripcion: 'Soluciones completas para tu computador',
+    items: ['Reparación y diagnóstico', 'Limpieza y mantenimiento', 'Optimización de rendimiento', 'Actualización de SSD', 'Ampliación de RAM']
+  },
+  {
+    id: 's3', nombre: 'Software', color: 'success',
+    descripcion: 'Instalación y configuración de programas',
+    items: ['Instalación de Windows', 'Drivers y programas', 'Microsoft Office', 'Actualizaciones del sistema', 'Recuperación de información']
+  },
+  {
+    id: 's4', nombre: 'Accesorios y repuestos', color: 'blue',
+    descripcion: 'Componentes y accesorios de calidad',
+    items: ['Cargadores y adaptadores', 'Baterías de repuesto', 'Cables y conectores', 'Audifonos y accesorios', 'Repuestos originales']
+  },
+];
+
+var SERVICIO_COLORES = {
+  accent:  { bg: '#1a3a6b', btn: '#1a6bbf', icon: '📱' },
+  warning: { bg: '#5c3a00', btn: '#bf7a00', icon: '💻' },
+  success: { bg: '#1a4a2a', btn: '#2a8a4a', icon: '⚙️' },
+  blue:    { bg: '#1a2a5c', btn: '#2a4abf', icon: '🔌' },
+};
 var marcaFiltro     = '';
 
 async function loadCatalogo() {
@@ -398,3 +427,24 @@ document.addEventListener('keydown', function(e) {
     if (m) m.classList.remove('open');
   }
 });
+
+
+function renderTarjetaServicio(s) {
+  var c = SERVICIO_COLORES[s.color] || SERVICIO_COLORES.accent;
+  var msg = encodeURIComponent('Hola, necesito el servicio de *' + s.nombre + '*. Me pueden dar más información?');
+  return '<div class="prod-card" style="padding:0;overflow:hidden">' +
+    '<div style="background:' + c.bg + ';padding:14px 14px 10px;display:flex;align-items:center;gap:10px">' +
+      '<div style="width:40px;height:40px;border-radius:8px;background:' + c.btn + ';display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">' + c.icon + '</div>' +
+      '<div><div style="font-size:14px;font-weight:600;color:#fff">' + s.nombre + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,0.7)">' + s.descripcion + '</div></div>' +
+    '</div>' +
+    '<div style="padding:10px 12px">' +
+      '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">' +
+        s.items.map(function(item){ return '<div style="font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px"><span style="color:var(--green);font-size:10px">✓</span>' + item + '</div>'; }).join('') +
+      '</div>' +
+      '<a href="https://wa.me/573046019483?text=' + msg + '" target="_blank" style="text-decoration:none">' +
+        '<button class="consultar-btn" style="width:100%;justify-content:center">💬 Solicitar servicio</button>' +
+      '</a>' +
+    '</div>' +
+  '</div>';
+}
