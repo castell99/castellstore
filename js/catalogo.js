@@ -302,11 +302,17 @@ async function aplicarFiltrosCatalogo() {
   var htmlProductos = listaProductos || [];
   var todoHtml      = htmlEquipos.concat(htmlProductos);
 
-  if (!todoHtml.length) {
+  // Agregar tarjetas de servicios
+  var mostrarServicios = !pubFilter || pubFilter === 'Servicio' || pubFilter === 'Servicios';
+  var htmlServicios = mostrarServicios ? SERVICIOS_CATALOGO.map(function(s) { return renderTarjetaServicio(s); }) : [];
+
+  var todoFinal = todoHtml.concat(htmlServicios);
+
+  if (!todoFinal.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text3);padding:48px">No hay productos disponibles.</div>';
     return;
   }
-  grid.innerHTML = todoHtml.join('');
+  grid.innerHTML = todoFinal.join('');
 }
 
 function renderTarjetaProducto(p) {
