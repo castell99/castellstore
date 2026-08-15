@@ -6,10 +6,11 @@
 
 const SUPA = 'https://inlejbenzupcgpkuiqzj.supabase.co';
 const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlubGVqYmVuenVwY2dwa3VpcXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NzE1ODYsImV4cCI6MjA5MjQ0NzU4Nn0.PAovGQ51-cVmOsxcb9fG26kYTArzjQVbS0718-krHuQ';
+// HDR se conserva por compatibilidad. Ya no lleva Authorization:
+// esa cabecera la arma authHeaders() solo cuando hay sesion.
 const HDR  = {
   'Content-Type' : 'application/json',
   'apikey'       : KEY,
-  'Authorization': 'Bearer ' + KEY,
   'Prefer'       : 'return=representation'
 };
 
@@ -35,21 +36,27 @@ function clearSession() { sessionStorage.removeItem(SESS_KEY); }
 
 function haySesion() { return !!getSession(); }
 
-// Token a usar en cada request: el del usuario si hay sesión,
-// si no la anon key (solo sirve para el catálogo público).
+// Token del usuario, o null si no hay sesion iniciada.
 function authToken() {
   const s = getSession();
-  return (s && s.access_token) ? s.access_token : KEY;
+  return (s && s.access_token) ? s.access_token : null;
+}
+
+// Cabeceras base de toda peticion.
+// La apikey siempre viaja. El Authorization SOLO si hay sesion:
+// las claves nuevas (sb_publishable_...) no se pueden enviar como
+// Bearer, devuelven 401. Asi el codigo sirve con clave legacy y con
+// clave nueva sin tocar nada mas.
+function authHeaders(extra) {
+  const h = Object.assign({ 'apikey': KEY }, extra || {});
+  const t = authToken();
+  if (t) h['Authorization'] = 'Bearer ' + t;
+  return h;
 }
 
 // Cabeceras para subidas a Storage.
 function uploadHeaders(contentType) {
-  return {
-    'apikey'       : KEY,
-    'Authorization': 'Bearer ' + authToken(),
-    'Content-Type' : contentType,
-    'x-upsert'     : 'true'
-  };
+  return authHeaders({ 'Content-Type': contentType, 'x-upsert': 'true' });
 }
 
 // ── URLs firmadas (buckets privados) ─────────
@@ -92,8 +99,7 @@ async function firmarUrls(urls, segundos) {
       if (haySesion()) await refreshSession();
       const r = await fetch(SUPA + '/storage/v1/object/sign/' + bucket, {
         method : 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': KEY,
-                   'Authorization': 'Bearer ' + authToken() },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body   : JSON.stringify({ expiresIn: segundos, paths: items.map(x => x.archivo) })
       });
       if (!r.ok) continue;
@@ -124,7 +130,7 @@ async function borrarObjeto(u) {
     if (haySesion()) await refreshSession();
     const r = await fetch(SUPA + '/storage/v1/object/' + ruta, {
       method : 'DELETE',
-      headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + authToken() }
+      headers: authHeaders()
     });
     delete _firmaCache[ruta];
     return r.ok;
@@ -176,7 +182,10 @@ async function sb(table, method = 'GET', body = null, qs = '') {
   const url  = `${SUPA}/rest/v1/${table}${qs}`;
   const opts = {
     method,
-    headers: { ...HDR, 'Authorization': 'Bearer ' + authToken() }
+    headers: authHeaders({
+      'Content-Type': 'application/json',
+      'Prefer'      : 'return=representation'
+    })
   };
   if (body) opts.body = JSON.stringify(body);
 
