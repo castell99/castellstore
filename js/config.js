@@ -143,6 +143,12 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 
 // ── Carga de datos ────────────────────────
 async function loadAll() {
+  // Estas tablas son privadas: sin sesion, RLS las rechaza y solo
+  // generariamos 401 en consola. Se sale en silencio.
+  if (!haySesion()) {
+    productos = []; ventas = []; tecnicos = []; abonos = [];
+    return;
+  }
   try {
     [productos, ventas, tecnicos, abonos] = await Promise.all([
       sb('productos', 'GET', null, '?order=id.desc'),
