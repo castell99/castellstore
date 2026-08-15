@@ -1,3 +1,24 @@
+// ── Navegacion inicio <-> catalogo ────────
+// sec-home y sec-catalogo conviven dentro de la vista publica.
+// Estas dos funciones son lo unico que las alterna.
+
+function verCatalogo() {
+  var h = document.getElementById('sec-home');
+  var c = document.getElementById('sec-catalogo');
+  if (h) h.style.display = 'none';
+  if (c) c.style.display = 'block';
+  window.scrollTo(0, 0);
+  renderPublic();
+}
+
+function verInicio() {
+  var h = document.getElementById('sec-home');
+  var c = document.getElementById('sec-catalogo');
+  if (c) c.style.display = 'none';
+  if (h) h.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
 // ═══════════════════════════════════════════
 //  catalogo.js — Catálogo público
 // ═══════════════════════════════════════════
