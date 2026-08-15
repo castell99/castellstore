@@ -1,12 +1,18 @@
 // ── Navegacion inicio <-> catalogo ────────
 // sec-home y sec-catalogo conviven dentro de la vista publica.
-// Estas dos funciones son lo unico que las alterna.
+// Estas funciones son lo unico que las alterna.
+
+function _mostrarBotonVolver(ver) {
+  var b = document.querySelector('.cat-back');
+  if (b) b.style.visibility = ver ? 'visible' : 'hidden';
+}
 
 function verCatalogo() {
   var h = document.getElementById('sec-home');
   var c = document.getElementById('sec-catalogo');
   if (h) h.style.display = 'none';
   if (c) c.style.display = 'block';
+  _mostrarBotonVolver(true);
   window.scrollTo(0, 0);
   renderPublic();
 }
@@ -16,7 +22,26 @@ function verInicio() {
   var c = document.getElementById('sec-catalogo');
   if (c) c.style.display = 'none';
   if (h) h.style.display = 'block';
+  _mostrarBotonVolver(false);
+  document.querySelectorAll('.cat-bar .pill').forEach(function(p){ p.classList.remove('active'); });
   window.scrollTo(0, 0);
+}
+
+// Desde el inicio las categorias funcionan como menu: abren el
+// catalogo ya filtrado. No se llama a renderPublic() porque su
+// carga es asincrona y pisaria el filtro recien aplicado.
+async function irACategoria(cat, el) {
+  var h = document.getElementById('sec-home');
+  if (h && h.style.display !== 'none') {
+    h.style.display = 'none';
+    document.getElementById('sec-catalogo').style.display = 'block';
+    _mostrarBotonVolver(true);
+    window.scrollTo(0, 0);
+    if (typeof equiposCatalogo === 'undefined' || !equiposCatalogo.length) {
+      await loadCatalogo();
+    }
+  }
+  filterPub(cat, el);
 }
 
 // ═══════════════════════════════════════════
