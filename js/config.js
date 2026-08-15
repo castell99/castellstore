@@ -52,6 +52,85 @@ function uploadHeaders(contentType) {
   };
 }
 
+// ── URLs firmadas (buckets privados) ─────────
+// Los buckets servicios-fotos y contratos-docs son privados: sus
+// archivos solo se pueden ver con una URL temporal firmada.
+// La base guarda URLs completas (formato viejo) o rutas
+// "bucket/archivo" (formato nuevo); esto acepta ambas.
+
+const _firmaCache = {};
+
+function rutaObjeto(u) {
+  if (!u) return null;
+  const m = String(u).match(/\/storage\/v1\/object\/(?:public\/|sign\/)?(.+?)(?:\?|$)/);
+  return m ? decodeURIComponent(m[1]) : String(u).replace(/^\/+/, '');
+}
+
+// Firma varias rutas de un mismo bucket en una sola peticion.
+// segundos: vigencia de la URL (1 hora por defecto).
+async function firmarUrls(urls, segundos) {
+  segundos = segundos || 3600;
+  const res = {};
+  const porBucket = {};
+
+  for (const u of urls) {
+    const ruta = rutaObjeto(u);
+    if (!ruta) continue;
+    if (_firmaCache[ruta] && _firmaCache[ruta].exp > Date.now()) {
+      res[u] = _firmaCache[ruta].url;
+      continue;
+    }
+    const i = ruta.indexOf('/');
+    if (i < 0) continue;
+    const bucket = ruta.slice(0, i), archivo = ruta.slice(i + 1);
+    (porBucket[bucket] = porBucket[bucket] || []).push({ archivo, orig: u });
+  }
+
+  for (const bucket in porBucket) {
+    const items = porBucket[bucket];
+    try {
+      if (haySesion()) await refreshSession();
+      const r = await fetch(SUPA + '/storage/v1/object/sign/' + bucket, {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': KEY,
+                   'Authorization': 'Bearer ' + authToken() },
+        body   : JSON.stringify({ expiresIn: segundos, paths: items.map(x => x.archivo) })
+      });
+      if (!r.ok) continue;
+      const data = await r.json();
+      (Array.isArray(data) ? data : []).forEach((d, n) => {
+        if (!d || !d.signedURL) return;
+        const full = SUPA + '/storage/v1' + d.signedURL;
+        const it   = items[n];
+        res[it.orig] = full;
+        _firmaCache[bucket + '/' + it.archivo] = { url: full, exp: Date.now() + (segundos - 60) * 1000 };
+      });
+    } catch (e) { /* si falla, la imagen queda sin cargar */ }
+  }
+  return res;
+}
+
+async function firmarUrl(u, segundos) {
+  const m = await firmarUrls([u], segundos);
+  return m[u] || null;
+}
+
+// Borra un archivo del bucket. Sin esto, eliminar el registro deja
+// el archivo huerfano y accesible con cualquier URL ya firmada.
+async function borrarObjeto(u) {
+  const ruta = rutaObjeto(u);
+  if (!ruta) return false;
+  try {
+    if (haySesion()) await refreshSession();
+    const r = await fetch(SUPA + '/storage/v1/object/' + ruta, {
+      method : 'DELETE',
+      headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + authToken() }
+    });
+    delete _firmaCache[ruta];
+    return r.ok;
+  } catch (e) { return false; }
+}
+
 // Renueva el access_token si le quedan menos de 60 segundos.
 async function refreshSession() {
   const s = getSession();

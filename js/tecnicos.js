@@ -300,7 +300,8 @@ async function subirFotoServicio(file, tipo) {
     method: 'POST', headers: uploadHeaders(file.type), body: file,
   });
   if (!res.ok) throw new Error('Error subiendo foto');
-  return SUPA + '/storage/v1/object/public/servicios-fotos/' + nombre;
+  // Se guarda la ruta: la URL publica ya no funciona (bucket privado).
+  return 'servicios-fotos/' + nombre;
 }
 
 async function guardarFotosServicio(tecnicoId) {
@@ -320,7 +321,12 @@ async function guardarFotosServicio(tecnicoId) {
 async function cargarFotosServicio(tecnicoId) {
   try {
     var fotos = await sb('servicios_fotos', 'GET', null, '?tecnico_id=eq.' + tecnicoId + '&order=id.asc');
-    return Array.isArray(fotos) ? fotos : [];
+    if (!Array.isArray(fotos)) return [];
+    // El bucket es privado: hay que firmar cada archivo para verlo.
+    // Se conserva la ruta original en `ruta` para poder borrarla luego.
+    var firmadas = await firmarUrls(fotos.map(function(f){ return f.url; }));
+    fotos.forEach(function(f){ f.ruta = f.url; f.url = firmadas[f.ruta] || ''; });
+    return fotos;
   } catch (e) { return []; }
 }
 
@@ -375,11 +381,15 @@ async function abrirGaleriaServicio(tecnicoId) {
   };
   window.eliminarFotoServicio = async function(id) {
     if (!confirm('Eliminar esta foto?')) return;
-    try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); window._galeriaFotos=window._galeriaFotos.filter(function(f){return f.id!==id;}); window._galeriaSelec.delete(id); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Foto eliminada'); } catch(e){toast('Error','err');}
+    var _f = (window._galeriaFotos||[]).find(function(x){return x.id===id;});
+    try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); if(_f&&_f.ruta) await borrarObjeto(_f.ruta); window._galeriaFotos=window._galeriaFotos.filter(function(f){return f.id!==id;}); window._galeriaSelec.delete(id); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Foto eliminada'); } catch(e){toast('Error','err');}
   };
   window.eliminarFotosSeleccionadas = async function() {
     if (!confirm('Eliminar '+window._galeriaSelec.size+' foto(s)?')) return;
-    for (var id of window._galeriaSelec) { try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); } catch(_){} }
+    for (var id of window._galeriaSelec) {
+      var _f = (window._galeriaFotos||[]).find(function(x){return x.id===id;});
+      try { await sb('servicios_fotos','DELETE',null,'?id=eq.'+id); if(_f&&_f.ruta) await borrarObjeto(_f.ruta); } catch(_){}
+    }
     var ids=window._galeriaSelec; window._galeriaFotos=window._galeriaFotos.filter(function(f){return !ids.has(f.id);}); window._galeriaSelec.clear(); document.getElementById('galeria-body').innerHTML=window.renderGaleriaBody(); toast('Fotos eliminadas');
   };
   window.abrirLightbox = function(url, tipo, fecha) {

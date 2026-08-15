@@ -145,7 +145,9 @@ async function subirArchivoContrato(file, nombre) {
     method:'POST', headers: uploadHeaders(file.type), body:file
   });
   if (!res.ok) throw new Error('Error subiendo archivo');
-  return SUPA+'/storage/v1/object/public/contratos-docs/'+nombre;
+  // Ruta, no URL publica: el bucket es privado. Para mostrar estas
+  // imagenes usa firmarUrl(ruta).
+  return 'contratos-docs/'+nombre;
 }
 
 // ── Generar contrato ──────────────────────
