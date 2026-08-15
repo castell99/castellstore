@@ -128,11 +128,64 @@
     <!-- ══ PÁGINA PRINCIPAL ══ -->
 <div id="sec-home" style="display:block">
   <!-- Hero -->
-  <div style="text-align:center;padding:40px 20px 30px;background:linear-gradient(180deg,rgba(16,31,43,0.95) 0%,transparent 100%)">
-    <img id="home-logo" src="" alt="CastellStore" style="width:80px;height:80px;object-fit:contain;margin-bottom:12px">
-    <h1 style="font-size:32px;font-weight:800;margin:0 0 8px;color:#e8f0f5">SERVICIOS <span style="color:#a4d65e">CASTELL</span> TECH</h1>
-    <p style="font-size:14px;color:#8a9aa1;margin:0 0 6px">Vainas rapida...</p>
-    <p style="font-size:13px;color:#8a9aa1;margin:0">Diagnosticamos, reparamos, actualizamos y optimizamos tus dispositivos.</p>
+  <style>
+  .hero-fx{position:relative;overflow:hidden;padding:36px 20px 28px;
+    background:linear-gradient(180deg,rgba(16,31,43,.95) 0%,transparent 100%)}
+  .hero-fx::after{content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse at 70% 40%,rgba(164,214,94,.10),transparent 60%)}
+  .hero-grid{position:absolute;left:-20%;right:-20%;bottom:0;height:65%;
+    background-image:linear-gradient(rgba(164,214,94,.13) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(164,214,94,.13) 1px,transparent 1px);
+    background-size:40px 40px;transform:perspective(300px) rotateX(60deg);
+    transform-origin:50% 100%;animation:gridRun 7s linear infinite;pointer-events:none}
+  @keyframes gridRun{to{background-position:0 40px}}
+  .hero-inner{position:relative;z-index:2;display:flex;align-items:center;
+    justify-content:center;gap:28px;flex-wrap:wrap;max-width:900px;margin:0 auto}
+  .hero-txt{flex:1 1 300px;text-align:center;min-width:260px}
+  .hero-logo{width:72px;height:72px;object-fit:contain;margin-bottom:10px}
+  .hero-txt h1{font-size:32px;font-weight:800;margin:0 0 8px;color:#e8f0f5;line-height:1.15}
+  .hero-txt h1 span{color:#a4d65e;text-shadow:0 0 14px rgba(164,214,94,.55)}
+  .hero-txt p{color:#8a9aa1;margin:0 0 6px;font-size:14px}
+  .hero-cta{margin-top:16px;background:#a4d65e;color:#0d1f2d;border:none;
+    border-radius:10px;padding:12px 22px;font-size:14px;font-weight:800;cursor:pointer;
+    box-shadow:0 0 20px rgba(164,214,94,.35);transition:transform .2s,box-shadow .2s}
+  .hero-cta:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(164,214,94,.6)}
+  .hero-char{position:relative;flex:0 0 auto;width:230px;
+    animation:flotar 4.5s ease-in-out infinite}
+  @keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  .hero-ring{position:absolute;left:50%;top:52%;width:250px;height:250px;
+    margin:-125px 0 0 -125px;border-radius:50%;
+    border:1px solid rgba(164,214,94,.35);
+    box-shadow:0 0 40px rgba(164,214,94,.18),inset 0 0 40px rgba(164,214,94,.10);
+    animation:pulso 3.5s ease-in-out infinite}
+  @keyframes pulso{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.07);opacity:.35}}
+  .hero-img{position:relative;width:100%;display:block;
+    filter:drop-shadow(0 12px 24px rgba(0,0,0,.5))}
+  @media(max-width:640px){
+    .hero-char{width:170px;order:-1}
+    .hero-ring{width:185px;height:185px;margin:-92px 0 0 -92px}
+    .hero-txt h1{font-size:26px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .hero-char,.hero-ring,.hero-grid{animation:none}
+  }
+  </style>
+
+  <div class="hero-fx">
+    <div class="hero-grid"></div>
+    <div class="hero-inner">
+      <div class="hero-txt">
+        <img id="home-logo" src="" alt="CastellStore" class="hero-logo">
+        <h1>SERVICIOS <span>CASTELL</span> TECH</h1>
+        <p>Vainas rapida...</p>
+        <p style="font-size:13px">Diagnosticamos, reparamos, actualizamos y optimizamos tus dispositivos.</p>
+        <button class="hero-cta" onclick="verCatalogo()">VER EQUIPOS EN VENTA →</button>
+      </div>
+      <div class="hero-char">
+        <div class="hero-ring"></div>
+        <img src="img/tecnico.webp" alt="Técnico CastellTech" class="hero-img">
+      </div>
+    </div>
   </div>
 
   <!-- Tarjetas de servicios -->
