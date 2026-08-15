@@ -101,6 +101,7 @@ function goPublic() {
   document.getElementById('btn-login').style.display      = '';
   document.getElementById('nav-agenda-btn').style.display = 'none';
   closeSidebar();
+  if (typeof verInicio === 'function') verInicio();
   renderPublic();
 }
 
