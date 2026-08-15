@@ -127,6 +127,8 @@
     
     <!-- ══ PÁGINA PRINCIPAL ══ -->
 <div id="sec-home" style="display:block">
+<div class="page-grid"></div>
+  <div class="page-floor"></div>
   <!-- Hero -->
   <style>
   .hero-fx{position:relative;overflow:hidden;padding:36px 20px 28px;
@@ -169,10 +171,36 @@
   @media(prefers-reduced-motion:reduce){
     .hero-char,.hero-ring,.hero-grid{animation:none}
   }
+
+  /* Rejilla de fondo para toda la pagina de inicio */
+  #sec-home{position:relative;isolation:isolate}
+  #sec-home > *{position:relative;z-index:1}
+  #sec-home > .page-grid{z-index:0}
+  .page-grid{position:fixed;inset:0;pointer-events:none;
+    background-image:
+      linear-gradient(rgba(164,214,94,.07) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(164,214,94,.07) 1px,transparent 1px);
+    background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 30%,transparent 100%);
+    mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 30%,transparent 100%);
+    animation:gridDrift 22s linear infinite}
+  @keyframes gridDrift{to{background-position:44px 44px}}
+  /* Horizonte en perspectiva, fijo al pie de la pantalla */
+  .page-floor{position:fixed;left:-25%;right:-25%;bottom:0;height:38vh;
+    pointer-events:none;
+    background-image:
+      linear-gradient(rgba(164,214,94,.16) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(164,214,94,.16) 1px,transparent 1px);
+    background-size:46px 46px;
+    transform:perspective(280px) rotateX(62deg);transform-origin:50% 100%;
+    -webkit-mask-image:linear-gradient(transparent,#000 55%);
+    mask-image:linear-gradient(transparent,#000 55%);
+    animation:gridRun 7s linear infinite}
+  @media(prefers-reduced-motion:reduce){.page-grid,.page-floor{animation:none}}
+    
   </style>
 
   <div class="hero-fx">
-    <div class="hero-grid"></div>
     <div class="hero-inner">
       <div class="hero-txt">
         <img id="home-logo" src="" alt="CastellStore" class="hero-logo">
