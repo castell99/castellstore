@@ -123,6 +123,29 @@
 
 <!-- ══════════ VISTA PÚBLICA ══════════ -->
 <div id="view-public" class="view active">
+  <style>
+  .cat-bar{position:sticky;top:58px;z-index:55;
+    background:rgba(13,31,45,.96);backdrop-filter:blur(10px);
+    border-bottom:1px solid #1e3347;
+    box-shadow:0 4px 18px rgba(0,0,0,.28)}
+  .cat-bar-inner{max-width:1200px;margin:0 auto;padding:9px 14px;
+    display:flex;align-items:center;gap:12px}
+  .cat-back{flex-shrink:0;background:none;border:1px solid #24405a;color:#8a9aa1;
+    border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;
+    font-family:inherit;transition:all .2s;white-space:nowrap}
+  .cat-back:hover{border-color:#a4d65e;color:#a4d65e}
+  .cat-bar .filter-bar{margin:0;flex:1;justify-content:center;
+    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .cat-bar .filter-bar::-webkit-scrollbar{display:none}
+  .cat-bar .pill{white-space:nowrap}
+  @media(max-width:640px){
+    .cat-bar{top:52px}
+    .cat-bar-inner{padding:8px 10px;gap:8px}
+    .cat-back{padding:6px 9px}
+    .cat-back span{display:none}
+    .cat-bar .filter-bar{justify-content:flex-start}
+  }
+  </style>
   <div class="pub-wrap">
     
     <!-- ══ PÁGINA PRINCIPAL ══ -->
@@ -332,30 +355,6 @@
 
 <!-- ══ CATÁLOGO (se activa después) ══ -->
 <div id="sec-catalogo" style="display:none">
-  <style>
-  .cat-bar{position:sticky;top:58px;z-index:55;
-    background:rgba(13,31,45,.96);backdrop-filter:blur(10px);
-    border-bottom:1px solid #1e3347;
-    box-shadow:0 4px 18px rgba(0,0,0,.28)}
-  .cat-bar-inner{max-width:1200px;margin:0 auto;padding:9px 14px;
-    display:flex;align-items:center;gap:12px}
-  .cat-back{flex-shrink:0;background:none;border:1px solid #24405a;color:#8a9aa1;
-    border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;
-    font-family:inherit;transition:all .2s;white-space:nowrap}
-  .cat-back:hover{border-color:#a4d65e;color:#a4d65e}
-  .cat-bar .filter-bar{margin:0;flex:1;justify-content:center;
-    flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
-  .cat-bar .filter-bar::-webkit-scrollbar{display:none}
-  .cat-bar .pill{white-space:nowrap}
-  @media(max-width:640px){
-    .cat-bar{top:52px}
-    .cat-bar-inner{padding:8px 10px;gap:8px}
-    .cat-back{padding:6px 9px}
-    .cat-back span{display:none}
-    .cat-bar .filter-bar{justify-content:flex-start}
-  }
-  </style>
-
   <div class="cat-bar">
     <div class="cat-bar-inner">
       <button class="cat-back" onclick="verInicio()">←<span> Servicios</span></button>
