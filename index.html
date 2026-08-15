@@ -81,7 +81,6 @@
       📋
       <span id="nav-ag-badge" style="display:none;position:absolute;top:0;right:0;background:#f06b6b;color:#fff;border-radius:50%;font-size:9px;font-weight:700;width:16px;height:16px;align-items:center;justify-content:center;line-height:1">0</span>
     </button>
-    <button class="nav-btn active" id="btn-pub" onclick="goPublic()">🛍 Catálogo</button>
     <!-- Admin logueado: muestra botón Admin normal -->
     <button class="nav-btn" id="btn-adm" onclick="goAdmin()" style="display:none">⚙️ Admin</button>
     <!-- No logueado: muestra botón discreto Ingresar -->
@@ -130,10 +129,10 @@
     box-shadow:0 4px 18px rgba(0,0,0,.28)}
   .cat-bar-inner{max-width:1200px;margin:0 auto;padding:9px 14px;
     display:flex;align-items:center;gap:12px}
-  .cat-back{flex-shrink:0;background:none;border:1px solid #24405a;color:#8a9aa1;
-    border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;
-    font-family:inherit;transition:all .2s;white-space:nowrap;visibility:hidden}
-  .cat-back:hover{border-color:#a4d65e;color:#a4d65e}
+  .cat-bar .pill-inicio{border-color:#24405a;color:#8a9aa1;flex-shrink:0}
+  .cat-bar .pill-inicio:hover{border-color:#a4d65e;color:#a4d65e}
+  .cat-bar .pill-inicio.active{background:transparent;color:#8a9aa1;
+    border-color:#24405a;font-weight:500}
   .cat-bar .filter-bar{margin:0;flex:1;justify-content:center;
     flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
   .cat-bar .filter-bar::-webkit-scrollbar{display:none}
@@ -141,21 +140,18 @@
   @media(max-width:640px){
     .cat-bar{top:52px}
     .cat-bar-inner{padding:8px 10px;gap:8px}
-    .cat-back{padding:6px 9px}
-    .cat-back span{display:none}
     .cat-bar .filter-bar{justify-content:flex-start}
   }
   </style>
 
   <div class="cat-bar">
     <div class="cat-bar-inner">
-      <button class="cat-back" onclick="verInicio()">←<span> Servicios</span></button>
       <div class="filter-bar">
-        <button class="pill" onclick="irACategoria('',this)">Todos</button>
-        <button class="pill" onclick="irACategoria('Computador',this)">💻 Computadores</button>
-        <button class="pill" onclick="irACategoria('Teléfono',this)">📱 Teléfonos</button>
-        <button class="pill" onclick="irACategoria('Accesorio',this)">🎧 Accesorios</button>
-        <button class="pill" onclick="irACategoria('Servicio',this)">🔧 Servicios</button>
+        <button class="pill pill-inicio" onclick="verInicio()">🏠 Inicio</button>
+        <button class="pill" data-cat="Teléfono" onclick="irACategoria('Teléfono',this)">📱 Teléfonos</button>
+        <button class="pill" data-cat="Computador" onclick="irACategoria('Computador',this)">💻 Computadores</button>
+        <button class="pill" data-cat="Accesorio" onclick="irACategoria('Accesorio',this)">🎧 Accesorios</button>
+        <button class="pill" data-cat="Servicio" onclick="irACategoria('Servicio',this)">🔧 Servicios</button>
       </div>
     </div>
   </div>
@@ -447,6 +443,7 @@
       <button class="sidebar-item" onclick="showSec('caja',this);loadCaja()"><span class="ico">💰</span> Caja</button>
       <button class="sidebar-item" onclick="showSec('financiamiento',this);loadEquiposFin()"><span class="ico">🧮</span> Financiamiento</button>
       <div style="padding:16px 10px 0;border-top:1px solid var(--border);margin-top:16px">
+        <button class="sidebar-item" onclick="goPublic()"><span class="ico">🛍</span> Ver sitio público</button>
         <button class="sidebar-item" onclick="logout()" style="color:var(--red)"><span class="ico">🚪</span> Cerrar sesión</button>
       </div>
     </div>
