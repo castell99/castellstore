@@ -1145,7 +1145,9 @@
   }
   // ── Arranque ──
   (async () => {
-    await loadAll();
+    // El catalogo publico se abastece solo (productos_publicos y
+    // equipos_financiamiento). loadAll() solo corre con sesion.
+    if (haySesion()) await loadAll();
     renderPublic();
   })();
 </script>
