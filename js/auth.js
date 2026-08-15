@@ -75,7 +75,7 @@ function showAdminView() {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-admin').classList.add('active');
   document.getElementById('btn-adm').classList.add('active');
-  document.getElementById('btn-pub').classList.remove('active');
+  var bp1 = document.getElementById('btn-pub'); if (bp1) bp1.classList.remove('active');
   document.getElementById('hamburger').style.display = 'flex';
   document.getElementById('btn-adm').style.display        = '';
   document.getElementById('btn-login').style.display      = 'none';
@@ -94,7 +94,7 @@ function goPublic() {
   if (loginOverlay) loginOverlay.style.display = 'none';
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-public').classList.add('active');
-  document.getElementById('btn-pub').classList.add('active');
+  var bp2 = document.getElementById('btn-pub'); if (bp2) bp2.classList.add('active');
   document.getElementById('btn-adm').classList.remove('active');
   document.getElementById('hamburger').style.display = 'none';
   document.getElementById('btn-adm').style.display        = 'none';
