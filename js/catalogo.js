@@ -235,7 +235,7 @@ async function aplicarFiltrosCatalogo() {
   var sb = document.getElementById('pub-sidebar');
   if (sb && sb.classList.contains('movil-open')) toggleSidebarMovil();
   if (typeof productos === 'undefined' || !productos.length) {
-    try { var pd = await sb('productos','GET',null,'?order=id.asc'); if(Array.isArray(pd)) productos=pd; } catch(e){}
+    try { var pd = await sb('productos_publicos','GET',null,'?order=id.asc'); if(Array.isArray(pd)) productos=pd; } catch(e){}
   }
 
   var gamas = Array.from(document.querySelectorAll('.filter-check input[value="Entrada"],.filter-check input[value="Media"],.filter-check input[value="Premium"]'))

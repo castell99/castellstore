@@ -13,17 +13,75 @@ const HDR  = {
   'Prefer'       : 'return=representation'
 };
 
-// Credenciales del administrador
-// Para cambiarlas: modifica solo estas dos líneas
-const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'techstore2025';
+// ── Sesión (Supabase Auth) ────────────────────
+// Ya no hay credenciales en el código. El acceso lo concede
+// Supabase Auth y lo hace cumplir RLS del lado del servidor.
+// La sesión vive en sessionStorage: muere al cerrar la pestaña.
+
+const SESS_KEY = 'cs_session';
+
+function getSession() {
+  try { return JSON.parse(sessionStorage.getItem(SESS_KEY)) || null; }
+  catch (e) { return null; }
+}
+
+function setSession(s) {
+  if (!s || !s.access_token) return;
+  s.expires_at = s.expires_at || (Math.floor(Date.now() / 1000) + (s.expires_in || 3600));
+  sessionStorage.setItem(SESS_KEY, JSON.stringify(s));
+}
+
+function clearSession() { sessionStorage.removeItem(SESS_KEY); }
+
+function haySesion() { return !!getSession(); }
+
+// Token a usar en cada request: el del usuario si hay sesión,
+// si no la anon key (solo sirve para el catálogo público).
+function authToken() {
+  const s = getSession();
+  return (s && s.access_token) ? s.access_token : KEY;
+}
+
+// Cabeceras para subidas a Storage.
+function uploadHeaders(contentType) {
+  return {
+    'apikey'       : KEY,
+    'Authorization': 'Bearer ' + authToken(),
+    'Content-Type' : contentType,
+    'x-upsert'     : 'true'
+  };
+}
+
+// Renueva el access_token si le quedan menos de 60 segundos.
+async function refreshSession() {
+  const s = getSession();
+  if (!s || !s.refresh_token) return false;
+  if (s.expires_at && s.expires_at - 60 > Math.floor(Date.now() / 1000)) return true;
+  try {
+    const r = await fetch(SUPA + '/auth/v1/token?grant_type=refresh_token', {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': KEY },
+      body   : JSON.stringify({ refresh_token: s.refresh_token })
+    });
+    if (!r.ok) { clearSession(); return false; }
+    setSession(await r.json());
+    return true;
+  } catch (e) { return false; }
+}
+
+function sesionExpirada() {
+  clearSession();
+  toast('Tu sesión expiró, vuelve a entrar', 'err');
+  if (typeof goPublic === 'function') goPublic();
+}
 
 // ── Estado global compartido ──────────────
 let productos = [];
 let ventas    = [];
 let tecnicos  = [];
 let abonos    = [];
-let isAdmin   = false;
+// isAdmin quedó obsoleto: usa haySesion(). Se mantiene por
+// compatibilidad con código viejo, pero no autoriza nada.
 let pubFilter = '';
 let varTemp   = [];
 let editVentaId  = null;
@@ -34,11 +92,24 @@ let abonoTId     = null;
 
 // ── Helper de Supabase ────────────────────
 async function sb(table, method = 'GET', body = null, qs = '') {
-  const url = `${SUPA}/rest/v1/${table}${qs}`;
-  const opts = { method, headers: { ...HDR } };
+  if (haySesion()) await refreshSession();
+
+  const url  = `${SUPA}/rest/v1/${table}${qs}`;
+  const opts = {
+    method,
+    headers: { ...HDR, 'Authorization': 'Bearer ' + authToken() }
+  };
   if (body) opts.body = JSON.stringify(body);
+
   const r = await fetch(url, opts);
+
+  // 401/403: el token no vale o RLS bloqueó la operación.
+  if (r.status === 401 || r.status === 403) {
+    if (haySesion()) sesionExpirada();
+    throw new Error('Sin permisos para esta operación');
+  }
   if (!r.ok) { const e = await r.text(); throw new Error(e); }
+
   const t = await r.text();
   return t ? JSON.parse(t) : [];
 }

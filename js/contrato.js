@@ -142,7 +142,7 @@ function prevContratoCedula(input, lado) {
 
 async function subirArchivoContrato(file, nombre) {
   var res = await fetch(SUPA+'/storage/v1/object/contratos-docs/'+nombre, {
-    method:'POST', headers:{'Authorization':'Bearer '+KEY,'Content-Type':file.type,'x-upsert':'true'}, body:file
+    method:'POST', headers: uploadHeaders(file.type), body:file
   });
   if (!res.ok) throw new Error('Error subiendo archivo');
   return SUPA+'/storage/v1/object/public/contratos-docs/'+nombre;

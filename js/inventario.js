@@ -23,7 +23,7 @@ async function subirFotoProd(file, slot) {
   var nombre = 'producto_' + slot + '_' + Date.now() + '.' + ext;
   var res    = await fetch(SUPA + '/storage/v1/object/equipos-imagenes/' + nombre, {
     method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + KEY, 'Content-Type': file.type, 'x-upsert': 'true' },
+    headers: uploadHeaders(file.type),
     body: file,
   });
   if (!res.ok) throw new Error('Error subiendo imagen');

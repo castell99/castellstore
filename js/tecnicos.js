@@ -297,7 +297,7 @@ async function subirFotoServicio(file, tipo) {
   var ext    = file.name.split('.').pop();
   var nombre = 'servicio_' + tipo + '_' + Date.now() + '.' + ext;
   var res    = await fetch(SUPA + '/storage/v1/object/servicios-fotos/' + nombre, {
-    method: 'POST', headers: { 'Authorization': 'Bearer ' + KEY, 'Content-Type': file.type, 'x-upsert': 'true' }, body: file,
+    method: 'POST', headers: uploadHeaders(file.type), body: file,
   });
   if (!res.ok) throw new Error('Error subiendo foto');
   return SUPA + '/storage/v1/object/public/servicios-fotos/' + nombre;
