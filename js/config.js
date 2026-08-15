@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════
 
 const SUPA = 'https://inlejbenzupcgpkuiqzj.supabase.co';
-const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlubGVqYmVuenVwY2dwa3VpcXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NzE1ODYsImV4cCI6MjA5MjQ0NzU4Nn0.PAovGQ51-cVmOsxcb9fG26kYTArzjQVbS0718-krHuQ';
+const KEY  = 'sb_publishable_sQCmXQQQH0DMWdx8jO0p9A__jvlYPRT';
 // HDR se conserva por compatibilidad. Ya no lleva Authorization:
 // esa cabecera la arma authHeaders() solo cuando hay sesion.
 const HDR  = {
