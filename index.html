@@ -153,9 +153,7 @@
         <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#a4d65e;font-size:14px;flex-shrink:0">🧹</span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Mantenimiento y limpieza</div><div style="font-size:11px;color:#8a9aa1">Limpieza interna para mejorar el rendimiento del equipo.</div></div></div>
       </div>
       <div style="padding:12px 16px 16px">
-        <a href="https://wa.me/573046019483?text=Hola%2C+necesito+servicio+t%C3%A9cnico+para+mi+celular" target="_blank" style="text-decoration:none">
-          <button style="width:100%;background:#a4d65e;color:#0d1f2d;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">SOLICITAR SERVICIO →</button>
-        </a>
+        <button onclick="verCatalogo()" style="width:100%;background:#a4d65e;color:#0d1f2d;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">VER EQUIPOS EN VENTA →</button>
       </div>
     </div>
 
@@ -251,6 +249,9 @@
 
 <!-- ══ CATÁLOGO (se activa después) ══ -->
 <div id="sec-catalogo" style="display:none">
+  <div style="padding:16px 16px 0">
+    <button onclick="verInicio()" style="background:none;border:1px solid #1e3347;color:#8a9aa1;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer">← Volver a servicios</button>
+  </div>
   <div class="pub-hero" style="display:none">
     <h1>Tu tienda de <span>tecnología</span></h1>
     <p>Equipos, accesorios y servicios técnicos con garantía y financiamiento</p>
