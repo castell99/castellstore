@@ -132,7 +132,7 @@
     display:flex;align-items:center;gap:12px}
   .cat-back{flex-shrink:0;background:none;border:1px solid #24405a;color:#8a9aa1;
     border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;
-    font-family:inherit;transition:all .2s;white-space:nowrap}
+    font-family:inherit;transition:all .2s;white-space:nowrap;visibility:hidden}
   .cat-back:hover{border-color:#a4d65e;color:#a4d65e}
   .cat-bar .filter-bar{margin:0;flex:1;justify-content:center;
     flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
@@ -146,11 +146,24 @@
     .cat-bar .filter-bar{justify-content:flex-start}
   }
   </style>
+
+  <div class="cat-bar">
+    <div class="cat-bar-inner">
+      <button class="cat-back" onclick="verInicio()">←<span> Servicios</span></button>
+      <div class="filter-bar">
+        <button class="pill" onclick="irACategoria('',this)">Todos</button>
+        <button class="pill" onclick="irACategoria('Computador',this)">💻 Computadores</button>
+        <button class="pill" onclick="irACategoria('Teléfono',this)">📱 Teléfonos</button>
+        <button class="pill" onclick="irACategoria('Accesorio',this)">🎧 Accesorios</button>
+        <button class="pill" onclick="irACategoria('Servicio',this)">🔧 Servicios</button>
+      </div>
+    </div>
+  </div>
   <div class="pub-wrap">
     
     <!-- ══ PÁGINA PRINCIPAL ══ -->
 <div id="sec-home" style="display:block">
-<div class="page-grid"></div>
+  <div class="page-grid"></div>
   <div class="page-floor"></div>
   <!-- Hero -->
   <style>
@@ -158,16 +171,9 @@
     background:linear-gradient(180deg,rgba(16,31,43,.95) 0%,transparent 100%)}
   .hero-fx::after{content:'';position:absolute;inset:0;pointer-events:none;
     background:radial-gradient(ellipse at 70% 40%,rgba(164,214,94,.10),transparent 60%)}
-  .hero-grid{position:absolute;left:-20%;right:-20%;bottom:0;height:65%;
-    background-image:linear-gradient(rgba(164,214,94,.13) 1px,transparent 1px),
-      linear-gradient(90deg,rgba(164,214,94,.13) 1px,transparent 1px);
-    background-size:40px 40px;transform:perspective(300px) rotateX(60deg);
-    transform-origin:50% 100%;animation:gridRun 7s linear infinite;pointer-events:none}
-  @keyframes gridRun{to{background-position:0 40px}}
   .hero-inner{position:relative;z-index:2;display:flex;align-items:center;
     justify-content:center;gap:28px;flex-wrap:wrap;max-width:900px;margin:0 auto}
   .hero-txt{flex:1 1 300px;text-align:center;min-width:260px}
-  .hero-logo{width:72px;height:72px;object-fit:contain;margin-bottom:10px}
   .hero-txt h1{font-size:32px;font-weight:800;margin:0 0 8px;color:#e8f0f5;line-height:1.15}
   .hero-txt h1 span{color:#a4d65e;text-shadow:0 0 14px rgba(164,214,94,.55)}
   .hero-txt p{color:#8a9aa1;margin:0 0 6px;font-size:14px}
@@ -186,20 +192,19 @@
   @keyframes pulso{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.07);opacity:.35}}
   .hero-img{position:relative;width:100%;display:block;
     filter:drop-shadow(0 12px 24px rgba(0,0,0,.5))}
+  @keyframes gridRun{to{background-position:0 40px}}
   @media(max-width:640px){
     .hero-char{width:170px;order:-1}
     .hero-ring{width:185px;height:185px;margin:-92px 0 0 -92px}
     .hero-txt h1{font-size:26px}
   }
   @media(prefers-reduced-motion:reduce){
-    .hero-char,.hero-ring,.hero-grid{animation:none}
+    .hero-char,.hero-ring{animation:none}
   }
 
-  /* Rejilla de fondo para toda la pagina de inicio */
   #sec-home{position:relative;isolation:isolate}
   #sec-home > *{position:relative;z-index:1}
-  #sec-home > .page-grid{z-index:0}
-  .page-grid{position:fixed;inset:0;pointer-events:none;
+  .page-grid{inset:0;pointer-events:none;
     background-image:
       linear-gradient(rgba(164,214,94,.07) 1px,transparent 1px),
       linear-gradient(90deg,rgba(164,214,94,.07) 1px,transparent 1px);
@@ -208,9 +213,7 @@
     mask-image:radial-gradient(ellipse 80% 70% at 50% 30%,#000 30%,transparent 100%);
     animation:gridDrift 22s linear infinite}
   @keyframes gridDrift{to{background-position:44px 44px}}
-  /* Horizonte en perspectiva, fijo al pie de la pantalla */
-  .page-floor{position:fixed;left:-25%;right:-25%;bottom:0;height:38vh;
-    pointer-events:none;
+  .page-floor{left:-25%;right:-25%;bottom:0;height:38vh;pointer-events:none;
     background-image:
       linear-gradient(rgba(164,214,94,.16) 1px,transparent 1px),
       linear-gradient(90deg,rgba(164,214,94,.16) 1px,transparent 1px);
@@ -219,11 +222,9 @@
     -webkit-mask-image:linear-gradient(transparent,#000 55%);
     mask-image:linear-gradient(transparent,#000 55%);
     animation:gridRun 7s linear infinite}
-  @media(prefers-reduced-motion:reduce){.page-grid,.page-floor{animation:none}}
-
   #sec-home > .page-grid,
   #sec-home > .page-floor{position:fixed;z-index:0}
-    
+  @media(prefers-reduced-motion:reduce){.page-grid,.page-floor{animation:none}}
   </style>
 
   <div class="hero-fx">
@@ -355,18 +356,6 @@
 
 <!-- ══ CATÁLOGO (se activa después) ══ -->
 <div id="sec-catalogo" style="display:none">
-  <div class="cat-bar">
-    <div class="cat-bar-inner">
-      <button class="cat-back" onclick="verInicio()">←<span> Servicios</span></button>
-      <div class="filter-bar">
-        <button class="pill active" onclick="filterPub('',this)">Todos</button>
-        <button class="pill" onclick="filterPub('Computador',this)">💻 Computadores</button>
-        <button class="pill" onclick="filterPub('Teléfono',this)">📱 Teléfonos</button>
-        <button class="pill" onclick="filterPub('Accesorio',this)">🎧 Accesorios</button>
-        <button class="pill" onclick="filterPub('Servicio',this)">🔧 Servicios</button>
-      </div>
-    </div>
-  </div>
   <div class="pub-hero" style="display:none">
     <h1>Tu tienda de <span>tecnología</span></h1>
     <p>Equipos, accesorios y servicios técnicos con garantía y financiamiento</p>
