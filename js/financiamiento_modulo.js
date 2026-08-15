@@ -42,7 +42,7 @@ async function subirImagenEquipo(file, slot) {
   const SUPABASE_KEY = KEY;
   const res = await fetch(`${SUPABASE_URL}/storage/v1/object/equipos-imagenes/${nombre}`, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': file.type, 'x-upsert': 'true' },
+    headers: uploadHeaders(file.type),
     body: file,
   });
   if (!res.ok) throw new Error('Error subiendo imagen');
