@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════
 
 const SUPA = 'https://inlejbenzupcgpkuiqzj.supabase.co';
-const KEY  = 'sb_publishable_sQCmXQQQH0DMWdx8jO0p9A__jvlYPRT';
+const KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlubGVqYmVuenVwY2dwa3VpcXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NzE1ODYsImV4cCI6MjA5MjQ0NzU4Nn0.PAovGQ51-cVmOsxcb9fG26kYTArzjQVbS0718-krHuQ';
 // HDR se conserva por compatibilidad. Ya no lleva Authorization:
 // esa cabecera la arma authHeaders() solo cuando hay sesion.
 const HDR  = {
@@ -226,8 +226,10 @@ function setBtn(id, loading, label = 'Guardar') {
   b.textContent = loading ? 'Guardando...' : label;
 }
 
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// Varios modales se crean solo al usarse, asi que pueden no existir
+// todavia (o ya no existir). Se comprueba antes de tocarlos.
+function openModal(id)  { var e = document.getElementById(id); if (e) e.classList.add('open'); }
+function closeModal(id) { var e = document.getElementById(id); if (e) e.classList.remove('open'); }
 
 // ── Carga de datos ────────────────────────
 async function loadAll() {
