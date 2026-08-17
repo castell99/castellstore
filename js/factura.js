@@ -46,39 +46,31 @@ function numeroALetras(num) {
   return resultado.trim();
 }
 
-// ── Modal selección tamaño + firma ───────
+// ── Generación directa ───────────────────
+// Un solo formato: tirilla termica de 58 mm. Sin modal de tamaño
+// ni de firma, porque la tirilla se firma a mano sobre el papel.
+// El codigo de tamaño carta sigue en construirFacturaPDF por si
+// se quiere volver a ofrecer: basta con llamarlo con 'letter'.
 function generarFacturaVenta(ventaId) {
   var v = ventas.find(function(x){return x.id===ventaId;});
   if (!v) return;
-
-  var m = document.getElementById('modal-factura-opciones');
-  if (!m) { m=document.createElement('div'); m.id='modal-factura-opciones'; m.className='overlay'; document.body.appendChild(m); }
-
-  m.innerHTML = '<div class="modal" style="max-width:400px">' +
-    '<div class="modal-header"><div class="modal-title">🧾 Generar Factura</div>' +
-    '<button class="close-btn" onclick="document.getElementById(\'modal-factura-opciones\').classList.remove(\'open\')">×</button></div>' +
-    '<div style="padding:4px 0">' +
-    '<p style="font-size:12px;color:var(--text2);margin-bottom:12px">Selecciona tamaño de papel:</p>' +
-    '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">' +
-    '<button class="btn" style="justify-content:flex-start;gap:10px" onclick="_facturaSize=\'letter\';_facturaVentaId='+ventaId+';mostrarOpcionFirmaFactura()">' +
-      '<span style="font-size:20px">📄</span><div style="text-align:left"><div style="font-weight:600">Carta (Letter)</div><div style="font-size:11px;color:var(--text3)">21.6 x 27.9 cm — Impresoras normales</div></div></button>' +
-    '<button class="btn" style="justify-content:flex-start;gap:10px" onclick="_facturaSize=\'5x7\';_facturaVentaId='+ventaId+';mostrarOpcionFirmaFactura()">' +
-      '<span style="font-size:20px">🧾</span><div style="text-align:left"><div style="font-weight:600">Comprobante 5×7</div><div style="font-size:11px;color:var(--text3)">12.7 x 17.8 cm — Impresoras de tickets</div></div></button>' +
-    '</div></div>' +
-    '<div class="modal-footer"><button class="btn" onclick="document.getElementById(\'modal-factura-opciones\').classList.remove(\'open\')">Cancelar</button></div>' +
-    '</div>';
-  m.classList.add('open');
+  _facturaVentaId = ventaId;
+  _facturaSize    = 'tirilla';
+  construirFacturaPDF(ventaId, 'tirilla', null, null);
 }
 
-var _facturaSize = 'letter';
+var _facturaSize = 'tirilla';
 var _facturaVentaId = null;
 var _facturaFirmaCliFile = null;
 var _facturaFirmaVenFile = null;
 var _facturaFirmaCli = false;
 var _facturaFirmaVen = false;
 
+// Sin uso desde que la factura genera tirilla directa. Se conserva
+// por si se vuelve a ofrecer el tamaño carta con firma digital.
 function mostrarOpcionFirmaFactura() {
-  document.getElementById('modal-factura-opciones').classList.remove('open');
+  var mo = document.getElementById('modal-factura-opciones');
+  if (mo) mo.classList.remove('open');
   var m = document.getElementById('modal-factura-firma');
   if (!m) { m=document.createElement('div'); m.id='modal-factura-firma'; m.className='overlay'; document.body.appendChild(m); }
 
