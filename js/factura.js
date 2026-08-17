@@ -3,14 +3,7 @@
 //  CastellStore · Carlos Castro Elles
 // ═══════════════════════════════════════════
 
-var FACTURA_VENDEDOR = {
-  nombre   : 'Carlos Castro Elles',
-  cedula   : '1052740183',
-  direccion: 'Cra 18 N 10-53 Villanueva, Bolivar',
-  telefono : '304 601 9483',
-  negocio  : 'CastellStore',
-  web      : 'castell99.github.io/castellstore',
-};
+// FACTURA_VENDEDOR vive ahora en js/negocio.js (fuente unica).
 
 var GARANTIA_NO_APLICA = [
   'Daños de display',

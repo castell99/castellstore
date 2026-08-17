@@ -3,12 +3,13 @@
 //  CastellStore · Carlos Castro Elles
 // ═══════════════════════════════════════════
 
+// Datos tomados de js/negocio.js (fuente unica).
 const VENDEDOR = {
-  nombre   : 'Carlos Castro Elles',
-  cedula   : '1052740183',
-  direccion: 'Cra 18 N 10-53 Villanueva, Bolívar',
-  telefono : '301 719 2825',
-  negocio  : 'CastellStore',
+  nombre   : NEGOCIO.titular,
+  cedula   : NEGOCIO.cedula,
+  direccion: NEGOCIO.direccion + ' ' + NEGOCIO.ciudad,
+  telefono : NEGOCIO.telefono,
+  negocio  : NEGOCIO.nombre,
 };
 
 let _contratoVentaId = null;

@@ -1,16 +1,7 @@
 // ═══════════════════════════════════════════
 //  recibo.js — Generador de Paz y Salvo
 // ═══════════════════════════════════════════
-const NEGOCIO = {
-  nombre   : 'CastellStore',
-  telefono : '301 719 2825',
-  whatsapp : '573017192825',
-  facebook : 'castellstore',
-  instagram: 'castellstore',
-  tiktok   : 'castellstore',
-  youtube  : 'CastellStore',
-  ciudad   : 'Cartagena, Colombia',
-};
+// NEGOCIO vive ahora en js/negocio.js (fuente unica).
 
 async function generarRecibo(tipo, id) {
   let datos = {};
