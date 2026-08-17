@@ -221,17 +221,13 @@ function renderVentas() {
         '</div>' +
         (esF ? '<div class="progress-bar" style="margin-bottom:8px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' : '') +
         '<div style="font-size:11px;color:var(--text3);margin-bottom:10px">' + v.pago + (v.cuotas > 0 ? ' · ' + v.cuotas + ' meses' : '') + ' · ' + v.fecha + '</div>' +
-        '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-          '<div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">' +
+        // Contrato y Paz y Salvo viven dentro de Docs; aqui solo los
+        // 4 botones de accion, iguales a los de escritorio.
+        '<div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">' +
           '<button class="btn sm" onclick="openFinanciamiento(' + v.id + ')" style="' + (esF ? 'background:var(--amber-bg);border-color:var(--amber);color:var(--amber)' : '') + '">🤑</button>' +
           '<button class="btn sm" onclick="abrirDocumentos(' + v.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
           '<button class="btn sm" onclick="editarVenta(' + v.id + ')">✏️</button>' +
-          '<button class="icon-btn" onclick="delVenta(' + v.id + ')">x</button>' +
-        '</div>' +
-          (v.estado === 'Completada' ? '<button class="btn sm" onclick="generarRecibo(\'venta\',' + v.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">P&S</button>' : '') +
-        (esF ? '<button class="btn sm" onclick="abrirContrato(' + v.id + ')" style="background:var(--blue-bg,rgba(91,163,201,0.1));border-color:var(--blue,#5ba3c9);color:var(--blue,#5ba3c9)">📄 Contrato</button>' : '') +  
-        '<button class="btn sm" onclick="editarVenta(' + v.id + ')">Editar ✏️</button>' +
-          '<button class="icon-btn" onclick="delVenta(' + v.id + ')">x</button>' +
+          '<button class="icon-btn" onclick="delVenta(' + v.id + ')">🗑️</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -723,10 +719,10 @@ function abrirDocumentos(ventaId) {
       '<div style="font-size:11px;color:var(--text3)">Contrato legal con firmas digitales y clausulas</div></div>' +
     '</button>' : '') +
 
-    (pS ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px;background:var(--green-bg);border-color:var(--green-bd)" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');generarPazSalvoFactura(' + ventaId + ')">' +
+    (pS ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px;background:var(--green-bg);border-color:var(--green-bd)" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');generarRecibo(\'venta\',' + ventaId + ')">' +
       '<span style="font-size:24px">✅</span>' +
       '<div style="text-align:left"><div style="font-weight:600;color:var(--green)">Paz y Salvo</div>' +
-      '<div style="font-size:11px;color:var(--text3)">Certificado de pago total del equipo</div></div>' +
+      '<div style="font-size:11px;color:var(--text3)">Comprobante de pago total, listo para WhatsApp</div></div>' +
     '</button>' : '') +
 
     '</div>' +
