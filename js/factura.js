@@ -162,171 +162,344 @@ function confirmarFirmasFactura() {
 }
 
 // ── Construcción del PDF ──────────────────
+// Diseño unificado con el comprobante: banda azul de marca,
+// acento verde y todo en una sola pagina.
 async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   var v = ventas.find(function(x){return x.id===ventaId;});
   if (!v) return;
 
+  // La tirilla termica es otro documento, no la factura reducida.
+  if (tamano === 'tirilla') return construirTirillaPDF(v, firmaCliImg);
+
   var eq = equiposFin.find(function(e){return e.marca+' '+e.modelo===v.producto;});
-  var esModoLibre = !eq;
   var misCuotas = cuotas.filter(function(c){return c.venta_id===v.id;}).sort(function(a,b){return a.numero-b.numero;});
   var ini      = parseFloat(v.inicial_pagada)||0;
   var cuotaVal = misCuotas.length>0 ? parseFloat(misCuotas[0].monto) : 0;
 
   var {jsPDF} = window.jspdf;
-  var isSmall  = tamano==='5x7';
-  var format   = isSmall ? [127,178] : 'letter';
+  var isSmall = tamano==='5x7';
+  var format  = isSmall ? [127,178] : 'letter';
   var doc = new jsPDF({orientation:'portrait',unit:'mm',format:format});
 
   var W  = isSmall?127:215.9;
-  var mx = isSmall?8:15;
+  var H  = isSmall?178:279.4;
+  var mx = isSmall?7:14;
   var cw = W-mx*2;
-  var fs = isSmall?7:9;
-  var y  = 0;
+  var fs = isSmall?6.5:8.5;
 
-  function ln(yy){ doc.setDrawColor(0);doc.setLineWidth(0.3);doc.line(mx,yy,W-mx,yy); }
-  function bold(s){ doc.setFont('helvetica','bold');doc.setFontSize(s||fs); }
-  function norm(s){ doc.setFont('helvetica','normal');doc.setFontSize(s||fs); }
-  function chk(n){ if(y+(n||10)>(isSmall?165:260)){doc.addPage();y=10;} }
+  // Paleta compartida con el comprobante
+  var AZUL  = [16,31,43];
+  var VERDE = [130,180,60];
+  var GRIS  = [110,125,135];
 
-  // ── Encabezado ──
-  bold(isSmall?11:14); doc.text(FACTURA_VENDEDOR.negocio, mx, 12);
-  norm(isSmall?6:8);
-  doc.text(FACTURA_VENDEDOR.nombre+' · C.C. '+FACTURA_VENDEDOR.cedula, mx, 17);
-  doc.text(FACTURA_VENDEDOR.direccion, mx, 21);
-  doc.text('Tel: '+FACTURA_VENDEDOR.telefono, mx, 25);
-  bold(isSmall?8:10); doc.text('FACTURA DE VENTA', W-mx, 12, {align:'right'});
-  norm(isSmall?6:8);
-  doc.text('No. '+String(v.id).padStart(6,'0'), W-mx, 17, {align:'right'});
-  doc.text('Fecha: '+today(), W-mx, 21, {align:'right'});
-  y=29; ln(y); y+=4;
+  function bold(s){ doc.setFont('helvetica','bold'); doc.setFontSize(s||fs); }
+  function norm(s){ doc.setFont('helvetica','normal'); doc.setFontSize(s||fs); }
+  function tinta(c){ doc.setTextColor(c[0],c[1],c[2]); }
 
-  // ── Datos comprador ──
-  bold(fs-1); doc.text('DATOS DEL COMPRADOR', mx, y); y+=4;
-  norm(fs);
-  doc.text(v.cliente||'', mx, y); y+=4;
-  if(v.cedula_cliente){ doc.text('C.C.: '+v.cedula_cliente, mx, y); y+=4; }
-  if(v.telefono_cliente){ doc.text('Tel: '+v.telefono_cliente, mx, y); y+=4; }
-  y+=2;
+  // Titulo de seccion: texto azul con barrita verde al lado
+  function seccion(txt, x, yy, ancho) {
+    doc.setFillColor(VERDE[0],VERDE[1],VERDE[2]);
+    doc.rect(x, yy-2.6, 1.2, 3.2, 'F');
+    bold(fs-0.5); tinta(AZUL);
+    doc.text(txt.toUpperCase(), x+3, yy);
+    doc.setDrawColor(225,230,234); doc.setLineWidth(0.2);
+    doc.line(x, yy+1.8, x+(ancho||cw), yy+1.8);
+    return yy+6;
+  }
 
-  // ── Datos equipo ──
-  bold(fs-1); doc.text('DATOS DEL EQUIPO', mx, y); y+=4;
-  norm(fs);
-  // Solo modelo
-  var modelo = v.producto;
-  doc.text(modelo, mx, y); y+=4;
-  if(v.color){ doc.text('Color: '+v.color, mx, y); y+=4; }
-  if(eq && eq.almacenamiento){ doc.text('Almacenamiento: '+eq.almacenamiento, mx, y); y+=4; }
-  if(v.imei){  doc.text('IMEI 1: '+v.imei, mx, y); y+=4; }
-  if(v.imei2){ doc.text('IMEI 2: '+v.imei2, mx, y); y+=4; }
-  y+=2; ln(y); y+=4;
+  // ── Encabezado: banda azul ──
+  var hb = isSmall?24:28;
+  doc.setFillColor(AZUL[0],AZUL[1],AZUL[2]);
+  doc.rect(0,0,W,hb,'F');
+  doc.setFillColor(VERDE[0],VERDE[1],VERDE[2]);
+  doc.rect(0,hb,W,1.1,'F');
 
-  // ── Tabla ──
-  doc.setFillColor(0,0,0);
-  doc.rect(mx, y, cw, isSmall?5:6,'F');
+  var tx = mx;
+  try {
+    if (typeof LOGO_B64 !== 'undefined' && LOGO_B64) {
+      var ls = isSmall?11:14;
+      doc.addImage(LOGO_B64,'PNG',mx,(hb-ls)/2,ls,ls);
+      tx = mx+ls+4;
+    }
+  } catch(e){}
+
+  bold(isSmall?11:15); doc.setTextColor(255,255,255);
+  doc.text(NEGOCIO.nombre, tx, isSmall?10:11);
+  norm(isSmall?5.5:7); doc.setTextColor(170,190,200);
+  doc.text(NEGOCIO.titular+' · C.C. '+NEGOCIO.cedula, tx, isSmall?14:16);
+  doc.text(NEGOCIO.direccion+' · '+NEGOCIO.ciudad, tx, isSmall?17.5:20);
+  doc.text('Tel: '+NEGOCIO.telefono, tx, isSmall?21:24);
+
+  bold(isSmall?8:11); doc.setTextColor(VERDE[0]+40,VERDE[1]+40,VERDE[2]+40);
+  doc.text('FACTURA DE VENTA', W-mx, isSmall?10:11, {align:'right'});
+  norm(isSmall?5.5:7.5); doc.setTextColor(200,215,222);
+  doc.text('No. '+String(v.id).padStart(6,'0'), W-mx, isSmall?14:16, {align:'right'});
+  doc.text('Fecha: '+today(), W-mx, isSmall?17.5:20, {align:'right'});
+
+  var y = hb+9;
+  tinta([25,35,45]);
+
+  // ── Comprador y equipo, lado a lado ──
+  var colW = (cw-6)/2;
+  var yTop = y;
+  var yA = seccion('Datos del comprador', mx, y, isSmall?cw:colW);
+  norm(fs); tinta([25,35,45]);
+  doc.text(v.cliente||'—', mx, yA); yA+=4;
+  if(v.cedula_cliente){ doc.text('C.C.: '+v.cedula_cliente, mx, yA); yA+=4; }
+  if(v.telefono_cliente){ doc.text('Tel: '+v.telefono_cliente, mx, yA); yA+=4; }
+
+  var xB = isSmall ? mx : mx+colW+6;
+  var yB = isSmall ? yA+3 : yTop;
+  yB = seccion('Datos del equipo', xB, yB, isSmall?cw:colW);
+  norm(fs); tinta([25,35,45]);
+  var modelo = v.producto||'—';
+  doc.splitTextToSize(modelo, colW).forEach(function(l){ doc.text(l, xB, yB); yB+=4; });
+  if(v.color){ doc.text('Color: '+v.color, xB, yB); yB+=4; }
+  if(eq && eq.almacenamiento){ doc.text('Almacenamiento: '+eq.almacenamiento, xB, yB); yB+=4; }
+  if(v.imei){  doc.text('IMEI 1: '+v.imei, xB, yB); yB+=4; }
+  if(v.imei2){ doc.text('IMEI 2: '+v.imei2, xB, yB); yB+=4; }
+
+  y = Math.max(yA, yB)+4;
+
+  // ── Tabla de valores ──
+  doc.setFillColor(AZUL[0],AZUL[1],AZUL[2]);
+  doc.rect(mx, y, cw, isSmall?5.5:6.5,'F');
   doc.setTextColor(255,255,255); bold(fs);
-  doc.text('DESCRIPCION', mx+2, y+(isSmall?3.5:4.5));
-  doc.text('VALOR', W-mx-2, y+(isSmall?3.5:4.5),{align:'right'});
-  doc.setTextColor(0,0,0); y+=isSmall?6:7;
+  doc.text('DESCRIPCIÓN', mx+3, y+(isSmall?3.8:4.6));
+  doc.text('VALOR', W-mx-3, y+(isSmall?3.8:4.6),{align:'right'});
+  y += isSmall?8:9.5;
 
-  norm(fs);
-  var descProd = modelo;
-  var detalle  = v.pago==='Financiado' && misCuotas.length>0
+  var detalle = v.pago==='Financiado' && misCuotas.length>0
     ? 'Financiado · '+misCuotas.length+' cuotas de '+fmt(cuotaVal)+'/mes · Inicial: '+fmt(ini)
     : v.pago==='Financiado' ? 'Financiado · Inicial: '+fmt(ini)
     : 'Contado';
 
-  var dL = doc.splitTextToSize(descProd, cw-28);
-  var dtL= doc.splitTextToSize(detalle, cw-28);
-  doc.text(dL, mx+2, y+3);
-  norm(fs-1); doc.text(dtL, mx+2, y+3+dL.length*3.8);
-  bold(fs); doc.text(fmt(v.precio), W-mx-2, y+3,{align:'right'});
-  y += (dL.length+dtL.length)*3.8+6;
-  ln(y); y+=2;
-  bold(isSmall?8:10); doc.text('TOTAL', mx+2, y+4);
-  bold(isSmall?9:11); doc.text(fmt(v.precio), W-mx-2, y+4,{align:'right'});
-  y+=8; ln(y); y+=4;
+  norm(fs); tinta([25,35,45]);
+  var dL = doc.splitTextToSize(modelo, cw-34);
+  doc.text(dL, mx+3, y);
+  bold(fs); doc.text(fmt(v.precio), W-mx-3, y,{align:'right'});
+  var yD = y + dL.length*4;
+  norm(fs-1); tinta(GRIS);
+  var dtL = doc.splitTextToSize(detalle, cw-34);
+  doc.text(dtL, mx+3, yD);
+  y = yD + dtL.length*3.6 + 3;
 
-  // ── Precio en letras ──
-  chk(10);
-  doc.setLineWidth(0.2); doc.setDrawColor(100);
-  doc.rect(mx,y,cw,isSmall?9:10);
-  doc.setDrawColor(0);
-  bold(fs-1); doc.text('PRECIO EN LETRAS:', mx+2, y+4);
-  norm(fs-1);
+  doc.setDrawColor(225,230,234); doc.setLineWidth(0.2);
+  doc.line(mx,y,W-mx,y); y+=1;
+
+  // Fila TOTAL con fondo suave
+  doc.setFillColor(244,247,249);
+  doc.rect(mx, y, cw, isSmall?8:9.5,'F');
+  bold(isSmall?8.5:11); tinta(AZUL);
+  doc.text('TOTAL', mx+3, y+(isSmall?5.5:6.5));
+  doc.text(fmt(v.precio), W-mx-3, y+(isSmall?5.5:6.5),{align:'right'});
+  y += (isSmall?11:13);
+
+  // ── Precio en letras (recuadro unico, sin solaparse) ──
   var letras = numeroALetras(Math.round(parseFloat(v.precio)||0))+' PESOS M/CTE';
-  var lL = doc.splitTextToSize(letras, cw-4);
-  doc.text(lL, mx+2, y+9);
-  var altoCaja = lL.length * 4 + 10;
-  doc.setLineWidth(0.2); doc.setDrawColor(100);
-  doc.rect(mx, y, cw, altoCaja);
-  doc.setDrawColor(0);
-  y += altoCaja + 12;
+  norm(fs-1);
+  var lL = doc.splitTextToSize(letras, cw-6);
+  var altoCaja = 6.5 + lL.length*3.8 + 2.5;
+  doc.setFillColor(250,251,252);
+  doc.setDrawColor(220,226,231); doc.setLineWidth(0.25);
+  doc.rect(mx, y, cw, altoCaja, 'FD');
+  bold(fs-1.5); tinta(GRIS);
+  doc.text('PRECIO EN LETRAS', mx+3, y+4);
+  norm(fs-1); tinta([25,35,45]);
+  doc.text(lL, mx+3, y+8.5);
+  y += altoCaja+6;
 
   // ── Método de pago ──
-  chk(12); bold(fs-1); doc.text('METODO DE PAGO:', mx, y); y+=4;
-  norm(fs);
+  y = seccion('Método de pago', mx, y);
+  norm(fs); tinta([25,35,45]);
   var metodo = v.pago||'No especificado';
-  if(v.observaciones) metodo+=' · '+v.observaciones;
+  if(v.observaciones) metodo += ' · '+v.observaciones;
   var mL = doc.splitTextToSize(metodo, cw);
-  doc.text(mL, mx, y); y+=mL.length*4+2; ln(y); y+=4;
+  doc.text(mL, mx, y); y += mL.length*4+5;
 
-  // ── Garantía ──
-  chk(35);
-  bold(fs-1); doc.text('GARANTIA DEL EQUIPO', mx, y); y+=4;
-  norm(fs);
-  bold(fs); doc.text('2 meses', mx, y); y+=4;
-  norm(fs);
-  doc.text('· Mal funcionamiento del equipo por defecto de fabrica', mx, y); y+=4;
-  doc.text('· No aplica para equipos no registrados ante operadores', mx, y); y+=6;
+  // ── Garantía en dos columnas ──
+  var yG = y;
+  var yG1 = seccion('Garantía del equipo', mx, yG, isSmall?cw:colW);
+  bold(fs); tinta([25,35,45]); doc.text('2 meses', mx, yG1); yG1+=4.5;
+  norm(fs-0.5);
+  ['Mal funcionamiento por defecto de fábrica',
+   'No aplica para equipos no registrados ante operadores'].forEach(function(t){
+    var l = doc.splitTextToSize('· '+t, isSmall?cw:colW);
+    doc.text(l, mx, yG1); yG1 += l.length*3.6;
+  });
 
-  bold(fs-1); doc.text('GARANTIA NO APLICA POR:', mx, y); y+=4;
-  norm(fs);
-  GARANTIA_NO_APLICA.forEach(function(item){ chk(5); doc.text('· '+item, mx, y); y+=4; });
-  y+=2; ln(y); y+=4;
+  var xG2 = isSmall ? mx : mx+colW+6;
+  var yG2 = isSmall ? yG1+3 : yG;
+  yG2 = seccion('La garantía no aplica por', xG2, yG2, isSmall?cw:colW);
+  norm(fs-0.5); tinta([25,35,45]);
+  GARANTIA_NO_APLICA.forEach(function(item){
+    var l = doc.splitTextToSize('· '+item, isSmall?cw:colW);
+    doc.text(l, xG2, yG2); yG2 += l.length*3.6;
+  });
+  y = Math.max(yG1,yG2)+5;
 
   // ── Términos ──
-  chk(24); bold(fs-1); doc.text('TERMINOS Y CONDICIONES', mx, y); y+=4;
-  norm(fs-1);
-  ['1. El equipo sale en perfectas condiciones segun revision al momento de la entrega.',
-   '2. Para hacer efectiva la garantia debe presentar esta factura original.',
-   '3. La garantia no cubre los casos mencionados anteriormente.',
-   '4. Los pagos deben realizarse en las fechas acordadas segun el plan de cuotas.',
-   '5. En caso de mora se aplicaran los intereses legales vigentes.'].forEach(function(t){
-    var tL=doc.splitTextToSize(t,cw); chk(tL.length*3.5+1); doc.text(tL,mx,y); y+=tL.length*3.5+1;
+  y = seccion('Términos y condiciones', mx, y);
+  norm(fs-1.5); tinta([60,72,82]);
+  ['1. El equipo sale en perfectas condiciones según revisión al momento de la entrega.',
+   '2. Para hacer efectiva la garantía debe presentar esta factura original.',
+   '3. La garantía no cubre los casos mencionados anteriormente.',
+   '4. Los pagos deben realizarse en las fechas acordadas según el plan de cuotas.',
+   '5. En caso de mora se aplicarán los intereses legales vigentes.'].forEach(function(t){
+    var tL = doc.splitTextToSize(t, cw);
+    doc.text(tL, mx, y); y += tL.length*3.4+0.6;
   });
-  y+=4;
 
-  // ── Firmas ──
-  chk(35);
-  var fw = (cw-10)/2;
-  y+=12;
+  // ── Firmas, ancladas cerca del pie ──
+  var yPie  = H - (isSmall?16:20);
+  // Las firmas siguen al contenido; solo se frenan si llegan al pie.
+  var yFirma = Math.min(y+20, yPie-26);
+  var fw = (cw-12)/2;
 
   if (firmaCliImg && firmaVenImg) {
-    try { doc.addImage(firmaCliImg,'PNG',mx,y-10,fw,10); } catch(e){}
-    try { doc.addImage(firmaVenImg,'PNG',mx+fw+10,y-10,fw,10); } catch(e){}
+    try { doc.addImage(firmaCliImg,'PNG',mx,yFirma-11,fw,11); } catch(e){}
+    try { doc.addImage(firmaVenImg,'PNG',mx+fw+12,yFirma-11,fw,11); } catch(e){}
   }
+  doc.setDrawColor(150,160,170); doc.setLineWidth(0.3);
+  doc.line(mx,yFirma,mx+fw,yFirma);
+  doc.line(mx+fw+12,yFirma,mx+fw+12+fw,yFirma);
+  var yf = yFirma+3.5;
+  norm(fs-1.5); tinta(GRIS);
+  doc.text('Firma comprador', mx, yf);
+  doc.text('Firma vendedor', mx+fw+12, yf); yf+=4;
+  bold(fs-0.5); tinta([25,35,45]);
+  doc.text(v.cliente||'', mx, yf);
+  doc.text(NEGOCIO.titular, mx+fw+12, yf); yf+=3.8;
+  norm(fs-1.5); tinta(GRIS);
+  if(v.cedula_cliente) doc.text('C.C. '+v.cedula_cliente, mx, yf);
+  doc.text('C.C. '+NEGOCIO.cedula, mx+fw+12, yf);
 
-  doc.line(mx,y,mx+fw,y);
-  doc.line(mx+fw+10,y,mx+fw+10+fw,y);
-  y+=3; norm(fs-1);
-  doc.text('Firma comprador', mx, y);
-  doc.text('Firma vendedor', mx+fw+10, y); y+=4;
-  bold(fs-1);
-  doc.text(v.cliente||'', mx, y);
-  doc.text(FACTURA_VENDEDOR.nombre, mx+fw+10, y); y+=4;
-  norm(fs-1);
-  if(v.cedula_cliente) doc.text('C.C. '+v.cedula_cliente, mx, y);
-  doc.text('C.C. '+FACTURA_VENDEDOR.cedula, mx+fw+10, y);
-  y+=8;
+  // ── Pie: banda azul ──
+  doc.setFillColor(AZUL[0],AZUL[1],AZUL[2]);
+  doc.rect(0, H-(isSmall?9:11), W, isSmall?9:11, 'F');
+  doc.setFillColor(VERDE[0],VERDE[1],VERDE[2]);
+  doc.rect(0, H-(isSmall?9:11), W, 0.8, 'F');
+  norm(isSmall?5:6.5); doc.setTextColor(190,205,214);
+  doc.text(NEGOCIO.sitio+' · '+NEGOCIO.web+' · Tel: '+NEGOCIO.telefono,
+           W/2, H-(isSmall?3.5:4.5), {align:'center'});
 
-  // Pie
-  ln(y); y+=3;
-  doc.setFontSize(fs-2);
-  doc.text(FACTURA_VENDEDOR.negocio+' · '+FACTURA_VENDEDOR.web+' · Tel: '+FACTURA_VENDEDOR.telefono, W/2, y+3,{align:'center'});
-
-  var nombre='factura-'+(v.cliente||'').replace(/\s+/g,'-')+'-'+v.id+'.pdf';
+  var nombre = 'factura-'+(v.cliente||'').replace(/\s+/g,'-')+'-'+v.id+'.pdf';
   doc.save(nombre);
   toast('Factura generada ✓');
+}
+
+// ── Tirilla térmica 58 mm ─────────────────
+// Documento aparte, no la factura encogida: una sola columna,
+// blanco y negro puro (la térmica no imprime color) y alto
+// variable segun el contenido, para no botar papel.
+//
+// Ancho de rollo 58 mm · área imprimible ~48 mm.
+
+function _tirillaPintar(doc, v, firmaImg) {
+  var W = 58, mx = 4.5, cw = W - mx*2;   // 49 mm utiles
+  var y = 6;
+
+  function b(s){ doc.setFont('helvetica','bold');   doc.setFontSize(s||6.5); }
+  function n(s){ doc.setFont('helvetica','normal'); doc.setFontSize(s||6.5); }
+  function centro(t,s,neg){ (neg?b:n)(s); doc.text(t, W/2, y, {align:'center'}); y+=(s||6.5)*0.42+0.6; }
+  function izq(t,s){ n(s); doc.splitTextToSize(t,cw).forEach(function(l){ doc.text(l,mx,y); y+=(s||6.5)*0.42+0.5; }); }
+  function separador(){ doc.setLineWidth(0.15); doc.setDrawColor(0);
+    doc.setLineDashPattern([0.6,0.6],0); doc.line(mx,y,W-mx,y);
+    doc.setLineDashPattern([],0); y+=3; }
+  function regla(){ doc.setLineWidth(0.4); doc.setDrawColor(0); doc.line(mx,y,W-mx,y); y+=3; }
+  function fila(et,val,s){ n(s||6.5); doc.text(et,mx,y);
+    b(s||6.5); doc.text(val, W-mx, y, {align:'right'}); y+=(s||6.5)*0.42+0.8; }
+
+  var eq = equiposFin.find(function(e){return e.marca+' '+e.modelo===v.producto;});
+  var misCuotas = cuotas.filter(function(c){return c.venta_id===v.id;}).sort(function(a,b2){return a.numero-b2.numero;});
+  var iniPag = parseFloat(v.inicial_pagada)||0;
+
+  // Encabezado
+  centro(NEGOCIO.nombre.toUpperCase(), 11, true);
+  y += 0.5;
+  centro(NEGOCIO.titular, 6);
+  centro('C.C. '+NEGOCIO.cedula, 6);
+  centro(NEGOCIO.direccion, 6);
+  centro(NEGOCIO.ciudad, 6);
+  centro('Tel: '+NEGOCIO.telefono, 6);
+  y += 1.5; regla();
+
+  centro('FACTURA DE VENTA', 8, true);
+  centro('No. '+String(v.id).padStart(6,'0')+'  ·  '+today(), 6);
+  y += 1; separador();
+
+  // Cliente
+  b(6.5); doc.text('CLIENTE', mx, y); y+=3;
+  izq(v.cliente||'—');
+  if(v.cedula_cliente)   izq('C.C.: '+v.cedula_cliente, 6);
+  if(v.telefono_cliente) izq('Tel: '+v.telefono_cliente, 6);
+  y += 1; separador();
+
+  // Equipo
+  b(6.5); doc.text('EQUIPO', mx, y); y+=3;
+  izq(v.producto||'—');
+  if(v.color) izq('Color: '+v.color, 6);
+  if(eq && eq.almacenamiento) izq('Almac.: '+eq.almacenamiento, 6);
+  if(v.imei)  izq('IMEI 1: '+v.imei, 6);
+  if(v.imei2) izq('IMEI 2: '+v.imei2, 6);
+  y += 1; separador();
+
+  // Valores
+  var detalle = v.pago==='Financiado' && misCuotas.length>0
+    ? 'Financiado · '+misCuotas.length+' cuotas de '+fmt(parseFloat(misCuotas[0].monto))
+    : v.pago==='Financiado' ? 'Financiado · Inicial: '+fmt(iniPag)
+    : 'Contado';
+  izq(detalle, 6);
+  if(v.pago==='Financiado' && iniPag>0) fila('Inicial pagada', fmt(iniPag), 6);
+  y += 0.5; regla();
+  b(9); doc.text('TOTAL', mx, y); b(9); doc.text(fmt(v.precio), W-mx, y, {align:'right'}); y+=4.6;
+  regla();
+
+  n(6); izq('SON: '+numeroALetras(Math.round(parseFloat(v.precio)||0))+' PESOS M/CTE', 6);
+  y += 0.5;
+  izq('PAGO: '+(v.pago||'No especificado'), 6);
+  if(v.observaciones) izq('OBS: '+v.observaciones, 6);
+  y += 1; separador();
+
+  // Garantía
+  b(6.5); doc.text('GARANTÍA: 2 meses', mx, y); y+=3;
+  n(5.8);
+  izq('· Mal funcionamiento por defecto de fábrica', 5.8);
+  izq('· No aplica para equipos no registrados', 5.8);
+  y += 1;
+  b(6); doc.text('NO APLICA POR:', mx, y); y+=2.8;
+  GARANTIA_NO_APLICA.forEach(function(it){ izq('· '+it, 5.8); });
+  y += 1; separador();
+
+  // Firma
+  if (firmaImg) { try { doc.addImage(firmaImg,'PNG',mx,y,cw*0.7,9); y+=9.5; } catch(e){ y+=9; } }
+  else y += 9;
+  doc.setLineWidth(0.2); doc.line(mx,y,mx+cw*0.75,y); y+=3;
+  n(5.8); doc.text('Firma comprador', mx, y); y+=3;
+  b(6);   doc.text(v.cliente||'', mx, y); y+=4;
+
+  separador();
+  centro('¡Gracias por su compra!', 7, true);
+  y += 0.5;
+  centro(NEGOCIO.web, 5.5);
+  centro('Conserve esta tirilla para la garantía', 5.5);
+
+  return y;
+}
+
+async function construirTirillaPDF(v, firmaImg) {
+  var {jsPDF} = window.jspdf;
+
+  // Pasada 1: medir sobre un lienzo alto y desechable.
+  var tmp = new jsPDF({orientation:'portrait',unit:'mm',format:[58,800]});
+  var alto = _tirillaPintar(tmp, v, firmaImg) + 8;
+
+  // Pasada 2: el documento real, con la altura justa.
+  var doc = new jsPDF({orientation:'portrait',unit:'mm',format:[58,alto]});
+  _tirillaPintar(doc, v, firmaImg);
+
+  doc.save('tirilla-'+(v.cliente||'').replace(/\s+/g,'-')+'-'+v.id+'.pdf');
+  toast('Tirilla generada ✓');
 }
 
 // ── Paz y Salvo estilo factura ────────────
