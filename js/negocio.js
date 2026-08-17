@@ -11,8 +11,10 @@
 
 var NEGOCIO = {
   // Identidad
-  nombre   : 'CastellStore',
-  marca    : 'CastellTech',
+  // nombre = razon comercial, va en facturas, contratos y recibos.
+  // sitio  = nombre del sitio web, solo para el pie y la URL.
+  nombre   : 'Castell Tech',
+  sitio    : 'CastellStore',
   web      : 'castell99.github.io/castellstore',
 
   // Responsable (aparece en documentos formales)
