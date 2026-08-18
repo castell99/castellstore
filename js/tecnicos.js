@@ -64,6 +64,16 @@ async function guardarTecnico() {
     patron_bloqueo  : bloqueo.patron_bloqueo,
   };
 
+  // Al entregar el equipo, la clave de desbloqueo deja de hacer
+  // falta y pasa a ser solo un riesgo: se borra de la base.
+  // Es la unica forma de que un dato sensible no se acumule para
+  // siempre. No se puede deshacer, por eso se avisa antes.
+  if (payload.estado === 'Entregado') {
+    payload.tipo_bloqueo   = null;
+    payload.clave_bloqueo  = null;
+    payload.patron_bloqueo = null;
+  }
+
   setBtn('btn-st', true, 'Guardar servicio');
   try {
     if (editTecId) {
@@ -411,6 +421,19 @@ var _patronSecuencia = [];
 var _patronDrawing   = false;
 var _patronCtx       = null;
 var _patronNodes     = [];
+
+// Aviso al marcar como entregado, para que no sorprenda que la
+// clave desaparezca.
+function avisarBorradoBloqueo(sel) {
+  var nota = document.getElementById('t-aviso-bloqueo');
+  if (!nota) return;
+  var hayClave = _tipoBloqueo && (
+    (_tipoBloqueo === 'patron' && _patronSecuencia && _patronSecuencia.length) ||
+    (_tipoBloqueo !== 'patron' && document.getElementById('t-clave-bloqueo') &&
+     document.getElementById('t-clave-bloqueo').value)
+  );
+  nota.style.display = (sel.value === 'Entregado' && hayClave) ? 'block' : 'none';
+}
 
 function setTipoBloqueo(tipo) {
   _tipoBloqueo = tipo;
