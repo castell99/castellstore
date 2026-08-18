@@ -2,19 +2,18 @@
 // sec-home y sec-catalogo conviven dentro de la vista publica.
 // Estas funciones son lo unico que las alterna.
 
-function _mostrarBotonVolver(ver) {
-  var b = document.querySelector('.cat-back');
-  if (b) b.style.visibility = ver ? 'visible' : 'hidden';
-}
-
 function verCatalogo() {
   var h = document.getElementById('sec-home');
   var c = document.getElementById('sec-catalogo');
   if (h) h.style.display = 'none';
   if (c) c.style.display = 'block';
-  _mostrarBotonVolver(true);
   window.scrollTo(0, 0);
-  renderPublic();
+  // Sin pildora "Todos", el catalogo siempre muestra una categoria.
+  // Al entrar cae en Telefonos.
+  Promise.resolve(renderPublic()).then(function() {
+    var p = document.querySelector('.cat-bar .pill[data-cat="Teléfono"]');
+    if (p) filterPub('Teléfono', p);
+  });
 }
 
 function verInicio() {
@@ -22,7 +21,6 @@ function verInicio() {
   var c = document.getElementById('sec-catalogo');
   if (c) c.style.display = 'none';
   if (h) h.style.display = 'block';
-  _mostrarBotonVolver(false);
   document.querySelectorAll('.cat-bar .pill').forEach(function(p){ p.classList.remove('active'); });
   window.scrollTo(0, 0);
 }
@@ -35,8 +33,7 @@ async function irACategoria(cat, el) {
   if (h && h.style.display !== 'none') {
     h.style.display = 'none';
     document.getElementById('sec-catalogo').style.display = 'block';
-    _mostrarBotonVolver(true);
-    window.scrollTo(0, 0);
+      window.scrollTo(0, 0);
     if (typeof equiposCatalogo === 'undefined' || !equiposCatalogo.length) {
       await loadCatalogo();
     }
@@ -115,10 +112,22 @@ function filterPub(cat, el) {
   var marcaBar   = document.getElementById('marca-bar');
   var esTelefono = (cat === '' || cat === 'Teléfono' || cat === 'Telefonos' || cat === 'Teléfonos');
 
+  // Las marcas salen de equipos_financiamiento en telefonos y de
+  // productos en el resto. Si la categoria no tiene ninguna marca
+  // registrada, la barra no se muestra.
+  var marcas = [];
   if (esTelefono) {
-    var marcas = [];
     equiposCatalogo.forEach(function(e) { if (e.marca && marcas.indexOf(e.marca) === -1) marcas.push(e.marca); });
-    marcas.sort();
+  } else if (typeof productos !== 'undefined') {
+    productos.forEach(function(p) {
+      if (!p.marca) return;
+      if (p.categoria !== cat && p.categoria !== cat + 's') return;
+      if (marcas.indexOf(p.marca) === -1) marcas.push(p.marca);
+    });
+  }
+  marcas.sort();
+
+  if (marcas.length) {
 
     marcaBar.innerHTML =
       '<div id="marcas-slider" style="display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:12px 4px;scroll-behavior:smooth">' +
@@ -199,16 +208,19 @@ function renderTarjetaEquipo(eq) {
   if (eq.ram) specs += '<span style="background:var(--surface2);color:var(--text2);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">💾 ' + eq.ram + '</span> ';
   if (eq.almacenamiento) specs += '<span style="background:var(--surface2);color:var(--text2);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">📦 ' + eq.almacenamiento + '</span> ';
   if (eq.g5) specs += '<span style="background:var(--surface2);color:var(--blue);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600">📶 5G</span>';
-  var masVendido = tags.indexOf('Más vendido') !== -1 ? '<div style="position:absolute;top:8px;right:8px;z-index:10"><span class="badge amber">⭐ Más vendido</span></div>' : '';
+  var masVendido = tags.indexOf('Más vendido') !== -1 ? '<span class="badge amber" style="margin-left:auto">⭐ Más vendido</span>' : '';
   var precio = parseFloat(eq.precio_contado) || 0;
   var html = '<div class="prod-card" style="padding:0;overflow:hidden;cursor:pointer" onclick="abrirDetalleEquipo(' + eq.id + ')">';
   html += '<div style="position:relative">';
   html += imgHtml;
-  html += '<div style="position:absolute;top:8px;left:8px;z-index:10">';
+  // Una sola barra que ocupa el ancho de la tarjeta. Antes eran dos
+  // bloques independientes (izquierda y derecha) que se montaban uno
+  // sobre otro en tarjetas angostas. El 5G se quito de aqui porque
+  // ya aparece abajo entre las especificaciones.
+  html += '<div style="position:absolute;top:8px;left:8px;right:8px;z-index:10;display:flex;gap:4px;flex-wrap:wrap;align-items:flex-start">';
   html += '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>';
-  if (eq.g5) html += ' <span class="badge blue" style="font-size:10px">5G</span>';
-  html += '</div>';
   html += masVendido;
+  html += '</div>';
   html += '</div>';
   html += '<div class="prod-body">';
   html += '<div style="font-size:11px;color:var(--text3);margin-bottom:2px">' + (eq.marca || '') + '</div>';
@@ -311,6 +323,7 @@ async function aplicarFiltrosCatalogo() {
     listaProductos = productos.filter(function(p) {
       if (esTelefono) return false; // en teléfonos no mostrar productos
       if (pubFilter && p.categoria !== pubFilter && p.categoria !== pubFilter + 's') return false;
+      if (marcaFiltro && p.marca !== marcaFiltro) return false;
       return true;
     }).map(function(p) { return renderTarjetaProducto(p); });
   }
