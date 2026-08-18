@@ -290,8 +290,11 @@ function limpiarFiltrosCatalogo() {
 async function aplicarFiltrosCatalogo() {
   if (!equiposCatalogo.length) await loadCatalogo();
   // Cerrar sidebar móvil al aplicar filtro
-  var sb = document.getElementById('pub-sidebar');
-  if (sb && sb.classList.contains('movil-open')) toggleSidebarMovil();
+  // OJO: esta variable NO puede llamarse "sb" — taparia la funcion
+  // global sb() de config.js y la carga de productos fallaria en
+  // silencio (asi se origino el bug de accesorios vacios sin sesion).
+  var sidebarMovil = document.getElementById('pub-sidebar');
+  if (sidebarMovil && sidebarMovil.classList.contains('movil-open')) toggleSidebarMovil();
   if (typeof productos === 'undefined' || !productos.length) {
     try { var pd = await sb('productos_publicos','GET',null,'?order=id.asc'); if(Array.isArray(pd)) productos=pd; } catch(e){}
   }
