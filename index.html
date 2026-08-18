@@ -797,7 +797,7 @@
       <div class="form-group"><label>Costo estimado (COP $)</label><input type="number" id="t-costo" placeholder="0"></div>
       <div class="form-group"><label>Costo de repuestos (COP $)</label><input type="number" id="t-repuestos" placeholder="0"></div>
       <div class="form-group"><label>Estado</label>
-        <select id="t-estado">
+        <select id="t-estado" onchange="avisarBorradoBloqueo(this)">
           <option>Recibido</option><option>En diagnóstico</option>
           <option>En reparación</option><option>Listo para entrega</option><option>Entregado</option>
         </select>
@@ -808,6 +808,9 @@
     <!-- Bloqueo del dispositivo -->
 <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
   <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px">🔒 Bloqueo del dispositivo <span style="font-weight:400;color:var(--text3)">(opcional)</span></div>
+  <div id="t-aviso-bloqueo" style="display:none;background:var(--amber-bg,rgba(230,170,60,.12));border:1px solid var(--amber,#e6aa3c);border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:11px;color:var(--amber,#e6aa3c)">
+    Al guardar como <strong>Entregado</strong>, la clave o patrón se borrarán definitivamente de la base de datos. Ya no hacen falta y no conviene conservarlos.
+  </div>
   <div style="display:flex;gap:8px;margin-bottom:12px">
     <button type="button" id="tbl-btn-pin" onclick="setTipoBloqueo('pin')"
       style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--green-bd);background:var(--green-bg);color:var(--green);cursor:pointer;font-weight:600">PIN</button>
