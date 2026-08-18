@@ -494,6 +494,122 @@ async function construirTirillaPDF(v, firmaImg) {
   toast('Tirilla generada ✓');
 }
 
+// ── Tirillas de servicio técnico ──────────
+// Dos documentos sobre el mismo diseño de 58 mm:
+//   'recepcion' → el que se lleva el cliente al dejar el equipo.
+//   'servicio'  → el equivalente a la factura, al entregarlo.
+
+function _tirillaServicioPintar(doc, t, tipo) {
+  var W = 58, mx = 4.5, cw = W - mx*2;
+  var y = 6;
+
+  function b(s){ doc.setFont('helvetica','bold');   doc.setFontSize(s||6.5); }
+  function n(s){ doc.setFont('helvetica','normal'); doc.setFontSize(s||6.5); }
+  function centro(t2,s,neg){ (neg?b:n)(s); doc.text(t2, W/2, y, {align:'center'}); y+=(s||6.5)*0.42+0.6; }
+  function izq(t2,s){ n(s); doc.splitTextToSize(t2,cw).forEach(function(l){ doc.text(l,mx,y); y+=(s||6.5)*0.42+0.5; }); }
+  function separador(){ doc.setLineWidth(0.15); doc.setDrawColor(0);
+    doc.setLineDashPattern([0.6,0.6],0); doc.line(mx,y,W-mx,y);
+    doc.setLineDashPattern([],0); y+=3; }
+  function regla(){ doc.setLineWidth(0.4); doc.setDrawColor(0); doc.line(mx,y,W-mx,y); y+=3; }
+  function fila(et,val,s){ n(s||6.5); doc.text(et,mx,y);
+    b(s||6.5); doc.text(val, W-mx, y, {align:'right'}); y+=(s||6.5)*0.42+0.8; }
+
+  var esRecepcion = (tipo === 'recepcion');
+  var costo   = parseFloat(t.costo)||0;
+  var abonado = abonadoPor('tecnico', t.id);
+  var saldo   = Math.max(0, costo - abonado);
+
+  // Encabezado
+  centro(NEGOCIO.nombre.toUpperCase(), 11, true);
+  y += 0.5;
+  centro(NEGOCIO.titular, 6);
+  centro(NEGOCIO.direccion+' · '+NEGOCIO.ciudad, 6);
+  centro('Tel: '+NEGOCIO.telefono, 6);
+  y += 1.5; regla();
+
+  centro(esRecepcion ? 'RECIBO DE RECEPCIÓN' : 'COMPROBANTE DE SERVICIO', 8, true);
+  centro('Orden No. '+String(t.id).padStart(6,'0'), 6);
+  centro((esRecepcion ? 'Recibido: ' : 'Entregado: ')+today(), 6);
+  y += 1; separador();
+
+  // Cliente
+  b(6.5); doc.text('CLIENTE', mx, y); y+=3;
+  izq(t.cliente||'—');
+  y += 1; separador();
+
+  // Equipo y falla
+  b(6.5); doc.text('EQUIPO', mx, y); y+=3;
+  izq(t.equipo||'—');
+  y += 1;
+  b(6); doc.text(esRecepcion ? 'FALLA REPORTADA:' : 'DIAGNÓSTICO:', mx, y); y+=2.8;
+  izq(t.diagnostico||'Por diagnosticar', 6);
+  if (t.obs && !esRecepcion) { y+=0.5; izq('Notas: '+t.obs, 5.8); }
+  y += 1; separador();
+
+  // Estado / valores
+  if (esRecepcion) {
+    b(6.5); doc.text('ESTADO: '+(t.estado||'Recibido'), mx, y); y+=3.5;
+    n(6);
+    if (costo > 0) { fila('Costo estimado', fmt(costo), 6.5); }
+    else izq('Costo por definir tras el diagnóstico.', 6);
+    if (abonado > 0) fila('Abono recibido', fmt(abonado), 6.5);
+    y += 1; separador();
+    b(6); doc.text('IMPORTANTE', mx, y); y+=2.8;
+    n(5.8);
+    izq('· Presente este recibo para reclamar su equipo.', 5.8);
+    izq('· El costo estimado puede variar si aparecen fallas adicionales; se le informará antes de continuar.', 5.8);
+    izq('· Pasados 60 días sin reclamar, se cobrará bodegaje.', 5.8);
+    izq('· No respondemos por información no respaldada.', 5.8);
+  } else {
+    fila('Costo del servicio', fmt(costo), 6.5);
+    if (abonado > 0) fila('Abonado', fmt(abonado), 6.5);
+    y += 0.5; regla();
+    b(9); doc.text(saldo > 0 ? 'SALDO' : 'TOTAL', mx, y);
+    b(9); doc.text(fmt(saldo > 0 ? saldo : costo), W-mx, y, {align:'right'}); y+=4.6;
+    regla();
+    n(6); izq('SON: '+numeroALetras(Math.round(saldo > 0 ? saldo : costo))+' PESOS M/CTE', 6);
+    if (saldo <= 0) { y+=0.5; b(6.5); doc.text('PAGADO EN SU TOTALIDAD', mx, y); y+=3.5; }
+    y += 1; separador();
+    b(6.5); doc.text('GARANTÍA DEL SERVICIO: 30 días', mx, y); y+=3;
+    n(5.8);
+    izq('· Cubre únicamente la falla reparada y los repuestos instalados.', 5.8);
+    izq('· No cubre daños por humedad, golpes ni manipulación de terceros.', 5.8);
+    izq('· Se pierde si el equipo es abierto por otro técnico.', 5.8);
+    izq('· Presente este comprobante para hacerla efectiva.', 5.8);
+  }
+  y += 1; separador();
+
+  // Firma
+  y += 9;
+  doc.setLineWidth(0.2); doc.line(mx,y,mx+cw*0.75,y); y+=3;
+  n(5.8); doc.text(esRecepcion ? 'Firma de quien entrega' : 'Firma de quien recibe', mx, y); y+=3;
+  b(6);   doc.text(t.cliente||'', mx, y); y+=4;
+
+  separador();
+  centro(esRecepcion ? 'Gracias por confiar en nosotros' : '¡Gracias por su preferencia!', 7, true);
+  y += 0.5;
+  centro(NEGOCIO.web, 5.5);
+  centro(esRecepcion ? 'Conserve este recibo' : 'Conserve este comprobante para la garantía', 5.5);
+
+  return y;
+}
+
+async function construirTirillaServicio(tecnicoId, tipo) {
+  var t = tecnicos.find(function(x){ return x.id === tecnicoId; });
+  if (!t) return;
+
+  var {jsPDF} = window.jspdf;
+  var tmp  = new jsPDF({orientation:'portrait',unit:'mm',format:[58,900]});
+  var alto = _tirillaServicioPintar(tmp, t, tipo) + 8;
+
+  var doc = new jsPDF({orientation:'portrait',unit:'mm',format:[58,alto]});
+  _tirillaServicioPintar(doc, t, tipo);
+
+  var pre = (tipo === 'recepcion') ? 'recepcion' : 'servicio';
+  doc.save(pre+'-'+(t.cliente||'').replace(/\s+/g,'-')+'-'+t.id+'.pdf');
+  toast((tipo === 'recepcion' ? 'Recibo' : 'Comprobante')+' generado ✓');
+}
+
 // ── Paz y Salvo estilo factura ────────────
 async function generarPazSalvoFactura(ventaId) {
   var v = ventas.find(function(x){return x.id===ventaId;});
