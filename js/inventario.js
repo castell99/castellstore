@@ -30,7 +30,19 @@ async function subirFotoProd(file, slot) {
   return SUPA + '/storage/v1/object/public/equipos-imagenes/' + nombre;
 }
 
+// Rellena el datalist con las marcas ya registradas, para no
+// escribir "hp", "HP" y "Hp" como tres marcas distintas.
+function refrescarMarcasProducto() {
+  var dl = document.getElementById('lista-marcas');
+  if (!dl || typeof productos === 'undefined') return;
+  var vistas = [];
+  productos.forEach(function(p){ if (p.marca && vistas.indexOf(p.marca) === -1) vistas.push(p.marca); });
+  vistas.sort();
+  dl.innerHTML = vistas.map(function(m){ return '<option value="'+m+'">'; }).join('');
+}
+
 function abrirNuevoProducto() {
+  refrescarMarcasProducto();
   editProdId = null;
   varTemp    = [];
   _prodFile1 = null;
@@ -38,6 +50,7 @@ function abrirNuevoProducto() {
   document.getElementById('modal-prod-title').textContent = '📦 Agregar Producto';
   document.getElementById('btn-sp').textContent = 'Guardar producto';
   document.getElementById('p-nom').value         = '';
+  if (document.getElementById('p-marca')) document.getElementById('p-marca').value = '';
   document.getElementById('p-emoji').value       = '';
   document.getElementById('p-precio').value      = '';
   document.getElementById('p-precio-prov').value = '';
@@ -53,6 +66,7 @@ function abrirNuevoProducto() {
 }
 
 function editarProducto(id) {
+  refrescarMarcasProducto();
   var p = productos.find(function(x) { return x.id === id; });
   if (!p) return;
   editProdId = id;
@@ -62,6 +76,7 @@ function editarProducto(id) {
   document.getElementById('modal-prod-title').textContent = '✏️ Editar Producto';
   document.getElementById('btn-sp').textContent = 'Actualizar producto';
   document.getElementById('p-nom').value         = p.nombre    || '';
+  if (document.getElementById('p-marca')) document.getElementById('p-marca').value = p.marca || '';
   document.getElementById('p-emoji').value       = p.emoji     || '';
   document.getElementById('p-precio').value      = p.precio    || '';
   document.getElementById('p-precio-prov').value = p.precio_proveedor || '';
@@ -103,6 +118,7 @@ async function guardarProducto() {
 
   var payload = {
     nombre           : nom,
+    marca            : (document.getElementById('p-marca')||{}).value ? document.getElementById('p-marca').value.trim() : null,
     categoria        : document.getElementById('p-cat').value,
     precio           : pr,
     precio_proveedor : parseFloat(document.getElementById('p-precio-prov').value) || 0,
