@@ -579,17 +579,50 @@ function _tirillaServicioPintar(doc, t, tipo) {
   }
   y += 1; separador();
 
-  // Firma
-  y += 9;
-  doc.setLineWidth(0.2); doc.line(mx,y,mx+cw*0.75,y); y+=3;
-  n(5.8); doc.text(esRecepcion ? 'Firma de quien entrega' : 'Firma de quien recibe', mx, y); y+=3;
-  b(6);   doc.text(t.cliente||'', mx, y); y+=4;
+  // ── Cierre ──
+  // En recepcion no se pide firma: este papel se lo lleva el
+  // cliente, asi que su firma aqui no le sirve de respaldo a nadie.
+  // Lo util para el es saber quien le recibio el equipo.
+  if (esRecepcion) {
+    n(6); doc.text('Recibido por:', mx, y); y+=3;
+    b(6.5); doc.text(NEGOCIO.titular, mx, y); y+=4.5;
+  } else {
+    y += 9;
+    doc.setLineWidth(0.2); doc.line(mx,y,mx+cw*0.75,y); y+=3;
+    n(5.8); doc.text('Firma de quien recibe el equipo', mx, y); y+=3;
+    b(6);   doc.text(t.cliente||'', mx, y); y+=4;
+  }
 
   separador();
   centro(esRecepcion ? 'Gracias por confiar en nosotros' : '¡Gracias por su preferencia!', 7, true);
   y += 0.5;
   centro(NEGOCIO.web, 5.5);
   centro(esRecepcion ? 'Conserve este recibo' : 'Conserve este comprobante para la garantía', 5.5);
+
+  // ── Talón para el taller ──
+  // Solo al entregar: el cliente firma esta parte, se corta y se
+  // queda en el taller como constancia de que retiro el equipo.
+  if (!esRecepcion) {
+    y += 5;
+    n(5.5); doc.setLineDashPattern([1.2,1.2],0);
+    doc.setLineWidth(0.2); doc.setDrawColor(0);
+    doc.line(mx,y,W-mx,y);
+    doc.setLineDashPattern([],0);
+    // Sin emoji: las fuentes base de jsPDF no traen ese glifo.
+    doc.text('- - - corte aqui - - -', W/2, y-1.2, {align:'center'});
+    y += 4.5;
+
+    b(7); doc.text('COPIA — TALLER', mx, y); y+=3.5;
+    n(5.8);
+    doc.text('Orden No. '+String(t.id).padStart(6,'0')+'  ·  '+today(), mx, y); y+=3;
+    doc.splitTextToSize('Cliente: '+(t.cliente||'—'), cw).forEach(function(l){ doc.text(l,mx,y); y+=2.9; });
+    doc.splitTextToSize('Equipo: '+(t.equipo||'—'), cw).forEach(function(l){ doc.text(l,mx,y); y+=2.9; });
+    n(5.8); doc.text('Valor:', mx, y);
+    b(6.5); doc.text(fmt(saldo > 0 ? saldo : costo), W-mx, y, {align:'right'}); y+=4;
+    n(5.5); doc.text('Recibí el equipo a satisfacción.', mx, y); y+=8;
+    doc.setLineWidth(0.2); doc.line(mx,y,mx+cw*0.8,y); y+=3;
+    n(5.5); doc.text('Firma y C.C. del cliente', mx, y); y+=3;
+  }
 
   return y;
 }
