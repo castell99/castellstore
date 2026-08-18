@@ -141,7 +141,7 @@ function renderTecnicos() {
         '</select></td>' +
         '<td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
           (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
-          (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
+          '<button class="btn sm" onclick="abrirDocumentosServicio(' + t.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
           '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">📸 Fotos</button>' +
           '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">🔒 Bloqueo</button>' +
           '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">✏️</button>' +
@@ -174,7 +174,7 @@ function renderTecnicos() {
           '</div>' +
           '<div style="display:flex;gap:6px;flex-wrap:wrap" onclick="event.stopPropagation()">' +
             (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
-            (t.estado === 'Entregado' ? '<button class="btn sm" onclick="generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 P&S</button>' : '') +
+            '<button class="btn sm" onclick="abrirDocumentosServicio(' + t.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
             '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">📸</button>' +
             '<button class="btn sm" onclick="verBloqueo(' + t.id + ')">🔒</button>' +
             '<button class="btn sm" onclick="editarTecnico(' + t.id + ')">✏️</button>' +
@@ -535,7 +535,7 @@ function toggleDetalleTecnico(id) {
 
     '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
       (parseFloat(t.costo||0) > 0 ? '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
-      (t.estado === 'Entregado' ? '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');generarRecibo(\'tecnico\',' + t.id + ')" style="background:var(--green-bg);border-color:var(--green-bd);color:var(--green)">📄 Paz y Salvo</button>' : '') +
+      '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');abrirDocumentosServicio(' + t.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
       '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');abrirGaleriaServicio(' + t.id + ')">📸 Fotos</button>' +
       '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');verBloqueo(' + t.id + ')">🔒 Bloqueo</button>' +
       '<button class="btn" onclick="closeModal(\'modal-detalle-tecnico\');editarTecnico(' + t.id + ')">✏️ Editar</button>' +
@@ -548,3 +548,56 @@ function toggleDetalleTecnico(id) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeModal('modal-detalle-tecnico');
 });
+
+// ── Menú de documentos del servicio ───────
+// Recepcion siempre; comprobante cuando ya se reparo; paz y salvo
+// solo si ademas quedo pagado.
+function abrirDocumentosServicio(tecnicoId) {
+  var t = tecnicos.find(function(x){ return x.id === tecnicoId; });
+  if (!t) return;
+
+  var costo  = parseFloat(t.costo)||0;
+  var saldo  = Math.max(0, costo - abonadoPor('tecnico', tecnicoId));
+  var listo  = (t.estado === 'Entregado' || t.estado === 'Listo para entrega');
+  var pS     = (t.estado === 'Entregado' && saldo <= 0);
+
+  var m = document.getElementById('modal-docs-servicio');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'modal-docs-servicio';
+    m.className = 'overlay';
+    document.body.appendChild(m);
+  }
+  var cerrar = "document.getElementById('modal-docs-servicio').classList.remove('open');";
+
+  m.innerHTML = '<div class="modal" style="max-width:400px">' +
+    '<div class="modal-header"><div class="modal-title">📄 Docs — ' + (t.cliente||'') + '</div>' +
+    '<button class="close-btn" onclick="' + cerrar + '">×</button></div>' +
+    '<div style="display:flex;flex-direction:column;gap:10px;padding:4px 0">' +
+
+    '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="' + cerrar + 'construirTirillaServicio(' + tecnicoId + ',\'recepcion\')">' +
+      '<span style="font-size:24px">📥</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Recibo de recepción</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Para el cliente al dejar el equipo</div></div>' +
+    '</button>' +
+
+    (listo ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="' + cerrar + 'construirTirillaServicio(' + tecnicoId + ',\'servicio\')">' +
+      '<span style="font-size:24px">🧾</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Comprobante de servicio</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Trabajo realizado, costo y garantía</div></div>' +
+    '</button>' : '') +
+
+    (pS ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px;background:var(--green-bg);border-color:var(--green-bd)" onclick="' + cerrar + 'generarRecibo(\'tecnico\',' + tecnicoId + ')">' +
+      '<span style="font-size:24px">✅</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Paz y Salvo</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Comprobante de pago total, listo para WhatsApp</div></div>' +
+    '</button>' : '') +
+
+    (!listo ? '<div style="font-size:11px;color:var(--text3);padding:4px 2px">El comprobante de servicio estará disponible cuando el equipo esté listo o entregado.</div>' : '') +
+
+    '</div>' +
+    '<div class="modal-footer"><button class="btn" onclick="' + cerrar + '">Cerrar</button></div>' +
+    '</div>';
+
+  m.classList.add('open');
+}
