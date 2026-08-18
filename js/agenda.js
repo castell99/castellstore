@@ -229,7 +229,7 @@ function actualizarBadgeAgenda() {
 
   // Notificación del navegador
   if (count > 0 && 'Notification' in window && Notification.permission === 'granted') {
-    new Notification('CastellStore — Agenda', {
+    new Notification('Castell Tech — Agenda', {
       body: count + ' tarea(s) urgente(s) o para hoy',
       icon: typeof LOGO_CASTELL_FAVICON !== 'undefined' ? LOGO_CASTELL_FAVICON : ''
     });
