@@ -305,7 +305,6 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   y = seccion('Método de pago', mx, y);
   norm(fs); tinta([25,35,45]);
   var metodo = v.pago||'No especificado';
-  if(v.observaciones) metodo += ' · '+v.observaciones;
   var mL = doc.splitTextToSize(metodo, cw);
   doc.text(mL, mx, y); y += mL.length*4+5;
 
@@ -450,7 +449,8 @@ function _tirillaPintar(doc, v, firmaImg) {
   n(6); izq('SON: '+numeroALetras(Math.round(parseFloat(v.precio)||0))+' PESOS M/CTE', 6);
   y += 0.5;
   izq('PAGO: '+(v.pago||'No especificado'), 6);
-  if(v.observaciones) izq('OBS: '+v.observaciones, 6);
+  // Las observaciones son uso interno: no se imprimen en la
+  // tirilla que se lleva el cliente.
   y += 1; separador();
 
   // Garantía
@@ -543,7 +543,8 @@ function _tirillaServicioPintar(doc, t, tipo) {
   y += 1;
   b(6); doc.text(esRecepcion ? 'FALLA REPORTADA:' : 'DIAGNÓSTICO:', mx, y); y+=2.8;
   izq(t.diagnostico||'Por diagnosticar', 6);
-  if (t.obs && !esRecepcion) { y+=0.5; izq('Notas: '+t.obs, 5.8); }
+  // Las notas del servicio son uso interno: no se imprimen en el
+  // comprobante que se lleva el cliente.
   y += 1; separador();
 
   // Estado / valores
