@@ -338,6 +338,14 @@ function renderEquipoCard(eq, meses, iniPct) {
 // se escribe el monto exacto y se calculan los 4 plazos a la vez,
 // listos para mandar por WhatsApp en un solo mensaje.
 
+// Evita "iPhone iPhone 14 Pro" cuando el modelo ya arranca con la
+// marca — pasa seguido con equipos donde ambos campos se solapan.
+function tituloEquipo(eq) {
+  var marca = (eq.marca||'').trim(), modelo = (eq.modelo||'').trim();
+  if (marca && modelo.toLowerCase().indexOf(marca.toLowerCase()) === 0) return modelo;
+  return (marca + ' ' + modelo).trim();
+}
+
 function abrirCotizadorPermuta(equipoId) {
   const eq = equiposFin.find(e => e.id === equipoId);
   if (!eq) return;
@@ -357,8 +365,8 @@ function abrirCotizadorPermuta(equipoId) {
         <button class="close-btn" onclick="document.getElementById('modal-cotizador-permuta').classList.remove('open')">×</button>
       </div>
 
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px">
-        <div style="font-weight:700">${eq.marca||''} ${eq.modelo||''}</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;overflow-wrap:anywhere">
+        <div style="font-weight:700">${tituloEquipo(eq)}</div>
         <div style="font-size:12px;color:var(--text3)">${[eq.ram,eq.almacenamiento].filter(Boolean).join(' · ')} · Contado: ${fmt(eq.precio_contado)}</div>
       </div>
 
@@ -405,17 +413,23 @@ function renderCotizadorPermuta(equipoId) {
     return { meses, financiado, saldo, cubierto, cuota };
   });
 
+  // Dos lineas por fila, no una: en pantallas angostas, cuota + saldo
+  // en una sola linea junto al checkbox se salia del modal. Asi cada
+  // pieza de texto tiene su propio espacio para ajustarse.
   cont.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:6px">
       ${filas.map(f => `
-        <label style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;cursor:pointer">
-          <input type="checkbox" class="cp-plazo-check" data-meses="${f.meses}" checked style="flex-shrink:0">
-          <span style="font-size:12px;color:var(--text3);width:38px">${f.meses}m</span>
-          ${f.cubierto
-            ? `<span style="flex:1;font-size:12px;color:var(--green);font-weight:600">Cubre el total — sin cuotas</span>`
-            : `<span style="flex:1;font-size:13px;font-weight:700;color:var(--green);font-family:var(--mono)">${fmt(Math.round(f.cuota))}/mes</span>
-               <span style="font-size:11px;color:var(--text3)">saldo ${fmt(Math.round(f.saldo))}</span>`
-          }
+        <label style="display:block;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;cursor:pointer">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0">
+            <input type="checkbox" class="cp-plazo-check" data-meses="${f.meses}" checked style="flex-shrink:0">
+            <span style="font-size:12px;color:var(--text3);flex-shrink:0">${f.meses} meses</span>
+            <span style="flex:1;min-width:0"></span>
+            ${f.cubierto
+              ? `<span style="font-size:12px;color:var(--green);font-weight:600;text-align:right">Cubre el total</span>`
+              : `<span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--mono);white-space:nowrap">${fmt(Math.round(f.cuota))}/mes</span>`
+            }
+          </div>
+          ${(!f.cubierto) ? `<div style="font-size:11px;color:var(--text3);margin-left:26px;margin-top:2px">Saldo a financiar: ${fmt(Math.round(f.saldo))}</div>` : ''}
         </label>
       `).join('')}
     </div>
