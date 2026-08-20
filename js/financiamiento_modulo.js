@@ -395,7 +395,7 @@ function renderCotizadorPermuta() {
       ${filas.map(f => `
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px">
           <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
-            <input type="checkbox" class="cp-plazo-check" data-meses="${f.meses}" checked style="flex-shrink:0">
+            <input type="checkbox" class="cp-plazo-check" data-meses="${f.meses}" checked style="width:auto;flex:0 0 auto">
             <span style="font-size:12px;color:var(--text3);flex-shrink:0">${f.meses} meses</span>
             <span style="flex:1;min-width:0"></span>
             ${f.cubierto
