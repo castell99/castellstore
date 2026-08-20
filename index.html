@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Castell Tech — Celulares y Tecnología</title>
+<title>Castell Tech — Celulares y Tecnología en Villanueva, Bolívar</title>
 
 <!-- SEO básico -->
 <meta name="description" content="Compra celulares Samsung, iPhone, Xiaomi y más con plan separe en Villanueva, Cartagena, Colombia, Bolívar. Servicio técnico especializado y accesorios. Castell Tech — Tu tienda de tecnología.">
-<meta name="keywords" content="celulares Villanueva Bolivar, servicio tecnico celulares, Samsung Villanueva, iPhone Villanueva, comprar celular Bolivar, Castell Tech, CastellStore">
+<meta name="keywords" content="celulares Villanueva Bolivar, celulares financiados, servicio tecnico celulares, Samsung Villanueva, iPhone Villanueva, comprar celular Bolivar, Castell Tech, CastellStore">
 <meta name="author" content="Castell Tech">
 <meta name="robots" content="index, follow">
 
 <!-- Open Graph (para compartir en WhatsApp, Facebook) -->
 <meta property="og:title" content="Castell Tech — Celulares y Tecnología en Villanueva, Bolívar">
-<meta property="og:description" content="Celulares Samsung, iPhone, Xiaomi y mas. Servicio técnico y accesorios en todo el pais.">
+<meta property="og:description" content="Celulares Samsung, iPhone, Xiaomi con financiamiento. Servicio técnico y accesorios en Villanueva, Bolívar.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://castell99.github.io/castellstore">
 <meta property="og:image" content="https://castell99.github.io/castellstore/og-image.png">
@@ -25,7 +25,7 @@
 <!-- WhatsApp y Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Castell Tech — Tu tienda de tecnología">
-<meta name="twitter:description" content="Celulares nuevos y demas calidades, servicio técnico a domicilio en cartagena y alrededores.">
+<meta name="twitter:description" content="Celulares con financiamiento y servicio técnico en Villanueva, Bolívar.">
 
 <!-- Datos estructurados para Google (JSON-LD) -->
 <script type="application/ld+json">
@@ -34,7 +34,7 @@
   "@type": "Store",
   "name": "Castell Tech",
   "alternateName": "CastellStore",
-  "description": "Celulares nuevos y demas calidades, servicio técnico a domicilio en cartagena y alrededores",
+  "description": "Venta de celulares, accesorios y servicio técnico con financiamiento en Villanueva, Bolívar",
   "url": "https://castell99.github.io/castellstore",
   "telephone": "+573046019483",
   "address": {
@@ -962,6 +962,37 @@
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-caja')">Cancelar</button>
       <button class="btn primary" id="btn-cm" onclick="guardarMovCaja()">Guardar movimiento</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL COTIZADOR DE PERMUTA ══ -->
+<div class="overlay" id="modal-cotizador-permuta">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title">🤝 Cotizar con equipo de parte de pago</div>
+      <button class="close-btn" onclick="closeModal('modal-cotizador-permuta')">×</button>
+    </div>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;overflow-wrap:anywhere">
+      <div style="font-weight:700" id="cp-equipo-nombre"></div>
+      <div style="font-size:12px;color:var(--text3)" id="cp-equipo-specs"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Valor reconocido por el equipo del cliente (COP $)</label>
+      <input type="number" id="cp-inicial" placeholder="Ej: 450000" oninput="renderCotizadorPermuta()">
+    </div>
+    <div class="form-group">
+      <label>WhatsApp del cliente <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+      <input type="tel" id="cp-telefono" placeholder="300 123 4567">
+    </div>
+
+    <div id="cp-resultado" style="margin:10px 0"></div>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-cotizador-permuta')">Cerrar</button>
+      <button class="btn primary" onclick="enviarCotizacionPermuta()">📲 Enviar por WhatsApp</button>
     </div>
   </div>
 </div>
