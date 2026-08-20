@@ -389,7 +389,10 @@ function abrirCotizadorPermuta(equipoId) {
 
   m.classList.add('open');
   renderCotizadorPermuta(equipoId);
-  setTimeout(() => document.getElementById('cp-inicial')?.focus(), 50);
+  // Sin autofocus: en moviles, enfocar un campo con letra menor a
+  // 16px dispara el zoom automatico del navegador apenas se abre
+  // el modal, y la pantalla queda recortada por los bordes. Ningun
+  // otro modal del sistema hace autofocus por esta misma razon.
 }
 
 function renderCotizadorPermuta(equipoId) {
