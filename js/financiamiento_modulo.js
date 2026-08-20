@@ -337,6 +337,13 @@ function renderEquipoCard(eq, meses, iniPct) {
 // pago y su valor no encaja en el deslizador de porcentaje: aqui
 // se escribe el monto exacto y se calculan los 4 plazos a la vez,
 // listos para mandar por WhatsApp en un solo mensaje.
+//
+// El modal vive como HTML fijo en index.html (igual que Nueva
+// venta o Nuevo servicio) en vez de armarse con JS al vuelo. Un
+// modal creado dinamicamente tuvo fallas de recorte solo en
+// celular, dificiles de aislar; con marcado fijo desaparecieron.
+
+let _cotizadorEquipoId = null;
 
 // Evita "iPhone iPhone 14 Pro" cuando el modelo ya arranca con la
 // marca — pasa seguido con equipos donde ambos campos se solapan.
@@ -349,54 +356,21 @@ function tituloEquipo(eq) {
 function abrirCotizadorPermuta(equipoId) {
   const eq = equiposFin.find(e => e.id === equipoId);
   if (!eq) return;
+  _cotizadorEquipoId = equipoId;
 
-  let m = document.getElementById('modal-cotizador-permuta');
-  if (!m) {
-    m = document.createElement('div');
-    m.id = 'modal-cotizador-permuta';
-    m.className = 'overlay';
-    document.body.appendChild(m);
-  }
+  document.getElementById('cp-equipo-nombre').textContent = tituloEquipo(eq);
+  document.getElementById('cp-equipo-specs').textContent =
+    [eq.ram, eq.almacenamiento].filter(Boolean).join(' · ') + ' · Contado: ' + fmt(eq.precio_contado);
 
-  m.innerHTML = `
-    <div class="modal" style="max-width:480px">
-      <div class="modal-header">
-        <div class="modal-title">🤝 Cotizar con equipo de parte de pago</div>
-        <button class="close-btn" onclick="document.getElementById('modal-cotizador-permuta').classList.remove('open')">×</button>
-      </div>
+  document.getElementById('cp-inicial').value = '';
+  document.getElementById('cp-telefono').value = '';
+  document.getElementById('cp-resultado').innerHTML = '';
 
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;overflow-wrap:anywhere">
-        <div style="font-weight:700">${tituloEquipo(eq)}</div>
-        <div style="font-size:12px;color:var(--text3)">${[eq.ram,eq.almacenamiento].filter(Boolean).join(' · ')} · Contado: ${fmt(eq.precio_contado)}</div>
-      </div>
-
-      <div class="form-group">
-        <label>Valor reconocido por el equipo del cliente (COP $)</label>
-        <input type="number" id="cp-inicial" placeholder="Ej: 450000" oninput="renderCotizadorPermuta(${eq.id})">
-      </div>
-      <div class="form-group">
-        <label>WhatsApp del cliente <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
-        <input type="tel" id="cp-telefono" placeholder="300 123 4567">
-      </div>
-
-      <div id="cp-resultado" style="margin:10px 0"></div>
-
-      <div class="modal-footer">
-        <button class="btn" onclick="document.getElementById('modal-cotizador-permuta').classList.remove('open')">Cerrar</button>
-        <button class="btn primary" onclick="enviarCotizacionPermuta(${eq.id})">📲 Enviar por WhatsApp</button>
-      </div>
-    </div>`;
-
-  m.classList.add('open');
-  renderCotizadorPermuta(equipoId);
-  // Sin autofocus: en moviles, enfocar un campo con letra menor a
-  // 16px dispara el zoom automatico del navegador apenas se abre
-  // el modal, y la pantalla queda recortada por los bordes. Ningun
-  // otro modal del sistema hace autofocus por esta misma razon.
+  openModal('modal-cotizador-permuta');
 }
 
-function renderCotizadorPermuta(equipoId) {
-  const eq  = equiposFin.find(e => e.id === equipoId);
+function renderCotizadorPermuta() {
+  const eq   = equiposFin.find(e => e.id === _cotizadorEquipoId);
   const cont = document.getElementById('cp-resultado');
   if (!eq || !cont) return;
 
@@ -416,32 +390,29 @@ function renderCotizadorPermuta(equipoId) {
     return { meses, financiado, saldo, cubierto, cuota };
   });
 
-  // Dos lineas por fila, no una: en pantallas angostas, cuota + saldo
-  // en una sola linea junto al checkbox se salia del modal. Asi cada
-  // pieza de texto tiene su propio espacio para ajustarse.
   cont.innerHTML = `
     <div style="display:flex;flex-direction:column;gap:6px">
       ${filas.map(f => `
-        <label style="display:block;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;cursor:pointer">
-          <div style="display:flex;align-items:center;gap:8px;min-width:0">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px">
+          <label style="display:flex;align-items:center;gap:8px;min-width:0;cursor:pointer">
             <input type="checkbox" class="cp-plazo-check" data-meses="${f.meses}" checked style="flex-shrink:0">
             <span style="font-size:12px;color:var(--text3);flex-shrink:0">${f.meses} meses</span>
             <span style="flex:1;min-width:0"></span>
             ${f.cubierto
-              ? `<span style="font-size:12px;color:var(--green);font-weight:600;text-align:right">Cubre el total</span>`
+              ? `<span style="font-size:12px;color:var(--green);font-weight:600">Cubre el total</span>`
               : `<span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--mono);white-space:nowrap">${fmt(Math.round(f.cuota))}/mes</span>`
             }
-          </div>
+          </label>
           ${(!f.cubierto) ? `<div style="font-size:11px;color:var(--text3);margin-left:26px;margin-top:2px">Saldo a financiar: ${fmt(Math.round(f.saldo))}</div>` : ''}
-        </label>
+        </div>
       `).join('')}
     </div>
     <div style="font-size:11px;color:var(--text3);margin-top:8px">Desmarca los plazos que no quieras incluir en el mensaje.</div>
   `;
 }
 
-function enviarCotizacionPermuta(equipoId) {
-  const eq = equiposFin.find(e => e.id === equipoId);
+function enviarCotizacionPermuta() {
+  const eq = equiposFin.find(e => e.id === _cotizadorEquipoId);
   if (!eq) return;
 
   const iniMonto = parseFloat(document.getElementById('cp-inicial')?.value) || 0;
@@ -452,7 +423,7 @@ function enviarCotizacionPermuta(equipoId) {
     .map(c => parseInt(c.dataset.meses));
   if (!marcados.length) { toast('Selecciona al menos un plazo', 'err'); return; }
 
-  let msg = `Hola! Aquí tienes la cotización de tu *${eq.marca||''} ${eq.modelo||''}* `+
+  let msg = `Hola! Aquí tienes la cotización de tu *${tituloEquipo(eq)}* `+
             `tomando tu equipo actual como parte de pago:\n\n`+
             `💰 Precio de contado: ${fmt(eq.precio_contado)}\n`+
             `🤝 Valor reconocido por tu equipo: ${fmt(iniMonto)}\n\n`+
