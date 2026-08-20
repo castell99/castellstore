@@ -325,10 +325,142 @@ function renderEquipoCard(eq, meses, iniPct) {
       ${tags.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags.map(etiquetaHtml).join('')}</div>`:''}
     </div>
     <div style="display:flex;gap:6px;padding:0 14px 14px">
-      <button class="btn sm" style="flex:1;justify-content:center" onclick="editarEquipoFin(${eq.id})">✏️ Editar</button>
-      <button class="icon-btn" onclick="eliminarEquipoFin(${eq.id})">🗑</button>
+      <button class="btn sm" style="flex:1;justify-content:center;background:var(--amber-bg,rgba(230,170,60,.12));border-color:var(--amber,#e6aa3c);color:var(--amber,#e6aa3c)" onclick="event.stopPropagation();abrirCotizadorPermuta(${eq.id})">🤝 Cotizar permuta</button>
+      <button class="btn sm" onclick="event.stopPropagation();editarEquipoFin(${eq.id})">✏️</button>
+      <button class="icon-btn" onclick="event.stopPropagation();eliminarEquipoFin(${eq.id})">🗑</button>
     </div>
   </div>`;
+}
+
+// ── Cotizador de permuta ──────────────────
+// Para cuando el cliente entrega un equipo usado como parte de
+// pago y su valor no encaja en el deslizador de porcentaje: aqui
+// se escribe el monto exacto y se calculan los 4 plazos a la vez,
+// listos para mandar por WhatsApp en un solo mensaje.
+
+function abrirCotizadorPermuta(equipoId) {
+  const eq = equiposFin.find(e => e.id === equipoId);
+  if (!eq) return;
+
+  let m = document.getElementById('modal-cotizador-permuta');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'modal-cotizador-permuta';
+    m.className = 'overlay';
+    document.body.appendChild(m);
+  }
+
+  m.innerHTML = `
+    <div class="modal" style="max-width:480px">
+      <div class="modal-header">
+        <div class="modal-title">🤝 Cotizar con equipo de parte de pago</div>
+        <button class="close-btn" onclick="document.getElementById('modal-cotizador-permuta').classList.remove('open')">×</button>
+      </div>
+
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px">
+        <div style="font-weight:700">${eq.marca||''} ${eq.modelo||''}</div>
+        <div style="font-size:12px;color:var(--text3)">${[eq.ram,eq.almacenamiento].filter(Boolean).join(' · ')} · Contado: ${fmt(eq.precio_contado)}</div>
+      </div>
+
+      <div class="form-group">
+        <label>Valor reconocido por el equipo del cliente (COP $)</label>
+        <input type="number" id="cp-inicial" placeholder="Ej: 450000" oninput="renderCotizadorPermuta(${eq.id})">
+      </div>
+      <div class="form-group">
+        <label>WhatsApp del cliente <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+        <input type="tel" id="cp-telefono" placeholder="300 123 4567">
+      </div>
+
+      <div id="cp-resultado" style="margin:10px 0"></div>
+
+      <div class="modal-footer">
+        <button class="btn" onclick="document.getElementById('modal-cotizador-permuta').classList.remove('open')">Cerrar</button>
+        <button class="btn primary" onclick="enviarCotizacionPermuta(${eq.id})">📲 Enviar por WhatsApp</button>
+      </div>
+    </div>`;
+
+  m.classList.add('open');
+  renderCotizadorPermuta(equipoId);
+  setTimeout(() => document.getElementById('cp-inicial')?.focus(), 50);
+}
+
+function renderCotizadorPermuta(equipoId) {
+  const eq  = equiposFin.find(e => e.id === equipoId);
+  const cont = document.getElementById('cp-resultado');
+  if (!eq || !cont) return;
+
+  const iniMonto = parseFloat(document.getElementById('cp-inicial')?.value) || 0;
+
+  if (iniMonto <= 0) {
+    cont.innerHTML = `<div style="font-size:12px;color:var(--text3);text-align:center;padding:12px">Escribe el valor del equipo para ver los planes.</div>`;
+    return;
+  }
+
+  const filas = FIN_PLAZOS.map(meses => {
+    const tasa      = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[meses] || 0;
+    const financiado = eq.precio_contado * (1 + tasa / 100);
+    const saldo      = financiado - iniMonto;
+    const cubierto   = saldo <= 0;
+    const cuota      = cubierto ? 0 : saldo / meses;
+    return { meses, financiado, saldo, cubierto, cuota };
+  });
+
+  cont.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:6px">
+      ${filas.map(f => `
+        <label style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;cursor:pointer">
+          <input type="checkbox" class="cp-plazo-check" data-meses="${f.meses}" checked style="flex-shrink:0">
+          <span style="font-size:12px;color:var(--text3);width:38px">${f.meses}m</span>
+          ${f.cubierto
+            ? `<span style="flex:1;font-size:12px;color:var(--green);font-weight:600">Cubre el total — sin cuotas</span>`
+            : `<span style="flex:1;font-size:13px;font-weight:700;color:var(--green);font-family:var(--mono)">${fmt(Math.round(f.cuota))}/mes</span>
+               <span style="font-size:11px;color:var(--text3)">saldo ${fmt(Math.round(f.saldo))}</span>`
+          }
+        </label>
+      `).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px">Desmarca los plazos que no quieras incluir en el mensaje.</div>
+  `;
+}
+
+function enviarCotizacionPermuta(equipoId) {
+  const eq = equiposFin.find(e => e.id === equipoId);
+  if (!eq) return;
+
+  const iniMonto = parseFloat(document.getElementById('cp-inicial')?.value) || 0;
+  if (iniMonto <= 0) { toast('Escribe el valor del equipo primero', 'err'); return; }
+
+  const marcados = Array.from(document.querySelectorAll('.cp-plazo-check'))
+    .filter(c => c.checked)
+    .map(c => parseInt(c.dataset.meses));
+  if (!marcados.length) { toast('Selecciona al menos un plazo', 'err'); return; }
+
+  let msg = `Hola! Aquí tienes la cotización de tu *${eq.marca||''} ${eq.modelo||''}* `+
+            `tomando tu equipo actual como parte de pago:\n\n`+
+            `💰 Precio de contado: ${fmt(eq.precio_contado)}\n`+
+            `🤝 Valor reconocido por tu equipo: ${fmt(iniMonto)}\n\n`+
+            `*Planes disponibles:*\n`;
+
+  FIN_PLAZOS.filter(m => marcados.includes(m)).forEach(meses => {
+    const tasa       = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[meses] || 0;
+    const financiado = eq.precio_contado * (1 + tasa / 100);
+    const saldo      = financiado - iniMonto;
+    if (saldo <= 0) {
+      msg += `✅ ${meses} meses: cubierto en su totalidad, sin cuotas\n`;
+    } else {
+      msg += `📆 ${meses} meses: ${fmt(Math.round(saldo/meses))}/mes\n`;
+    }
+  });
+
+  msg += `\nCualquier duda con gusto te ayudo. — ${NEGOCIO.nombre}`;
+
+  var tel = (document.getElementById('cp-telefono')?.value || '').replace(/\D/g, '');
+  if (tel && !tel.startsWith('57') && tel.length === 10) tel = '57' + tel;
+
+  var url = tel
+    ? `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`
+    : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
 }
 
 function toggleCardImg(container) {
