@@ -195,7 +195,7 @@ function filterMarca(marca, btn) {
 function renderTarjetaEquipo(eq) {
   var tags = [];
   try { tags = typeof eq.etiquetas === 'string' ? JSON.parse(eq.etiquetas || '[]') : (eq.etiquetas || []); } catch(e) {}
-  var gamaColor = { 'Entrada':'green', 'Media':'blue', 'Premium':'amber' };
+  var gamaColor = { 'Baja':'green', 'Media':'blue', 'Alta':'amber' };
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
     imgHtml = '<div class="cat-img-wrap"><img src="' + eq.imagen1 + '" class="cat-img-main"><img src="' + eq.imagen2 + '" class="cat-img-hover"></div>';
@@ -299,7 +299,7 @@ async function aplicarFiltrosCatalogo() {
     try { var pd = await sb('productos_publicos','GET',null,'?order=id.asc'); if(Array.isArray(pd)) productos=pd; } catch(e){}
   }
 
-  var gamas = Array.from(document.querySelectorAll('.filter-check input[value="Entrada"],.filter-check input[value="Media"],.filter-check input[value="Premium"]'))
+  var gamas = Array.from(document.querySelectorAll('.filter-check input[value="Baja"],.filter-check input[value="Media"],.filter-check input[value="Alta"]'))
     .filter(function(cb) { return cb.checked; })
     .map(function(cb) { return cb.value; });
 
@@ -345,7 +345,7 @@ async function aplicarFiltrosCatalogo() {
       if (tags.indexOf('Más vendido') !== -1)  p += 100;
       if (tags.indexOf('Recomendado') !== -1)   p += 80;
       if (tags.indexOf('Premium') !== -1)       p += 60;
-      if (eq.gama === 'Premium')                p += 40;
+      if (eq.gama === 'Alta')                   p += 40;
       if (eq.gama === 'Media')                  p += 20;
       if (eq.imagen1)                           p += 30; // tiene foto
       if (eq.g5)                                p += 10;
@@ -439,7 +439,7 @@ function abrirDetalleEquipo(id) {
   if (!eq) return;
   var tags = [];
   try { tags = typeof eq.etiquetas==='string' ? JSON.parse(eq.etiquetas||'[]') : (eq.etiquetas||[]); } catch(e){}
-  var gamaColor = { 'Entrada':'green','Media':'blue','Premium':'amber' };
+  var gamaColor = { 'Baja':'green','Media':'blue','Alta':'amber' };
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
     imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" onclick="toggleDetImg()">' +
