@@ -4,9 +4,9 @@
 // ═══════════════════════════════════════════════════════════
 
 const FIN_TASAS = {
-  'Entrada': { 2: 12, 3: 18, 5: 25, 6: 30 },
+  'Baja':    { 2: 12, 3: 18, 5: 25, 6: 30 },
   'Media':   { 2: 10, 3: 15, 5: 22, 6: 28 },
-  'Premium': { 2: 12, 3: 18, 5: 28, 6: 35 },
+  'Alta':    { 2: 12, 3: 18, 5: 28, 6: 35 },
 };
 
 const FIN_PLAZOS  = [2, 3, 5, 6];
@@ -21,13 +21,20 @@ let efImg1Url = null;
 let efImg2Url = null;
 
 const TAG_STYLE  = { 'Económico':'green','Más vendido':'amber','Recomendado':'blue','Premium':'muted','5G':'blue' };
-const GAMA_STYLE = { 'Entrada':'green','Media':'blue','Premium':'amber' };
+const GAMA_STYLE = { 'Baja':'green','Media':'blue','Alta':'amber' };
 
 function finCalc(equipo, meses, iniPct) {
-  const tasa       = (FIN_TASAS[equipo.gama] || FIN_TASAS['Media'])[meses] || 0;
-  const financiado = equipo.precio_contado * (1 + tasa / 100);
-  const inicial    = financiado * (iniPct / 100);
-  const cuota      = (financiado - inicial) / meses;
+  const tasa = (FIN_TASAS[equipo.gama] || FIN_TASAS['Media'])[meses] || 0;
+  // La inicial se resta del precio de contado ANTES de aplicar el
+  // interes, no despues. Es el criterio que exige la SIC para ventas
+  // financiadas directamente por el comercio (no por un banco o
+  // fintech externo): el interes se calcula solo sobre el saldo que
+  // realmente se financia. Aplica igual si la inicial es en efectivo
+  // o el valor de un equipo recibido como parte de pago.
+  const inicial       = equipo.precio_contado * (iniPct / 100);
+  const baseFinanciar = Math.max(0, equipo.precio_contado - inicial);
+  const financiado     = baseFinanciar * (1 + tasa / 100);
+  const cuota           = financiado / meses;
   return { tasa, financiado, inicial, cuota };
 }
 
@@ -171,7 +178,7 @@ function abrirNuevoEquipo() {
   document.getElementById('btn-ef').textContent = 'Guardar equipo';
   ['ef-marca','ef-modelo','ef-ram','ef-alm'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('ef-prov').value = ''; document.getElementById('ef-contado').value = '';
-  document.getElementById('ef-gama').value = 'Entrada';
+  document.getElementById('ef-gama').value = 'Baja';
   document.getElementById('ef-5g').checked = false; document.getElementById('ef-disp').checked = true;
   document.querySelectorAll('.ef-tag').forEach(b => b.classList.remove('active'));
   ['ef-prev1','ef-prev2'].forEach(id => { const el = document.getElementById(id); if (el) { el.src=''; el.style.display='none'; } });
@@ -382,12 +389,12 @@ function renderCotizadorPermuta() {
   }
 
   const filas = FIN_PLAZOS.map(meses => {
-    const tasa      = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[meses] || 0;
-    const financiado = eq.precio_contado * (1 + tasa / 100);
-    const saldo      = financiado - iniMonto;
-    const cubierto   = saldo <= 0;
-    const cuota      = cubierto ? 0 : saldo / meses;
-    return { meses, financiado, saldo, cubierto, cuota };
+    const tasa          = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[meses] || 0;
+    const cubierto       = iniMonto >= eq.precio_contado;
+    const baseFinanciar = Math.max(0, eq.precio_contado - iniMonto);
+    const financiado     = baseFinanciar * (1 + tasa / 100);
+    const cuota           = cubierto ? 0 : financiado / meses;
+    return { meses, financiado, cubierto, cuota };
   });
 
   cont.innerHTML = `
@@ -403,7 +410,7 @@ function renderCotizadorPermuta() {
               : `<span style="font-size:14px;font-weight:700;color:var(--green);font-family:var(--mono);white-space:nowrap">${fmt(Math.round(f.cuota))}/mes</span>`
             }
           </label>
-          ${(!f.cubierto) ? `<div style="font-size:11px;color:var(--text3);margin-left:26px;margin-top:2px">Saldo a financiar: ${fmt(Math.round(f.saldo))}</div>` : ''}
+          ${(!f.cubierto) ? `<div style="font-size:11px;color:var(--text3);margin-left:26px;margin-top:2px">Total financiado: ${fmt(Math.round(f.financiado))}</div>` : ''}
         </div>
       `).join('')}
     </div>
@@ -430,13 +437,13 @@ function enviarCotizacionPermuta() {
             `*Planes disponibles:*\n`;
 
   FIN_PLAZOS.filter(m => marcados.includes(m)).forEach(meses => {
-    const tasa       = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[meses] || 0;
-    const financiado = eq.precio_contado * (1 + tasa / 100);
-    const saldo      = financiado - iniMonto;
-    if (saldo <= 0) {
+    const tasa          = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[meses] || 0;
+    const baseFinanciar = Math.max(0, eq.precio_contado - iniMonto);
+    const financiado     = baseFinanciar * (1 + tasa / 100);
+    if (iniMonto >= eq.precio_contado) {
       msg += `✅ ${meses} meses: cubierto en su totalidad, sin cuotas\n`;
     } else {
-      msg += `📆 ${meses} meses: ${fmt(Math.round(saldo/meses))}/mes\n`;
+      msg += `📆 ${meses} meses: ${fmt(Math.round(financiado/meses))}/mes\n`;
     }
   });
 
