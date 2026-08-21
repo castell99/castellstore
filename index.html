@@ -372,9 +372,9 @@
           <div class="filter-group">
             <div class="filter-group-title" onclick="toggleFilterGroup(this)">Gama <span>▾</span></div>
             <div class="filter-group-body">
-              <label class="filter-check"><input type="checkbox" value="Entrada" onchange="aplicarFiltrosCatalogo()"> Entrada</label>
+              <label class="filter-check"><input type="checkbox" value="Baja" onchange="aplicarFiltrosCatalogo()"> Baja</label>
               <label class="filter-check"><input type="checkbox" value="Media" onchange="aplicarFiltrosCatalogo()"> Media</label>
-              <label class="filter-check"><input type="checkbox" value="Premium" onchange="aplicarFiltrosCatalogo()"> Premium</label>
+              <label class="filter-check"><input type="checkbox" value="Alta" onchange="aplicarFiltrosCatalogo()"> Alta</label>
             </div>
           </div>
 
@@ -619,7 +619,7 @@
             </select>
             <select id="fin-f-gama" onchange="renderEquipos()" style="width:auto;font-size:13px">
               <option value="">Todas las gamas</option>
-              <option>Entrada</option><option>Media</option><option>Premium</option>
+              <option>Baja</option><option>Media</option><option>Alta</option>
             </select>
             <select id="fin-f-5g" onchange="renderEquipos()" style="width:auto;font-size:13px">
               <option value="">5G: Todos</option>
@@ -1019,7 +1019,7 @@
     <div class="form-row">
       <div class="form-group"><label>Gama</label>
         <select id="ef-gama">
-          <option>Entrada</option><option>Media</option><option>Premium</option>
+          <option>Baja</option><option>Media</option><option>Alta</option>
         </select>
       </div>
       <div class="form-group" style="display:flex;flex-direction:column;justify-content:flex-end">
