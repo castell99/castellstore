@@ -937,6 +937,9 @@
           <option value="5">5 meses</option><option value="6">6 meses</option>
         </select>
       </div>
+      <div class="form-group"><label>Tasa <span style="font-weight:400;color:var(--text3)">(vacío = automática)</span></label>
+        <input type="number" id="v-tasa-manual" step="0.1" placeholder="Automática" oninput="previewFinV()">
+      </div>
       <div class="form-group"><label>Estado</label>
         <select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select>
       </div>
