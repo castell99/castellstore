@@ -28,6 +28,8 @@ async function abrirNuevaVenta() {
   document.getElementById('v-imei2').value   = '';
   document.getElementById('v-inicial').value = '';
   document.getElementById('v-tasa-manual').value = '';
+  if (document.getElementById('v-permitir-extendido')) document.getElementById('v-permitir-extendido').checked = false;
+  actualizarPlazoOpciones();
   document.getElementById('v-obs').value     = '';
   document.getElementById('v-fin-prev').style.display  = 'none';
   document.getElementById('v-prod').style.display      = '';
@@ -58,6 +60,9 @@ function editarVenta(id) {
   document.getElementById('v-imei2').value   = v.imei2 || '';
   document.getElementById('v-inicial').value = v.inicial_pagada || '';
   document.getElementById('v-tasa-manual').value = '';
+  if (document.getElementById('v-permitir-extendido')) document.getElementById('v-permitir-extendido').checked = false;
+  actualizarPlazoOpciones();
+  sel = document.getElementById('v-cuotas'); if (sel) sel.value = v.cuotas || '0';
   document.getElementById('v-obs').value     = v.observaciones || '';
   document.getElementById('v-fin-prev').style.display = 'none';
   openModal('modal-venta');
@@ -568,8 +573,55 @@ function fillVPrecio() {
     document.getElementById('v-precio').value = o.dataset.p;
     const eq = equiposFin.find(e => e.id == document.getElementById('v-prod').value);
     if (eq) document.getElementById('v-prod').dataset.nombre = `${eq.marca} ${eq.modelo}`;
-    previewFinV();
+    actualizarPlazoOpciones();
   }
+}
+
+// Reconstruye las opciones de plazo segun el tope de la gama del
+// equipo elegido. Sin permiso extendido, no aparecen los meses que
+// no le corresponden — asi "no se puede" no depende de que alguien
+// lo recuerde, la opcion simplemente no esta ahi. Con el permiso
+// marcado, se abre el rango completo con un aviso visible.
+function actualizarPlazoOpciones() {
+  var pid = document.getElementById('v-prod').value;
+  var eq  = equiposFin.find(function(e){ return e.id == pid; });
+  var permitirEl = document.getElementById('v-permitir-extendido');
+  var permitir = permitirEl ? permitirEl.checked : false;
+  var sel  = document.getElementById('v-cuotas');
+  var info = document.getElementById('v-plazo-info');
+  var wrap = document.getElementById('v-permitir-extendido-wrap');
+  var valorActual = sel.value;
+
+  var max = 12, gama = null, cap = null;
+  if (eq && typeof FIN_PLAZO_MAX !== 'undefined' && FIN_PLAZO_MAX[eq.gama]) {
+    gama = eq.gama;
+    cap  = FIN_PLAZO_MAX[gama];
+    max  = permitir ? 12 : cap;
+  }
+
+  var html = '<option value="0">No aplica</option>';
+  for (var m = 2; m <= max; m++) html += '<option value="' + m + '">' + m + ' meses</option>';
+  sel.innerHTML = html;
+  var sigueValido = Array.prototype.some.call(sel.options, function(o){ return o.value === valorActual; });
+  sel.value = sigueValido ? valorActual : '0';
+
+  if (gama && cap < 12) {
+    wrap.style.display = 'flex';
+    info.style.display = 'block';
+    if (permitir) {
+      info.style.color = 'var(--amber)';
+      info.textContent = '⚠ Plazo extendido activo, por encima del límite de ' + cap + ' meses para gama ' + gama + '.';
+    } else {
+      info.style.color = 'var(--text3)';
+      info.textContent = 'Equipo gama ' + gama + ': hasta ' + cap + ' meses por política.';
+    }
+  } else {
+    wrap.style.display = 'none';
+    info.style.display = 'none';
+    if (permitirEl) permitirEl.checked = false;
+  }
+
+  previewFinV();
 }
 
 function previewFinV() {
@@ -629,6 +681,7 @@ function toggleModoLibre() {
   document.getElementById('v-fin-prev').style.display = 'none';
   if (libre) {
     document.getElementById('v-prod').value = '';
+    actualizarPlazoOpciones();
   } else {
     document.getElementById('v-prod-txt').value = '';
   }
