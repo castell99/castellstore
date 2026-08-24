@@ -23,8 +23,11 @@ let efImg2Url = null;
 const TAG_STYLE  = { 'Económico':'green','Más vendido':'amber','Recomendado':'blue','Premium':'muted','5G':'blue' };
 const GAMA_STYLE = { 'Baja':'green','Media':'blue','Alta':'amber' };
 
-function finCalc(equipo, meses, iniPct) {
-  const tasa = (FIN_TASAS[equipo.gama] || FIN_TASAS['Media'])[meses] || 0;
+function finCalc(equipo, meses, iniPct, tasaManual) {
+  // tasaManual (opcional): si viene un numero, reemplaza la tasa que
+  // saldria de la tabla automatica. null/undefined = automatica.
+  const tasaAuto = (FIN_TASAS[equipo.gama] || FIN_TASAS['Media'])[meses] || 0;
+  const tasa = (tasaManual !== undefined && tasaManual !== null && !isNaN(tasaManual)) ? tasaManual : tasaAuto;
   // La inicial se resta del precio de contado ANTES de aplicar el
   // interes, no despues. Es el criterio que exige la SIC para ventas
   // financiadas directamente por el comercio (no por un banco o
@@ -35,7 +38,7 @@ function finCalc(equipo, meses, iniPct) {
   const baseFinanciar = Math.max(0, equipo.precio_contado - inicial);
   const financiado     = baseFinanciar * (1 + tasa / 100);
   const cuota           = financiado / meses;
-  return { tasa, financiado, inicial, cuota };
+  return { tasa, tasaAuto, financiado, inicial, cuota };
 }
 
 function getIniPct() {
@@ -492,10 +495,10 @@ function renderEquipoFila(eq, meses, iniPct) {
 
 function abrirDetalleCuotas(id) {
   const eq=equiposFin.find(e=>e.id===id); if (!eq) return;
-  let mLocal=finPlazo, iniLocal=getIniPct();
+  let mLocal=finPlazo, iniLocal=getIniPct(), tasaLocal=null;
 
   function renderBody() {
-    const f=finCalc(eq,mLocal,iniLocal);
+    const f=finCalc(eq,mLocal,iniLocal,tasaLocal);
     const tags=typeof eq.etiquetas==='string'?JSON.parse(eq.etiquetas||'[]'):(eq.etiquetas||[]);
     const filas=Array.from({length:mLocal},(_,i)=>`<tr>
       <td style="text-align:center;font-weight:600">#${i+1}</td>
@@ -515,7 +518,7 @@ function abrirDetalleCuotas(id) {
       <div style="font-size:20px;font-weight:700;margin-bottom:4px">${eq.modelo}</div>
       <div style="font-size:12px;color:var(--text3);margin-bottom:16px">${[eq.ram,eq.almacenamiento].filter(Boolean).join(' · ')}</div>
       <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-        ${FIN_PLAZOS.map(m=>`<button onclick="window.__finM=${m};renderModalCuotas(${id})" class="btn sm${m===mLocal?' primary':''}">${m} meses</button>`).join('')}
+        ${FIN_PLAZOS.map(m=>`<button onclick="window.__finM=${m};window.__finTasaManual=null;renderModalCuotas(${id})" class="btn sm${m===mLocal?' primary':''}">${m} meses</button>`).join('')}
       </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="font-size:12px;color:var(--text2);white-space:nowrap">Inicial:</span>
@@ -531,6 +534,14 @@ function abrirDetalleCuotas(id) {
           oninput="window.__finIniManual=parseInt(this.value)||0;renderModalCuotasManual(${id})"
           style="flex:1;font-family:var(--mono);font-size:13px">
         <span style="font-size:11px;color:var(--text3)">COP</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-size:12px;color:var(--text2);white-space:nowrap">Tasa manual:</span>
+        <input type="number" id="cq-tasa-manual" step="0.1" placeholder="Automática: ${f.tasaAuto}%"
+          value="${tasaLocal !== null ? tasaLocal : ''}"
+          oninput="window.__finTasaManual = this.value===''?null:parseFloat(this.value); renderModalCuotas(${id})"
+          style="flex:1;font-family:var(--mono);font-size:13px">
+        <span style="font-size:11px;color:var(--text3)">%</span>
       </div>
       <div class="fin-card" style="margin-bottom:14px">
         <div class="fin-hero">
@@ -559,11 +570,11 @@ function abrirDetalleCuotas(id) {
         </tr></thead><tbody id="cq-tabla-body">${filas}</tbody>
         </table>
       </div>
-      <div style="font-size:11px;color:var(--text3);text-align:center">Tasa: ${f.tasa}% · Gama ${eq.gama}</div>`;
+      <div style="font-size:11px;color:var(--text3);text-align:center">Tasa: ${f.tasa}%${tasaLocal!==null?' <span style="color:var(--amber)">(manual)</span>':''} · Gama ${eq.gama}</div>`;
   }
 
-  window.__finM=mLocal; window.__finIni=iniLocal;
-  window.renderModalCuotas=function(){ mLocal=window.__finM; iniLocal=window.__finIni; document.getElementById('modal-cq-body').innerHTML=renderBody(); };
+  window.__finM=mLocal; window.__finIni=iniLocal; window.__finTasaManual=null;
+  window.renderModalCuotas=function(){ mLocal=window.__finM; iniLocal=window.__finIni; tasaLocal=(window.__finTasaManual===undefined?null:window.__finTasaManual); document.getElementById('modal-cq-body').innerHTML=renderBody(); };
   document.getElementById('modal-cq-title').textContent=`💳 ${eq.marca} ${eq.modelo}`;
   document.getElementById('modal-cq-body').innerHTML=renderBody();
   openModal('modal-cuotas-fin');
@@ -665,9 +676,16 @@ window.renderModalCuotasManual = function(id) {
   if (!eq) return;
   const mLocal  = window.__finM || 3;
   const manual  = window.__finIniManual || 0;
-  const tasa    = (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[mLocal] || 0;
-  const financiado = eq.precio_contado * (1 + tasa / 100);
-  const cuota   = (financiado - manual) / mLocal;
+  const tasaManual = window.__finTasaManual;
+  const tasa = (tasaManual !== undefined && tasaManual !== null && !isNaN(tasaManual))
+    ? tasaManual
+    : (FIN_TASAS[eq.gama] || FIN_TASAS['Media'])[mLocal] || 0;
+  // Mismo criterio SIC que finCalc(): la inicial se resta ANTES de
+  // aplicar el interes. Antes esta funcion calculaba al reves —
+  // interes sobre el precio completo y la inicial restada despues.
+  const base = Math.max(0, eq.precio_contado - manual);
+  const financiado = base * (1 + tasa / 100);
+  const cuota = financiado / mLocal;
 
   const finEl = document.getElementById('cq-fin-amt');
   const iniEl = document.getElementById('cq-ini-amt');
