@@ -3,13 +3,52 @@
 //  CastellStore · Con imágenes reales desde Supabase Storage
 // ═══════════════════════════════════════════════════════════
 
-const FIN_TASAS = {
-  'Baja':    { 2: 12, 3: 18, 5: 25, 6: 30 },
-  'Media':   { 2: 10, 3: 15, 5: 22, 6: 28 },
-  'Alta':    { 2: 12, 3: 18, 5: 28, 6: 35 },
+// ── Tasas por formula, no por tabla fija ──
+// Tasa mensual real y compuesta, dentro del margen legal (techo
+// vigente ~2.19%/mes segun tasa de usura certificada). FIN_TASAS se
+// genera automaticamente y cubre CUALQUIER mes de 2 hasta el tope
+// de cada gama — no hace falta agregar filas a mano nunca mas.
+const FIN_TASA_MENSUAL = { 'Baja': 0.012, 'Media': 0.015, 'Alta': 0.018 };
+const FIN_PLAZO_MAX    = { 'Baja': 6, 'Media': 7, 'Alta': 12 };
+
+// Inicial minima por gama y plazo — calibrada con mora real (~10%).
+// Con esa mora, el interes solo no cubre el riesgo en casi ningun
+// plazo (hace falta ~11% de recargo para no perder plata, y solo
+// Alta a 6+ meses llega ahi) — por eso la inicial es la proteccion
+// real, no el interes.
+const FIN_INI_MIN = {
+  'Baja':  { corto: 15 },
+  'Media': { corto: 20, medio: 30 },
+  'Alta':  { corto: 30, medio: 40, largo: 50 },
 };
 
-const FIN_PLAZOS  = [2, 3, 5, 6];
+function bucketPlazo(meses) {
+  if (meses <= 6) return 'corto';
+  if (meses <= 9) return 'medio';
+  return 'largo';
+}
+
+function iniMinima(gama, meses) {
+  var tabla = FIN_INI_MIN[gama] || FIN_INI_MIN['Media'];
+  var bucket = bucketPlazo(meses);
+  return tabla[bucket] || tabla.corto || 10;
+}
+
+// La tabla llega hasta 12 meses para las tres gamas, aunque la
+// politica normal solo ofrezca menos en el formulario. Asi, si se
+// activa el permiso manual de plazo extendido, ya existe una tasa
+// calculada para usar — el limite se aplica en la interfaz, no
+// escondiendo el numero.
+const FIN_TASAS = {};
+Object.keys(FIN_TASA_MENSUAL).forEach(function(gama) {
+  FIN_TASAS[gama] = {};
+  var tasaMensual = FIN_TASA_MENSUAL[gama];
+  for (var m = 2; m <= 12; m++) {
+    FIN_TASAS[gama][m] = Math.round(((Math.pow(1 + tasaMensual, m) - 1) * 100) * 10) / 10;
+  }
+});
+
+const FIN_PLAZOS  = [2,3,4,5,6,7,8,9,10,11,12]; // se filtra por gama donde se use
 const FIN_INI_DEF = 30;
 
 let equiposFin   = [];
@@ -518,7 +557,7 @@ function abrirDetalleCuotas(id) {
       <div style="font-size:20px;font-weight:700;margin-bottom:4px">${eq.modelo}</div>
       <div style="font-size:12px;color:var(--text3);margin-bottom:16px">${[eq.ram,eq.almacenamiento].filter(Boolean).join(' · ')}</div>
       <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
-        ${FIN_PLAZOS.map(m=>`<button onclick="window.__finM=${m};window.__finTasaManual=null;renderModalCuotas(${id})" class="btn sm${m===mLocal?' primary':''}">${m} meses</button>`).join('')}
+        ${Array.from({length: (FIN_PLAZO_MAX[eq.gama]||6)-1}, (_,i)=>i+2).map(m=>`<button onclick="window.__finM=${m};window.__finTasaManual=null;renderModalCuotas(${id})" class="btn sm${m===mLocal?' primary':''}">${m}m</button>`).join('')}
       </div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
         <span style="font-size:12px;color:var(--text2);white-space:nowrap">Inicial:</span>
