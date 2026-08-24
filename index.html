@@ -935,7 +935,11 @@
           <option value="0">No aplica</option><option value="2">2 meses</option>
           <option value="3">3 meses</option><option value="4">4 meses</option>
           <option value="5">5 meses</option><option value="6">6 meses</option>
+          <option value="7">7 meses</option><option value="8">8 meses</option>
+          <option value="9">9 meses</option><option value="10">10 meses</option>
+          <option value="11">11 meses</option><option value="12">12 meses</option>
         </select>
+        <div id="v-plazo-info" style="display:none;font-size:11px;margin-top:6px;line-height:1.5"></div>
       </div>
       <div class="form-group"><label>Tasa <span style="font-weight:400;color:var(--text3)">(vacío = automática)</span></label>
         <input type="number" id="v-tasa-manual" step="0.1" placeholder="Automática" oninput="previewFinV()">
@@ -944,6 +948,10 @@
         <select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select>
       </div>
     </div>
+    <label id="v-permitir-extendido-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--amber);cursor:pointer;margin:-8px 0 12px">
+      <input type="checkbox" id="v-permitir-extendido" onchange="actualizarPlazoOpciones()">
+      Permitir plazo extendido manualmente (por encima del límite de gama)
+    </label>
     <div id="v-fin-prev" style="display:none"></div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-venta')">Cancelar</button>
