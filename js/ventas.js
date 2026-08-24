@@ -27,6 +27,7 @@ async function abrirNuevaVenta() {
   document.getElementById('v-imei').value    = '';
   document.getElementById('v-imei2').value   = '';
   document.getElementById('v-inicial').value = '';
+  document.getElementById('v-tasa-manual').value = '';
   document.getElementById('v-obs').value     = '';
   document.getElementById('v-fin-prev').style.display  = 'none';
   document.getElementById('v-prod').style.display      = '';
@@ -56,6 +57,7 @@ function editarVenta(id) {
   document.getElementById('v-imei').value    = v.imei || '';
   document.getElementById('v-imei2').value   = v.imei2 || '';
   document.getElementById('v-inicial').value = v.inicial_pagada || '';
+  document.getElementById('v-tasa-manual').value = '';
   document.getElementById('v-obs').value     = v.observaciones || '';
   document.getElementById('v-fin-prev').style.display = 'none';
   openModal('modal-venta');
@@ -140,9 +142,16 @@ async function guardarVenta() {
       renderDashboard();
 
       if (metodoPago === 'Financiado' && cuotasNum > 0 && eqSel) {
-        const tasa       = FIN_TASAS[eqSel.gama][cuotasNum] / 100;
-        const financiado = Math.round(precio * (1 + tasa));
-        const cuotaMonto = (financiado - inicialVal) / cuotasNum;
+        // Mismo criterio SIC que previewFinV(): la inicial se resta
+        // ANTES de aplicar el interes. Este calculo es el que de
+        // verdad crea las cuotas guardadas — antes usaba la formula
+        // vieja aunque la vista previa ya mostrara la corregida.
+        var tasaManualEl = document.getElementById('v-tasa-manual');
+        var tasaManual = tasaManualEl && tasaManualEl.value !== '' ? parseFloat(tasaManualEl.value) : null;
+        const tasaPct     = (tasaManual !== null ? tasaManual : FIN_TASAS[eqSel.gama][cuotasNum]) / 100;
+        const baseFin     = Math.max(0, precio - inicialVal);
+        const financiado  = Math.round(baseFin * (1 + tasaPct));
+        const cuotaMonto  = financiado / cuotasNum;
         abrirModalFechaPlan(v.id, cuotasNum, cuotaMonto, financiado, inicialVal);
       }
     }
@@ -571,13 +580,23 @@ function previewFinV() {
   const eq  = equiposFin.find(x => x.id == pid);
   if (c > 0 && p > 0) {
     if (eq && FIN_TASAS[eq.gama] && FIN_TASAS[eq.gama][c]) {
-      const tasa       = FIN_TASAS[eq.gama][c] / 100;
-      const financiado = p * (1 + tasa);
       const ini_real   = parseFloat(document.getElementById('v-inicial')?.value) || 0;
-      const cuota      = (financiado - ini_real) / c;
+      const tasaManualEl = document.getElementById('v-tasa-manual');
+      const tasaManual  = tasaManualEl && tasaManualEl.value !== '' ? parseFloat(tasaManualEl.value) : null;
+      const tasaAuto    = FIN_TASAS[eq.gama][c];
+      const tasaPct     = tasaManual !== null ? tasaManual : tasaAuto;
+      const tasa        = tasaPct / 100;
+      if (tasaManualEl) tasaManualEl.placeholder = 'Automatica: ' + tasaAuto + '%';
+      // La inicial (efectivo o equipo recibido) se resta ANTES de
+      // aplicar el interes, no despues. Mismo criterio que en el
+      // modulo de Financiamiento y el cotizador de permutas — es lo
+      // que exige la SIC para financiacion directa del comercio.
+      const baseFinanciar = Math.max(0, p - ini_real);
+      const financiado     = baseFinanciar * (1 + tasa);
+      const cuota           = financiado / c;
       el.style.display = 'block';
       el.innerHTML = `<div class="alert info" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
-        <div>⏱ <strong>${c} meses</strong> · Tasa: <strong>${FIN_TASAS[eq.gama][c]}%</strong></div>
+        <div>⏱ <strong>${c} meses</strong> · Tasa: <strong>${tasaPct}%</strong>${tasaManual!==null?' <span style="color:var(--amber)">(manual)</span>':''}</div>
         <div>💰 Inicial: <strong>${fmt(Math.round(ini_real))}</strong></div>
         <div>📅 Cuota: <strong>${fmt(Math.round(cuota))}/mes</strong></div>
         <div>💳 Total: <strong>${fmt(Math.round(financiado))}</strong></div>
