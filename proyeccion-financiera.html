@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Castell Tech — Proyección de financiamiento con entidad aliada</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #101f2b;
+  --bg2:      #152535;
+  --bg3:      #1a2e3d;
+  --border:   #1e3347;
+  --border2:  #2a4560;
+  --text:     #e8f0f5;
+  --text2:    #8a9aa1;
+  --text3:    #4a6070;
+  --green:    #a4d65e;
+  --green-bg: rgba(164,214,94,0.10);
+  --green-bd: rgba(164,214,94,0.22);
+  --amber:    #f5b847;
+  --amber-bg: rgba(245,184,71,0.12);
+  --amber-bd: rgba(245,184,71,0.30);
+  --font:     'Outfit', sans-serif;
+  --mono:     'JetBrains Mono', monospace;
+  --radius:   10px;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: var(--font); background: var(--bg); color: var(--text);
+  min-height: 100vh; margin: 0; font-size: 14px; line-height: 1.5;
+}
+.wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 60px; }
+
+.brand { display:flex; align-items:center; gap:10px; margin-bottom:28px }
+.brand-dot { width:34px; height:34px; border-radius:9px; background:var(--green-bg);
+  border:1px solid var(--green-bd); display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-weight:700; color:var(--green) }
+.brand-name { font-size:16px; font-weight:600 }
+
+.aviso {
+  background: var(--amber-bg); border: 1px solid var(--amber-bd); border-radius: var(--radius);
+  padding: 14px 16px; margin-bottom: 24px; font-size: 13px; color: var(--amber); line-height: 1.6;
+}
+.aviso b { color: var(--text) }
+
+h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }
+.sub { color: var(--text2); font-size: 13px; margin: 0 0 28px; }
+
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+
+.campo { margin-bottom: 20px; }
+.campo label { display:block; font-size:12px; color:var(--text2); margin-bottom:8px; font-weight:500 }
+.campo input[type="number"] {
+  width:100%; background:var(--bg3); border:1px solid var(--border2); color:var(--text);
+  padding:10px 12px; border-radius:8px; font-family:var(--mono); font-size:15px;
+}
+.campo input[type="number"]:focus { outline:none; border-color:var(--green); }
+.campo select {
+  width:100%; background:var(--bg3); border:1px solid var(--border2); color:var(--text);
+  padding:10px 12px; border-radius:8px; font-family:var(--font); font-size:13px;
+}
+.campo select:focus { outline:none; border-color:var(--green); }
+.hint { font-weight:400; color:var(--text3); font-size:11px; margin-left:6px; }
+
+.gamas { display:flex; gap:8px; }
+.gama-btn {
+  flex:1; padding:10px 0; border-radius:8px; font-size:13px; font-weight:500;
+  cursor:pointer; border:1px solid var(--border2); background:var(--bg3); color:var(--text);
+  font-family:var(--font); transition:all .15s;
+}
+.gama-btn.activo { background:var(--green-bg); border-color:var(--green-bd); color:var(--green); }
+
+.plazo-row { display:flex; justify-content:space-between; margin-bottom:8px; }
+.plazo-row span:last-child { font-weight:600; font-family:var(--mono); }
+input[type="range"] { width:100%; accent-color:var(--green); }
+
+.resultados {
+  border-top:1px solid var(--border); margin-top:22px; padding-top:20px;
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+}
+.stat { background:var(--bg3); border-radius:10px; padding:14px 16px; }
+.stat .lbl { font-size:11px; color:var(--text2); margin:0 0 4px; text-transform:uppercase; letter-spacing:.03em }
+.stat .val { font-size:22px; font-weight:600; margin:0; font-family:var(--mono); color:var(--green) }
+.total { text-align:center; margin-top:14px; font-size:13px; color:var(--text2) }
+.total b { color:var(--text); font-family:var(--mono); font-weight:600 }
+
+.pie { margin-top:28px; font-size:12px; color:var(--text3); text-align:center; line-height:1.6 }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <div class="brand-dot">C</div>
+    <div class="brand-name">Castell Tech</div>
+  </div>
+
+  <div class="aviso">
+    <b>Herramienta de proyección, no el sistema de financiamiento activo.</b><br>
+    Estas tasas son válidas únicamente si una entidad financiera vigilada por la
+    Superintendencia Financiera formaliza una alianza y asume el crédito bajo su
+    propia licencia. El financiamiento directo que Castell Tech ofrece hoy con
+    capital propio opera bajo el techo legal de crédito de consumo (SIC) y usa
+    tasas distintas, más bajas.
+  </div>
+
+  <h1>Proyección de cuotas — alianza con entidad financiera</h1>
+  <p class="sub">Simulador para evaluar condiciones con un posible aliado financiero.</p>
+
+  <div class="card">
+
+    <div class="campo">
+      <label>Equipo <span class="hint" id="equipo-estado">cargando inventario…</span></label>
+      <select id="equipo-sel">
+        <option value="">Precio manual (sin equipo del catálogo)</option>
+      </select>
+    </div>
+
+    <div class="campo">
+      <label>Precio de contado (COP)</label>
+      <input type="number" id="precio" value="1200000">
+    </div>
+
+    <div class="campo">
+      <label>Gama del equipo</label>
+      <div class="gamas" id="gamas">
+        <button class="gama-btn" data-g="Baja"  data-max="6">Baja</button>
+        <button class="gama-btn" data-g="Media" data-max="7">Media</button>
+        <button class="gama-btn" data-g="Alta"  data-max="12">Alta</button>
+      </div>
+    </div>
+
+    <div class="campo">
+      <div class="plazo-row">
+        <label style="margin:0">Cuota inicial</label>
+        <span id="inicial-out">30% · $360.000</span>
+      </div>
+      <input type="range" id="inicial-pct" min="10" max="70" value="30" step="1">
+    </div>
+
+    <div class="campo" style="margin-bottom:4px">
+      <div class="plazo-row">
+        <label style="margin:0">Plazo</label>
+        <span id="plazo-out">6 meses</span>
+      </div>
+      <input type="range" id="plazo" min="2" max="6" value="6" step="1">
+    </div>
+
+    <div class="resultados">
+      <div class="stat">
+        <p class="lbl">Recargo total</p>
+        <p class="val" id="out-recargo">35.0%</p>
+      </div>
+      <div class="stat">
+        <p class="lbl">Cuota mensual</p>
+        <p class="val" id="out-cuota">$0</p>
+      </div>
+    </div>
+    <div class="total">Total a pagar: <b id="out-total">$0</b></div>
+
+  </div>
+
+  <div class="pie">
+    Página independiente, no enlazada desde el catálogo público ni el panel admin.<br>
+    No procesa ventas ni se conecta a la base de datos de Castell Tech.
+  </div>
+
+</div>
+
+<script>
+// Tabla de proyeccion — continuidad de la tendencia historica del negocio,
+// NO el modelo con margen legal que usa el sistema real (financiamiento_modulo.js).
+// Solo valida si una entidad financiera regulada asume el credito.
+var TABLA = {
+  Baja:  {2:8, 3:12, 4:15.2, 5:18, 6:23},
+  Media: {2:10, 3:15, 4:18.8, 5:22, 6:28, 7:31.6},
+  Alta:  {2:12, 3:18, 4:23.2, 5:28, 6:35, 7:40.0, 8:45.6, 9:51.2, 10:56.9, 11:62.4, 12:68.0}
+};
+
+// Lectura de solo consulta al catalogo real, para referencia. Esta
+// pagina nunca escribe en la base — ni crea ventas, ni cuotas, ni
+// toca ningun registro. Usa la misma anon key publica del sitio,
+// protegida igual por las politicas RLS de siempre.
+var SUPA = 'https://inlejbenzupcgpkuiqzj.supabase.co';
+var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlubGVqYmVuenVwY2dwa3VpcXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NzE1ODYsImV4cCI6MjA5MjQ0NzU4Nn0.PAovGQ51-cVmOsxcb9fG26kYTArzjQVbS0718-krHuQ';
+
+var equipos = [];
+var gamaSel = 'Alta';
+var gamaBtns = document.querySelectorAll('.gama-btn');
+var plazoInput = document.getElementById('plazo');
+var plazoOut = document.getElementById('plazo-out');
+var precioInput = document.getElementById('precio');
+var inicialInput = document.getElementById('inicial-pct');
+var equipoSel = document.getElementById('equipo-sel');
+var equipoEstado = document.getElementById('equipo-estado');
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString('es-CO'); }
+
+function marcarGama(g) {
+  gamaBtns.forEach(function(b) {
+    b.classList.toggle('activo', b.dataset.g === g);
+  });
+}
+
+function seleccionarGama(g) {
+  gamaSel = g;
+  marcarGama(g);
+  var btn = document.querySelector('.gama-btn[data-g="' + g + '"]');
+  var max = parseInt(btn.dataset.max);
+  plazoInput.max = max;
+  if (parseInt(plazoInput.value) > max) plazoInput.value = max;
+}
+
+function actualizar() {
+  var precio = parseFloat(precioInput.value) || 0;
+  var meses  = parseInt(plazoInput.value);
+  var iniPct = parseInt(inicialInput.value);
+  var recargo = TABLA[gamaSel][meses];
+  if (recargo === undefined) return;
+
+  // Siempre hay inicial, restada del precio ANTES de aplicar el
+  // recargo — mismo principio que usa el sistema real hoy.
+  var inicial = precio * (iniPct / 100);
+  var base    = Math.max(0, precio - inicial);
+  var total   = base * (1 + recargo / 100);
+  var cuota   = total / meses;
+
+  plazoOut.textContent = meses + ' meses';
+  document.getElementById('inicial-out').textContent = iniPct + '% · ' + fmt(inicial);
+  document.getElementById('out-recargo').textContent = recargo.toFixed(1) + '%';
+  document.getElementById('out-cuota').textContent = fmt(cuota);
+  document.getElementById('out-total').textContent = fmt(total + inicial);
+}
+
+gamaBtns.forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    seleccionarGama(btn.dataset.g);
+    actualizar();
+  });
+});
+
+equipoSel.addEventListener('change', function() {
+  var eq = equipos.find(function(e) { return String(e.id) === equipoSel.value; });
+  if (!eq) { actualizar(); return; }
+  precioInput.value = Math.round(eq.precio_contado);
+  if (eq.gama && TABLA[eq.gama]) seleccionarGama(eq.gama);
+  actualizar();
+});
+
+plazoInput.addEventListener('input', actualizar);
+precioInput.addEventListener('input', actualizar);
+inicialInput.addEventListener('input', actualizar);
+
+marcarGama(gamaSel);
+actualizar();
+
+// Carga de solo lectura del inventario disponible, para elegir un
+// equipo real como referencia en vez de escribir el precio a mano.
+fetch(SUPA + '/rest/v1/equipos_financiamiento?select=id,marca,modelo,precio_contado,gama&disponible=eq.true&order=marca.asc', {
+  headers: { apikey: KEY }
+})
+  .then(function(r) { return r.ok ? r.json() : []; })
+  .then(function(data) {
+    equipos = Array.isArray(data) ? data : [];
+    if (!equipos.length) {
+      equipoEstado.textContent = 'sin equipos disponibles';
+      return;
+    }
+    equipoEstado.textContent = equipos.length + ' disponibles';
+    equipos.forEach(function(eq) {
+      var opt = document.createElement('option');
+      opt.value = eq.id;
+      opt.textContent = (eq.marca || '') + ' ' + (eq.modelo || '') + ' — ' + fmt(eq.precio_contado);
+      equipoSel.appendChild(opt);
+    });
+  })
+  .catch(function() { equipoEstado.textContent = 'no se pudo cargar'; });
+</script>
+</body>
+</html>
