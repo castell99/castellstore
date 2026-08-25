@@ -29,6 +29,7 @@ async function abrirNuevaVenta() {
   document.getElementById('v-inicial').value = '';
   document.getElementById('v-tasa-manual').value = '';
   if (document.getElementById('v-permitir-extendido')) document.getElementById('v-permitir-extendido').checked = false;
+  if (document.getElementById('v-permitir-inicial-baja')) document.getElementById('v-permitir-inicial-baja').checked = false;
   actualizarPlazoOpciones();
   document.getElementById('v-obs').value     = '';
   document.getElementById('v-fin-prev').style.display  = 'none';
@@ -61,6 +62,7 @@ function editarVenta(id) {
   document.getElementById('v-inicial').value = v.inicial_pagada || '';
   document.getElementById('v-tasa-manual').value = '';
   if (document.getElementById('v-permitir-extendido')) document.getElementById('v-permitir-extendido').checked = false;
+  if (document.getElementById('v-permitir-inicial-baja')) document.getElementById('v-permitir-inicial-baja').checked = false;
   actualizarPlazoOpciones();
   sel = document.getElementById('v-cuotas'); if (sel) sel.value = v.cuotas || '0';
   document.getElementById('v-obs').value     = v.observaciones || '';
@@ -79,9 +81,32 @@ async function guardarVenta() {
   const eqSel      = equiposFin.find(x => x.id == pid);
   let precioFinal  = precio;
 
+  // Inicial minima: no deja guardar por debajo del recomendado a
+  // menos que se haya marcado el permiso a proposito. Es la
+  // protección principal del sistema ahora que el interés tiene
+  // poco margen legal — no puede ser algo que se salte sin querer.
+  if (metodoPago === 'Financiado' && eqSel && cuotasNum > 0 && typeof iniMinima === 'function') {
+    var iniValNow = parseFloat(document.getElementById('v-inicial')?.value) || 0;
+    var pctIniNow = precio > 0 ? (iniValNow / precio) * 100 : 0;
+    var minReqNow = iniMinima(eqSel.gama, cuotasNum);
+    var permitirIniNow = document.getElementById('v-permitir-inicial-baja')?.checked;
+    if (pctIniNow < minReqNow && !permitirIniNow) {
+      toast('Inicial por debajo del ' + minReqNow + '% recomendado — marca el permiso o ajusta la inicial', 'err');
+      return;
+    }
+  }
+
   if (metodoPago === 'Financiado' && eqSel && cuotasNum > 0 && FIN_TASAS[eqSel.gama]?.[cuotasNum]) {
-    const tasa  = FIN_TASAS[eqSel.gama][cuotasNum] / 100;
-    precioFinal = Math.round(precio * (1 + tasa));
+    // Mismo criterio SIC de todo el sistema: la inicial se resta
+    // ANTES del interes. precioFinal es el total que queda
+    // registrado en la venta, debe coincidir con lo que de verdad
+    // se cobra en las cuotas — antes se calculaba aparte, sobre el
+    // precio completo, sin restar nada.
+    var tasaManualPF = document.getElementById('v-tasa-manual')?.value;
+    var tasaPF = (tasaManualPF !== undefined && tasaManualPF !== '') ? parseFloat(tasaManualPF) : FIN_TASAS[eqSel.gama][cuotasNum];
+    var iniPF  = parseFloat(document.getElementById('v-inicial')?.value) || 0;
+    var basePF = Math.max(0, precio - iniPF);
+    precioFinal = Math.round(basePF * (1 + tasaPF/100)) + iniPF;
   }
 
   const costoProveedor = eqSel ? parseFloat(eqSel.precio_proveedor) || 0 : 0;
@@ -653,6 +678,32 @@ function previewFinV() {
         <div>📅 Cuota: <strong>${fmt(Math.round(cuota))}/mes</strong></div>
         <div>💳 Total: <strong>${fmt(Math.round(financiado))}</strong></div>
       </div>`;
+
+      // Inicial minima por gama y plazo — calibrada con la mora real.
+      // Es la protección principal ahora que el interés tiene poco
+      // margen legal, asi que se avisa si queda por debajo.
+      var infoIni = document.getElementById('v-inicial-info');
+      var wrapIni = document.getElementById('v-permitir-inicial-wrap');
+      var permitirIni = document.getElementById('v-permitir-inicial-baja')?.checked;
+      if (infoIni && wrapIni && typeof iniMinima === 'function') {
+        var pctIni = p > 0 ? (ini_real / p) * 100 : 0;
+        var minReq = iniMinima(eq.gama, c);
+        if (pctIni < minReq) {
+          wrapIni.style.display = 'flex';
+          infoIni.style.display = 'block';
+          if (permitirIni) {
+            infoIni.style.color = 'var(--amber)';
+            infoIni.textContent = '⚠ Vendiendo con ' + pctIni.toFixed(0) + '% de inicial, por debajo del ' + minReq + '% recomendado para gama ' + eq.gama + ' a ' + c + ' meses.';
+          } else {
+            infoIni.style.color = 'var(--text3)';
+            infoIni.textContent = 'Inicial recomendada para gama ' + eq.gama + ' a ' + c + ' meses: ' + minReq + '% (' + fmt(Math.round(p*minReq/100)) + '). Hoy tiene ' + pctIni.toFixed(0) + '%.';
+          }
+        } else {
+          wrapIni.style.display = 'none';
+          infoIni.style.display = 'none';
+          var chk = document.getElementById('v-permitir-inicial-baja'); if (chk) chk.checked = false;
+        }
+      }
     } else {
       const cuota = calcCuota(p, 3.5, c);
       el.style.display = 'block';
