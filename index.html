@@ -952,6 +952,11 @@
       <input type="checkbox" id="v-permitir-extendido" onchange="actualizarPlazoOpciones()">
       Permitir plazo extendido manualmente (por encima del límite de gama)
     </label>
+    <div id="v-inicial-info" style="display:none;font-size:11px;margin:-8px 0 8px;line-height:1.5"></div>
+    <label id="v-permitir-inicial-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--amber);cursor:pointer;margin:-4px 0 12px">
+      <input type="checkbox" id="v-permitir-inicial-baja" onchange="previewFinV()">
+      Vender con esta inicial de todas formas
+    </label>
     <div id="v-fin-prev" style="display:none"></div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-venta')">Cancelar</button>
