@@ -8,7 +8,7 @@
 // vigente ~2.19%/mes segun tasa de usura certificada). FIN_TASAS se
 // genera automaticamente y cubre CUALQUIER mes de 2 hasta el tope
 // de cada gama — no hace falta agregar filas a mano nunca mas.
-const FIN_TASA_MENSUAL = { 'Baja': 0,03923, 'Media': 0,04881, 'Alta': 0,05830 };
+const FIN_TASA_MENSUAL = { 'Baja': 0.03923, 'Media': 0.04881, 'Alta': 0.05830 };
 const FIN_PLAZO_MAX    = { 'Baja': 6, 'Media': 7, 'Alta': 12 };
 
 // Inicial minima por gama y plazo — calibrada con mora real (~10%).
