@@ -10,6 +10,15 @@ const VENDEDOR = {
   direccion: NEGOCIO.direccion + ' ' + NEGOCIO.ciudad,
   telefono : NEGOCIO.telefono,
   negocio  : NEGOCIO.nombre,
+// Paleta monocroma — definida en negocio.js (fuente unica).
+// jsPDF trabaja con RGB en arreglos, no con hex, asi que se
+// convierte una sola vez aqui.
+function hexRGB(h) {
+  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+}
+const C_TINTA = hexRGB(NEGOCIO.doc.tinta);
+const C_SUAVE = hexRGB(NEGOCIO.doc.suave);
+const C_LINEA = hexRGB(NEGOCIO.doc.linea);
 };
 
 let _contratoVentaId = null;
@@ -200,54 +209,46 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
   var cw   = W - mx*2; // ancho contenido
   var y    = 0;
 
-  // ── Colores ──
-  var verde  = [164,214,94];
-  var azul   = [91,163,201];
-  var oscuro = [16,31,43];
-  var gris   = [138,154,161];
-  var negro  = [30,30,30];
-
   // ── Encabezado ──
-  doc.setFillColor(oscuro[0],oscuro[1],oscuro[2]);
-  doc.rect(0,0,W,28,'F');
-
-  // Logo
+  // Sin franja oscura: dos paginas con fondo lleno consumen mucha
+  // tinta y el documento se lee peor impreso en laser.
   try {
-    doc.addImage(LOGO_B64,'PNG',mx,3,22,22);
+    doc.addImage(LOGO_BN_B64, 'PNG', mx, 8, 18, 18);
   } catch(e){}
 
-  doc.setTextColor(verde[0],verde[1],verde[2]);
+  doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
   doc.setFont('helvetica','bold');
   doc.setFontSize(14);
-  doc.text(VENDEDOR.negocio, mx+26, 11);
+  doc.text(VENDEDOR.negocio, mx + 22, 15);
 
-  doc.setTextColor(gris[0],gris[1],gris[2]);
+  doc.setTextColor(C_SUAVE[0], C_SUAVE[1], C_SUAVE[2]);
   doc.setFont('helvetica','normal');
   doc.setFontSize(8);
-  doc.text(VENDEDOR.direccion, mx+26, 17);
-  doc.text('Tel: '+VENDEDOR.telefono+'  |  C.C. '+VENDEDOR.cedula, mx+26, 22);
+  doc.text(VENDEDOR.direccion, mx + 22, 20);
+  doc.text('Tel: ' + VENDEDOR.telefono + '  |  C.C. ' + VENDEDOR.cedula, mx + 22, 24);
 
-  doc.setTextColor(255,255,255);
+  doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
   doc.setFont('helvetica','bold');
   doc.setFontSize(9);
-  doc.text('Contrato N° '+datos.venta_id, W-mx, 11, {align:'right'});
+  doc.text('Contrato N° ' + datos.venta_id, W - mx, 15, {align:'right'});
   doc.setFont('helvetica','normal');
   doc.setFontSize(8);
-  doc.text('Fecha: '+datos.fecha_inicio, W-mx, 17, {align:'right'});
+  doc.setTextColor(C_SUAVE[0], C_SUAVE[1], C_SUAVE[2]);
+  doc.text('Fecha: ' + datos.fecha_inicio, W - mx, 20, {align:'right'});
 
-  y = 36;
+  // Linea gruesa bajo el encabezado
+  doc.setDrawColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+  doc.setLineWidth(0.6);
+  doc.line(mx, 30, W - mx, 30);
 
-  // ── Título ──
-  doc.setTextColor(oscuro[0],oscuro[1],oscuro[2]);
+  y = 40;
+
+  // ── Titulo ──
+  doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
   doc.setFont('helvetica','bold');
   doc.setFontSize(13);
-  doc.text('CONTRATO DE COMPRAVENTA A CRÉDITO', W/2, y, {align:'center'});
-  y += 5;
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8);
-  doc.setTextColor(gris[0],gris[1],gris[2]);
-  doc.text('(Persona Natural — Régimen Simplificado)', W/2, y, {align:'center'});
-  y += 6;
+  doc.text('CONTRATO DE COMPRAVENTA DE EQUIPO MÓVIL', W/2, y, {align:'center'});
+  y += 10;
 
   // Línea verde
   doc.setDrawColor(verde[0],verde[1],verde[2]);
