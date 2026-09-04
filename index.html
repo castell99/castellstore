@@ -902,7 +902,17 @@
     </div>
     <div class="form-group"><label>Cliente *</label><input id="v-cli" placeholder="Nombre completo"></div>
     <div class="form-row">
-      <div class="form-group"><label>Teléfono / WhatsApp</label><input id="v-tel" placeholder="300 123 4567"></div>
+      <div class="form-row">
+    <div class="form-group"><label>Teléfono / WhatsApp</label>
+        <input id="v-tel" placeholder="300 123 4567">
+      </div>
+      <div class="form-group"><label>Correo <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+        <input type="email" id="v-email" placeholder="cliente@correo.com">
+      </div>
+      <div class="form-group"><label>Cédula expedida en</label>
+        <input id="v-ciudad-exp" placeholder="Villanueva">
+      </div>
+    </div>
       <div class="form-group"><label>Color del equipo</label><input id="v-color" placeholder="Negro, Azul..."></div>
     </div>
     <div class="form-row">
@@ -912,16 +922,39 @@
     </div>
     <div class="form-group"><label>Observaciones</label><input id="v-obs" placeholder="Notas adicionales..."></div>
     <div class="form-group" id="v-prod-group">
-  <label>Producto *
-    <span style="float:right;font-size:11px;font-weight:400;color:var(--text3)">
-      <label style="cursor:pointer;margin:0">
-        <input type="checkbox" id="v-modo-libre" onchange="toggleModoLibre()" style="margin-right:4px">
-        Producto no catalogado
+      <label>Producto *
+        <span style="float:right;font-size:11px;font-weight:400;color:var(--text3)">
+          <label style="cursor:pointer;margin:0">
+            <input type="checkbox" id="v-modo-libre" onchange="toggleModoLibre()" style="margin-right:4px">
+            Producto no catalogado
+          </label>
+        </span>
       </label>
-    </span>
-  </label>
-  <select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar equipo...</option></select>
-  <input id="v-prod-txt" placeholder="Nombre del producto (escríbelo manualmente)" style="display:none;margin-top:6px">
+      <select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar equipo...</option></select>
+      <input id="v-prod-txt" placeholder="Nombre del producto (escríbelo manualmente)" style="display:none;margin-top:6px">
+    </div>
+    <div class="form-row">
+  <div class="form-group"><label>Capacidad</label>
+    <input id="v-almacenamiento" placeholder="128 GB">
+  </div>
+  <div class="form-group"><label>Estado del equipo</label>
+    <select id="v-estado-equipo">
+      <option>Nuevo</option>
+      <option>Usado</option>
+      <option>Reacondicionado</option>
+    </select>
+  </div>
+  <div class="form-group"><label>N° de serie <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+    <input id="v-serie" placeholder="Serial del equipo">
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Accesorios entregados <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+    <input id="v-accesorios" placeholder="Cargador, cable, estuche...">
+  </div>
+  <div class="form-group"><label>Factura N° <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+    <input id="v-factura" placeholder="Número de factura">
+  </div>
 </div>
     <div class="form-row">
       <div class="form-group"><label>Precio de venta (COP $) *</label><input type="number" id="v-precio" placeholder="0" oninput="previewFinV()"></div>
@@ -943,6 +976,10 @@
       </div>
       <div class="form-group"><label>Tasa <span style="font-weight:400;color:var(--text3)">(vacío = automática)</span></label>
         <input type="number" id="v-tasa-manual" step="0.1" placeholder="Automática" oninput="previewFinV()">
+      </div>
+      <div class="form-group" id="v-fecha1-wrap" style="display:none">
+        <label>Fecha primera cuota</label>
+        <input type="date" id="v-fecha1">
       </div>
       <div class="form-group"><label>Estado</label>
         <select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select>
