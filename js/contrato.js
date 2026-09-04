@@ -257,15 +257,16 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
   y += 6;
 
   // ── Función helper texto con wrap ──
+  // ── Helper: titulo de clausula + texto ajustado al ancho ──
   function addSection(titulo, texto) {
     doc.setFont('helvetica','bold');
     doc.setFontSize(9);
-    doc.setTextColor(oscuro[0],oscuro[1],oscuro[2]);
+    doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
     doc.text(titulo, mx, y);
     y += 5;
     doc.setFont('helvetica','normal');
     doc.setFontSize(8.5);
-    doc.setTextColor(negro[0],negro[1],negro[2]);
+    doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
     var lines = doc.splitTextToSize(texto, cw);
     doc.text(lines, mx, y);
     y += lines.length * 4.5 + 5;
