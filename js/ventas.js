@@ -810,6 +810,19 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+// La fecha de la primera cuota solo aplica a ventas financiadas.
+// Se precarga a un mes de hoy, pero el vendedor puede cambiarla:
+// esa fecha queda impresa en el contrato.
+function toggleFechaPrimeraCuota() {
+  var wrap = document.getElementById('v-fecha1-wrap');
+  if (!wrap) return;
+  var esFin = document.getElementById('v-pago').value === 'Financiado'
+              && (parseInt(document.getElementById('v-cuotas').value) || 0) > 0;
+  wrap.style.display = esFin ? '' : 'none';
+  var campo = document.getElementById('v-fecha1');
+  if (esFin && campo && !campo.value) campo.value = addMonths(today(), 1);
+}
+
 function abrirDocumentos(ventaId) {
   var v   = ventas.find(function(x) { return x.id === ventaId; });
   if (!v) return;
