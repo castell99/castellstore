@@ -33,14 +33,20 @@ let _cedulaBackFile  = null;
 function abrirContrato(ventaId) {
   var v = ventas.find(function(x) { return x.id === ventaId; });
   if (!v) return;
-  var eq      = equiposFin.find(function(e) { return e.marca + ' ' + e.modelo === v.producto; });
   var ini     = parseFloat(v.inicial_pagada) || 0;
   var fin     = parseFloat(v.precio) || 0;
+  var contado = parseFloat(v.precio_contado) || fin;
   var cuotasN = parseInt(v.cuotas) || 0;
   var cuotaVal = cuotasN > 0 ? Math.round((fin - ini) / cuotasN) : 0;
 
+  // El plan real de cuotas, con sus fechas. La clausula CUARTA lleva
+  // el cuadro completo, asi que se toma de la tabla y no se recalcula.
+  var plan = (typeof cuotas !== 'undefined' ? cuotas : [])
+    .filter(function(c) { return c.venta_id === ventaId; })
+    .sort(function(a,b) { return a.numero - b.numero; });
+
   _contratoVentaId = ventaId;
-  _contratoData    = { v:v, eq:eq, ini:ini, fin:fin, cuotasN:cuotasN, cuotaVal:cuotaVal };
+  _contratoData    = { v:v, ini:ini, fin:fin, contado:contado, cuotasN:cuotasN, cuotaVal:cuotaVal, plan:plan };
   _cedulaFrontFile = null;
   _cedulaBackFile  = null;
   _firmaCli = false;
@@ -52,6 +58,10 @@ function abrirContrato(ventaId) {
   });
   var cedEl = document.getElementById('contrato-cedula');
   if (cedEl) cedEl.value = v.cedula_cliente || '';
+
+  // Por defecto se entrega en el local; si fue a domicilio se cambia.
+  var lugEl = document.getElementById('contrato-lugar');
+  if (lugEl) lugEl.value = NEGOCIO.direccion + ', ' + NEGOCIO.ciudad;
 
   var res = document.getElementById('contrato-resumen');
   if (res) {
@@ -171,7 +181,7 @@ async function generarContrato() {
 
   setBtn('btn-contrato', true, 'Generando PDF...');
   try {
-    var { v, eq, ini, fin, cuotasN, cuotaVal } = _contratoData;
+    var { v, ini, fin, contado, cuotasN, cuotaVal, plan } = _contratoData;
     var ts = Date.now();
 
     var firmaCliImg = document.getElementById('firma-cliente-canvas')?.toDataURL('image/png');
@@ -181,15 +191,23 @@ async function generarContrato() {
     if (_cedulaFrontFile) urlFront = await subirArchivoContrato(_cedulaFrontFile, 'cedula_front_'+v.id+'_'+ts+'.'+_cedulaFrontFile.name.split('.').pop());
     if (_cedulaBackFile)  urlBack  = await subirArchivoContrato(_cedulaBackFile,  'cedula_back_' +v.id+'_'+ts+'.'+_cedulaBackFile.name.split('.').pop());
 
-    var datos = {
-      venta_id:v.id, cliente:v.cliente, cedula_cliente:cedula,
-      telefono:v.telefono_cliente||'', equipo:v.producto,
-      precio_contado: eq?eq.precio_contado:fin,
-      precio_financiado:fin, inicial:ini, cuotas:cuotasN,
-      valor_cuota:cuotaVal, fecha_inicio:today(),
-      firma_cliente:firmaCliImg, firma_vendedor:firmaVenImg,
-      foto_cedula_front:urlFront, foto_cedula_back:urlBack, estado:'firmado',
-    };
+      var datos = {
+        venta_id:v.id, cliente:v.cliente, cedula_cliente:cedula,
+        ciudad_expedicion: v.ciudad_expedicion || '',
+        telefono: v.telefono_cliente || '', email: v.email_cliente || '',
+        equipo: v.producto,
+        almacenamiento: v.almacenamiento || '', color: v.color || '',
+        estado_equipo: v.estado_equipo || '', numero_serie: v.numero_serie || '',
+        accesorios: v.accesorios || '', factura_num: v.factura_num || '',
+        imei: v.imei || '', imei2: v.imei2 || '',
+        lugar_entrega: document.getElementById('contrato-lugar')?.value.trim() || '',
+        fecha_entrega: v.fecha || today(),
+        precio_contado: contado,
+        precio_financiado:fin, inicial:ini, cuotas:cuotasN,
+        valor_cuota:cuotaVal, fecha_inicio:today(),
+        firma_cliente:firmaCliImg, firma_vendedor:firmaVenImg,
+        foto_cedula_front:urlFront, foto_cedula_back:urlBack, estado:'firmado',
+      };
 
     await sb('contratos','POST', datos);
     await generarPDFContrato(datos, firmaCliImg, firmaVenImg);
@@ -251,98 +269,199 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
   doc.text('CONTRATO DE COMPRAVENTA DE EQUIPO MÓVIL', W/2, y, {align:'center'});
   y += 10;
 
-  // Línea verde
-  doc.setDrawColor(verde[0],verde[1],verde[2]);
-  doc.setLineWidth(0.5);
-  doc.line(mx, y, W-mx, y);
-  y += 6;
-
-  // ── Función helper texto con wrap ──
   // ── Helper: titulo de clausula + texto ajustado al ancho ──
-  function addSection(titulo, texto) {
+    function addSection(titulo, texto) {
+      checkPage(24);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+      doc.text(titulo, mx, y);
+      y += 5;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8.5);
+      var lines = doc.splitTextToSize(texto, cw);
+      doc.text(lines, mx, y);
+      y += lines.length * 4.2 + 5;
+    }
+  
+    // Salta de pagina ANTES de escribir, no despues: asi un titulo
+    // nunca queda solo al final de una hoja.
+    function checkPage(alto) {
+      if (y + (alto || 10) > 255) { doc.addPage(); y = 20; }
+    }
+  
+    // ── Comparecientes ──
+    addSection('',
+      'Entre los suscritos a saber: ' + VENDEDOR.nombre.toUpperCase() +
+      ', mayor de edad, vecino de ' + NEGOCIO.ciudad + ', identificado con cédula de ciudadanía No. ' +
+      VENDEDOR.cedula + ' expedida en Villanueva, quien obra en nombre propio y para efectos del presente ' +
+      'contrato se denominará EL VENDEDOR; y de la otra parte, ' + datos.cliente.toUpperCase() +
+      ', mayor de edad, identificado con cédula de ciudadanía No. ' + datos.cedula_cliente +
+      (datos.ciudad_expedicion ? ' expedida en ' + datos.ciudad_expedicion : '') +
+      ', quien obra en nombre propio y para efectos del presente contrato se denominará EL COMPRADOR; ' +
+      'hemos convenido celebrar el presente CONTRATO DE COMPRAVENTA DE BIEN MUEBLE, el cual se regirá por ' +
+      'las normas civiles y comerciales aplicables y especialmente por las siguientes cláusulas:'
+    );
+  
+    // ── PRIMERA: ficha del equipo ──
+    // Va como lista y no como parrafo: es la identificacion del bien
+    // sobre el que se reserva el dominio, tiene que leerse de un vistazo.
+    checkPage(60);
     doc.setFont('helvetica','bold');
     doc.setFontSize(9);
-    doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
-    doc.text(titulo, mx, y);
+    doc.text('PRIMERA. OBJETO E IDENTIFICACIÓN DEL BIEN', mx, y);
     y += 5;
     doc.setFont('helvetica','normal');
     doc.setFontSize(8.5);
-    doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
-    var lines = doc.splitTextToSize(texto, cw);
-    doc.text(lines, mx, y);
-    y += lines.length * 4.5 + 5;
-    checkPage();
-  }
-
-  function checkPage() {
-    if (y > 255) { doc.addPage(); y = 20; }
-  }
-
-  // ── Comparecientes ──
-  addSection('COMPARECIENTES',
-    'Entre los suscritos, por una parte '+VENDEDOR.nombre+', identificado con C.C. N° '+VENDEDOR.cedula+
-    ', domiciliado en '+VENDEDOR.direccion+', actuando como VENDEDOR, y por otra parte '+datos.cliente+
-    ', identificado con C.C. N° '+datos.cedula_cliente+
-    (datos.telefono?', con número de contacto '+datos.telefono:'')+
-    ', quien en adelante se denominará el COMPRADOR, se ha celebrado el presente contrato de compraventa a crédito, '+
-    'regido por las disposiciones del Código de Comercio colombiano (Decreto 410 de 1971) y las normas concordantes.'
-  );
-
-  addSection('PRIMERA — OBJETO DEL CONTRATO',
-    'El VENDEDOR se compromete a transferir al COMPRADOR la propiedad del siguiente bien mueble: '+datos.equipo+
-    '. El precio total de la operación es de '+fmt(datos.precio_financiado)+
-    ' (incluido el cargo financiero correspondiente), con una cuota inicial de '+fmt(datos.inicial)+
-    ' pagada al momento de la firma del presente contrato.'
-  );
-
-  addSection('SEGUNDA — FORMA DE PAGO',
-    'El saldo restante de '+fmt(datos.precio_financiado-datos.inicial)+
-    ' será cancelado en '+datos.cuotas+' cuotas mensuales iguales de '+fmt(datos.valor_cuota)+
-    ' cada una, pagaderas el mismo día de cada mes a partir de la fecha de suscripción. '+
-    'Los pagos deberán realizarse directamente en el establecimiento o mediante transferencia a los medios de pago indicados por el VENDEDOR.'
-  );
-
-  addSection('TERCERA — MORA E INCUMPLIMIENTO',
-    'En caso de mora en el pago de cualquiera de las cuotas por más de cinco (5) días calendario, '+
-    'el VENDEDOR podrá exigir el pago inmediato del saldo total pendiente, de conformidad con el artículo 69 '+
-    'de la Ley 45 de 1990. Adicionalmente, se causarán intereses moratorios a la tasa máxima legal permitida '+
-    'por la Superintendencia Financiera de Colombia.'
-  );
-
-  addSection('CUARTA — GARANTÍA Y RESERVA DE DOMINIO',
-    'El bien objeto del presente contrato se entrega al COMPRADOR en calidad de préstamo de uso hasta tanto no se cancele '+
-    'la totalidad del precio pactado. El VENDEDOR se reserva el dominio del bien de conformidad con los artículos 952 y '+
-    'siguientes del Código de Comercio. El COMPRADOR no podrá enajenar, pignorar ni gravar el bien sin autorización expresa y escrita del VENDEDOR.'
-  );
-
-  // Obligaciones como lista
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(9);
-  doc.setTextColor(oscuro[0],oscuro[1],oscuro[2]);
-  doc.text('QUINTA — OBLIGACIONES DEL COMPRADOR', mx, y);
-  y += 5;
-  var obligaciones = [
-    'Pagar puntualmente las cuotas en las fechas acordadas.',
-    'Conservar el bien en buen estado y no modificarlo sin autorización.',
-    'Notificar al vendedor cualquier daño, pérdida o hurto del equipo.',
-    'Permitir la inspección del bien cuando el vendedor lo requiera.',
-    'No ceder ni transferir el presente contrato sin autorización previa.',
-  ];
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8.5);
-  doc.setTextColor(negro[0],negro[1],negro[2]);
-  obligaciones.forEach(function(ob, i) {
-    doc.text((i+1)+'. '+ob, mx+3, y);
+    doc.text('El VENDEDOR vende al COMPRADOR el siguiente equipo móvil:', mx, y);
+    y += 6;
+  
+    var ficha = [
+      ['Marca y modelo', datos.equipo],
+      ['Capacidad',      datos.almacenamiento],
+      ['Color',          datos.color],
+      ['Estado',         datos.estado_equipo],
+      ['IMEI 1',         datos.imei],
+      ['IMEI 2',         datos.imei2],
+      ['Número de serie',datos.numero_serie],
+      ['Accesorios entregados', datos.accesorios],
+      ['Factura o documento equivalente No.', datos.factura_num],
+    ];
+    ficha.forEach(function(f) {
+      if (!f[1]) return;   // los opcionales vacios no imprimen renglon
+      doc.setFont('helvetica','bold');
+      doc.text('•  ' + f[0] + ': ', mx + 3, y);
+      var anchoEt = doc.getTextWidth('•  ' + f[0] + ': ');
+      doc.setFont('helvetica','normal');
+      doc.text(String(f[1]), mx + 3 + anchoEt, y);
+      y += 4.6;
+    });
     y += 5;
-  });
-  y += 4;
-  checkPage();
-
-  addSection('SEXTA — JURISDICCIÓN Y COMPETENCIA',
-    'Para todos los efectos legales derivados del presente contrato, las partes se someten a la '+
-    'jurisdicción de los jueces y tribunales de la ciudad de Cartagena, Bolívar, República de Colombia, '+
-    'renunciando expresamente a cualquier otro fuero que pudiere corresponderles.'
-  );
+  
+    addSection('SEGUNDA. ENTREGA',
+      'El VENDEDOR entrega materialmente el equipo al COMPRADOR el día ' + datos.fecha_entrega +
+      ', en ' + (datos.lugar_entrega || NEGOCIO.direccion + ', ' + NEGOCIO.ciudad) +
+      (datos.accesorios ? ', junto con los accesorios descritos' : '') +
+      '. El COMPRADOR declara haberlo recibido y haber verificado su estado aparente de funcionamiento, ' +
+      'sin perjuicio de la garantía legal aplicable.'
+    );
+  
+    var saldoFin = datos.precio_contado - datos.inicial;
+    var cargoFin = datos.precio_financiado - datos.precio_contado;
+  
+    addSection('TERCERA. PRECIO Y FINANCIACIÓN',
+      'El precio de contado del equipo es de ' + fmt(datos.precio_contado) +
+      '. El COMPRADOR paga una cuota inicial de ' + fmt(datos.inicial) +
+      ', recibida por el VENDEDOR el día ' + datos.fecha_entrega + '. ' +
+      'El saldo financiado es de ' + fmt(saldoFin) +
+      '. Los intereses remuneratorios y demás cargos expresamente pactados ascienden, en total, a ' + fmt(cargoFin) +
+      '. Por tanto, el valor total a pagar por la compra financiada es de ' + fmt(datos.precio_financiado) +
+      '. No se cobrarán cargos distintos a los expresamente informados en esta cláusula.'
+    );
+  
+    // ── CUARTA: cuadro de cuotas ──
+    checkPage(30 + (plan.length || datos.cuotas) * 5);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(9);
+    doc.text('CUARTA. FORMA DE PAGO', mx, y);
+    y += 5;
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    var introPago = doc.splitTextToSize(
+      'El COMPRADOR pagará el saldo en ' + datos.cuotas + ' cuota(s) de ' + fmt(datos.valor_cuota) +
+      ' cada una, con vencimiento en las siguientes fechas:', cw);
+    doc.text(introPago, mx, y);
+    y += introPago.length * 4.2 + 4;
+  
+    // Encabezado del cuadro
+    var col1 = mx + 3, col2 = mx + 30, col3 = W - mx - 3;
+    doc.setDrawColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+    doc.setLineWidth(0.4);
+    doc.line(mx, y - 4, W - mx, y - 4);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.text('CUOTA', col1, y);
+    doc.text('FECHA DE VENCIMIENTO', col2, y);
+    doc.text('VALOR', col3, y, {align:'right'});
+    y += 2;
+    doc.setLineWidth(0.2);
+    doc.line(mx, y, W - mx, y);
+    y += 5;
+  
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(8.5);
+    if (plan.length) {
+      plan.forEach(function(c) {
+        checkPage(8);
+        doc.text(String(c.numero), col1, y);
+        doc.text(String(c.fecha_venc), col2, y);
+        doc.text(fmt(c.monto), col3, y, {align:'right'});
+        y += 5;
+      });
+    } else {
+      doc.text('Plan de cuotas pendiente de definir.', col1, y);
+      y += 5;
+    }
+    doc.setDrawColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+    doc.setLineWidth(0.4);
+    doc.line(mx, y - 1, W - mx, y - 1);
+    y += 6;
+  
+    var lineasPago = doc.splitTextToSize(
+      'El pago podrá realizarse en ' + NEGOCIO.direccion + ', ' + NEGOCIO.ciudad +
+      ' o mediante transferencia a ' + NEGOCIO.banco + ', llave ' + NEGOCIO.llave +
+      ' a nombre de ' + NEGOCIO.titularPago +
+      '. El VENDEDOR entregará constancia de cada pago y, al pago total, constancia de cancelación definitiva.', cw);
+    doc.text(lineasPago, mx, y);
+    y += lineasPago.length * 4.2 + 6;
+  
+    addSection('QUINTA. MORA',
+      'Sobre las sumas efectivamente vencidas e insolutas se causarán intereses de mora a la tasa máxima legal ' +
+      'vigente al momento de su causación, sin exceder los límites legales aplicables. Cualquier exigibilidad ' +
+      'anticipada del saldo se sujetará a las condiciones y límites establecidos por la ley para la venta con ' +
+      'reserva de dominio.'
+    );
+  
+    addSection('SEXTA. RESERVA DE DOMINIO',
+      'Hasta que el COMPRADOR pague la totalidad del precio pactado, el VENDEDOR conserva la propiedad del equipo. ' +
+      'El COMPRADOR tendrá la tenencia y uso ordinario del bien desde su entrega, asumirá los riesgos derivados de ' +
+      'esta y no podrá venderlo, gravarlo, ni disponer de él sin autorización previa y escrita del VENDEDOR. ' +
+      'Una vez pagado el total, el VENDEDOR entregará constancia de adquisición de la propiedad.'
+    );
+  
+    addSection('SÉPTIMA. GARANTÍA LEGAL',
+      'El equipo cuenta con la garantía legal que corresponda conforme a la Ley 1480 de 2011 y las condiciones ' +
+      'informadas por el productor o proveedor. La garantía cubre la calidad, idoneidad, seguridad y funcionamiento ' +
+      'del producto en los términos legales. La presente cláusula no limita los derechos legales del COMPRADOR.'
+    );
+  
+    addSection('OCTAVA. OBLIGACIONES DEL COMPRADOR',
+      'El COMPRADOR se obliga a: (i) pagar las cuotas en las fechas pactadas; (ii) usar el equipo de manera ordinaria ' +
+      'y conforme a sus instrucciones; (iii) informar al VENDEDOR cualquier cambio de domicilio dentro de los diez (10) ' +
+      'días siguientes; y (iv) informar oportunamente cualquier medida cautelar o de ejecución que recaiga sobre el equipo.'
+    );
+  
+    addSection('NOVENA. ATENCIÓN DE RECLAMACIONES',
+      'El COMPRADOR podrá presentar solicitudes relacionadas con pagos, garantía o el contrato en ' +
+      NEGOCIO.direccion + ', ' + NEGOCIO.ciudad + ', ' + NEGOCIO.telefono + ' y ' + NEGOCIO.correo +
+      '. El VENDEDOR conservará la constancia de la operación y entregará copia de este contrato al COMPRADOR.'
+    );
+  
+    addSection('DÉCIMA. DATOS PERSONALES',
+      'Si el VENDEDOR recolecta o trata datos personales del COMPRADOR, lo hará conforme a la autorización y política ' +
+      'de tratamiento de datos aplicables. Cualquier reporte a centrales de riesgo requerirá el cumplimiento previo ' +
+      'de los requisitos legales correspondientes.'
+    );
+  
+    addSection('DÉCIMA PRIMERA. SOLUCIÓN DE CONTROVERSIAS',
+      'Las partes procurarán resolver directamente cualquier diferencia. De no ser posible, serán competentes las ' +
+      'autoridades y jueces que determine la ley.'
+    );
+  
+    addSection('DÉCIMA SEGUNDA. FIRMA',
+      'El presente contrato se firma en ' + NEGOCIO.ciudad + ', el ' + datos.fecha_inicio +
+      ', en dos ejemplares o mediante mecanismo electrónico que permita identificar la aceptación de las partes.'
+    );
 
   // ── Fotos cédula ──
   if (_cedulaFrontFile || _cedulaBackFile) {
