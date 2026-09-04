@@ -463,92 +463,106 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
       ', en dos ejemplares o mediante mecanismo electrónico que permita identificar la aceptación de las partes.'
     );
 
-  // ── Fotos cédula ──
-  if (_cedulaFrontFile || _cedulaBackFile) {
-    checkPage();
+    // ── Fotos de cedula ──
+    if (_cedulaFrontFile || _cedulaBackFile) {
+      checkPage(55);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9);
+      doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+      doc.text('DOCUMENTOS DE IDENTIDAD', mx, y);
+      y += 6;
+  
+      var imgW = (cw - 8) / 2;
+      var imgH = 35;
+  
+      if (_cedulaFrontFile) {
+        var frontB64 = await fileToBase64(_cedulaFrontFile);
+        try {
+          doc.addImage(frontB64, 'JPEG', mx, y, imgW, imgH);
+          doc.setDrawColor(C_LINEA[0], C_LINEA[1], C_LINEA[2]);
+          doc.setLineWidth(0.3);
+          doc.rect(mx, y, imgW, imgH);
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(7);
+          doc.setTextColor(C_SUAVE[0], C_SUAVE[1], C_SUAVE[2]);
+          doc.text('Cédula frontal', mx, y + imgH + 4);
+        } catch(e){}
+      }
+      if (_cedulaBackFile) {
+        var backB64 = await fileToBase64(_cedulaBackFile);
+        try {
+          doc.addImage(backB64, 'JPEG', mx + imgW + 8, y, imgW, imgH);
+          doc.setDrawColor(C_LINEA[0], C_LINEA[1], C_LINEA[2]);
+          doc.setLineWidth(0.3);
+          doc.rect(mx + imgW + 8, y, imgW, imgH);
+          doc.setFont('helvetica','normal');
+          doc.setFontSize(7);
+          doc.setTextColor(C_SUAVE[0], C_SUAVE[1], C_SUAVE[2]);
+          doc.text('Cédula posterior', mx + imgW + 8, y + imgH + 4);
+        } catch(e){}
+      }
+      y += imgH + 12;
+    }
+  
+    // ── Firmas ──
+    // Van en la misma pagina si caben. Forzar hoja aparte dejaba una
+    // pagina casi vacia en contratos cortos.
+    checkPage(75);
+  
+    doc.setDrawColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+    doc.setLineWidth(0.4);
+    doc.line(mx, y, W - mx, y);
+    y += 7;
+  
     doc.setFont('helvetica','bold');
-    doc.setFontSize(9);
-    doc.setTextColor(oscuro[0],oscuro[1],oscuro[2]);
-    doc.text('DOCUMENTOS DE IDENTIDAD', mx, y);
-    y += 5;
-
-    var imgW = (cw - 8) / 2;
-    var imgH = 35;
-
-    if (_cedulaFrontFile) {
-      var frontB64 = await fileToBase64(_cedulaFrontFile);
-      try {
-        doc.addImage(frontB64, 'JPEG', mx, y, imgW, imgH);
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(7);
-        doc.setTextColor(gris[0],gris[1],gris[2]);
-        doc.text('Cédula frontal', mx, y+imgH+4);
-      } catch(e){}
-    }
-    if (_cedulaBackFile) {
-      var backB64 = await fileToBase64(_cedulaBackFile);
-      try {
-        doc.addImage(backB64, 'JPEG', mx+imgW+8, y, imgW, imgH);
-        doc.setFont('helvetica','normal');
-        doc.setFontSize(7);
-        doc.setTextColor(gris[0],gris[1],gris[2]);
-        doc.text('Cédula posterior', mx+imgW+8, y+imgH+4);
-      } catch(e){}
-    }
-    y += imgH + 10;
-  }
-
-  // ── Firmas ──
-  doc.addPage();
-  y = 20;
-  doc.setDrawColor(200,200,200);
-  doc.setLineWidth(0.3);
-  doc.line(mx, y, W-mx, y);
-  y += 6;
-
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(10);
-  doc.setTextColor(oscuro[0],oscuro[1],oscuro[2]);
-  doc.text('FIRMAS DE LAS PARTES', W/2, y, {align:'center'});
-  y += 8;
-
-  var fw = (cw-10)/2;
-  var fh = 30;
-
-  // Recuadros firma
-  doc.setDrawColor(verde[0],verde[1],verde[2]);
-  doc.setLineWidth(0.4);
-  doc.rect(mx, y, fw, fh);
-
-  doc.setDrawColor(azul[0],azul[1],azul[2]);
-  doc.rect(mx+fw+10, y, fw, fh);
-
-  // Imágenes firma
-  try {
-    doc.addImage(firmaCliImg,'PNG', mx+2, y+2, fw-4, fh-4);
-  } catch(e){}
-  try {
-    doc.addImage(firmaVenImg,'PNG', mx+fw+12, y+2, fw-4, fh-4);
-  } catch(e){}
-
-  y += fh + 4;
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(8);
-  doc.setTextColor(negro[0],negro[1],negro[2]);
-  doc.text('COMPRADOR: '+datos.cliente, mx, y);
-  doc.text('VENDEDOR: '+VENDEDOR.nombre, mx+fw+10, y);
-  y += 4;
-  doc.text('C.C. '+datos.cedula_cliente, mx, y);
-  doc.text('C.C. '+VENDEDOR.cedula, mx+fw+10, y);
-  y += 12;
-
-  // Pie de página
-  doc.setFont('helvetica','italic');
-  doc.setFontSize(7);
-  doc.setTextColor(gris[0],gris[1],gris[2]);
-  doc.text('Contrato generado digitalmente por '+VENDEDOR.negocio+' · '+datos.fecha_inicio, W/2, y, {align:'center'});
-  y += 4;
-  doc.text('Validez legal conforme al artículo 11 de la Ley 527 de 1999 (Comercio Electrónico — Colombia)', W/2, y, {align:'center'});
+    doc.setFontSize(10);
+    doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+    doc.text('FIRMA DE LAS PARTES', W/2, y, {align:'center'});
+    y += 8;
+  
+    var fw = (cw - 10) / 2;
+    var fh = 30;
+  
+    // Los dos recuadros de firma, identicos: sin color, nada distingue
+    // a una parte de la otra mas que su etiqueta.
+    doc.setDrawColor(C_LINEA[0], C_LINEA[1], C_LINEA[2]);
+    doc.setLineWidth(0.4);
+    doc.rect(mx, y, fw, fh);
+    doc.rect(mx + fw + 10, y, fw, fh);
+  
+    try { doc.addImage(firmaCliImg, 'PNG', mx + 2, y + 2, fw - 4, fh - 4); } catch(e){}
+    try { doc.addImage(firmaVenImg, 'PNG', mx + fw + 12, y + 2, fw - 4, fh - 4); } catch(e){}
+  
+    y += fh + 5;
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(C_TINTA[0], C_TINTA[1], C_TINTA[2]);
+    doc.text('EL COMPRADOR', mx, y);
+    doc.text('EL VENDEDOR', mx + fw + 10, y);
+    y += 4.5;
+  
+    doc.setFont('helvetica','normal');
+    doc.text(datos.cliente, mx, y);
+    doc.text(VENDEDOR.nombre, mx + fw + 10, y);
+    y += 4.5;
+    doc.text('C.C. ' + datos.cedula_cliente +
+             (datos.ciudad_expedicion ? ' de ' + datos.ciudad_expedicion : ''), mx, y);
+    doc.text('C.C. ' + VENDEDOR.cedula + ' de Villanueva', mx + fw + 10, y);
+    y += 4.5;
+    if (datos.telefono) doc.text('Tel. ' + datos.telefono, mx, y);
+    doc.text('Tel. ' + VENDEDOR.telefono, mx + fw + 10, y);
+    y += 4.5;
+    if (datos.email) doc.text(datos.email, mx, y);
+    doc.text(NEGOCIO.correo, mx + fw + 10, y);
+    y += 12;
+  
+    // ── Pie ──
+    doc.setFont('helvetica','italic');
+    doc.setFontSize(7);
+    doc.setTextColor(C_SUAVE[0], C_SUAVE[1], C_SUAVE[2]);
+    doc.text('Contrato generado digitalmente por ' + VENDEDOR.negocio + ' · ' + datos.fecha_inicio, W/2, y, {align:'center'});
+    y += 4;
+    doc.text('Validez legal conforme al artículo 11 de la Ley 527 de 1999 (Comercio Electrónico — Colombia)', W/2, y, {align:'center'});
 
   // ── Descargar PDF ──
   var nombre = 'contrato-'+datos.cliente.replace(/\s+/g,'-')+'-'+datos.venta_id+'.pdf';
