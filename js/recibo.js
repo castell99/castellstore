@@ -4,12 +4,11 @@
 // NEGOCIO vive ahora en js/negocio.js (fuente unica).
 
 // ── Paleta monocroma del Paz y Salvo ────────────────────────────
-// Cambiar estos cuatro valores es todo lo que hace falta para
-// volver a un esquema de color distinto.
-const TINTA       = '#000000';   // texto principal, bordes, franjas
-const TINTA_SUAVE = '#5a5a5a';   // etiquetas y texto secundario
-const LINEA       = '#d4d4d4';   // separadores finos
-const FONDO_CAJA  = '#f6f6f6';   // relleno de las cajas de datos
+// Paleta monocroma — definida en negocio.js (fuente unica).
+const TINTA       = NEGOCIO.doc.tinta;
+const TINTA_SUAVE = NEGOCIO.doc.suave;
+const LINEA       = NEGOCIO.doc.linea;
+const FONDO_CAJA  = NEGOCIO.doc.caja;
 
 // Logo en negro sobre transparente, 150px.
 // Si mas adelante lo usan otros documentos, conviene moverlo a negocio.js.
