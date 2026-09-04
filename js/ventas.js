@@ -204,7 +204,16 @@ async function guardarVenta() {
         const baseFin     = Math.max(0, precio - inicialVal);
         const financiado  = Math.round(baseFin * (1 + tasaPct));
         const cuotaMonto  = financiado / cuotasNum;
-        abrirModalFechaPlan(v.id, cuotasNum, cuotaMonto, financiado, inicialVal);
+        // La fecha ya viene del formulario, asi que el plan se crea
+        // aqui mismo. Si por algo esta vacia, se cae al modal viejo
+        // en vez de crear cuotas con una fecha inventada.
+        var fecha1 = document.getElementById('v-fecha1')?.value;
+        _planAutoData = { ventaId: v.id, meses: cuotasNum, cuotaMonto: cuotaMonto, financiado: financiado, inicial: inicialVal };
+        if (fecha1) {
+          await crearPlanAuto(fecha1);
+        } else {
+          abrirModalFechaPlan(v.id, cuotasNum, cuotaMonto, financiado, inicialVal);
+        }
       }
     }
   } catch (e) { toast('Error: ' + e.message, 'err'); }
@@ -583,10 +592,13 @@ function abrirModalFechaPlan(ventaId, meses, cuotaMonto, financiado, inicial) {
   openModal('modal-fecha-plan');
 }
 
-async function crearPlanAuto() {
+// fechaDirecta: cuando la venta ya trae la fecha del formulario, el
+// plan se crea sin abrir ningun modal. Si no viene, se lee del modal
+// como antes — asi sigue sirviendo para planes creados a mano.
+async function crearPlanAuto(fechaDirecta) {
   if (!_planAutoData) return;
   const { ventaId, meses, cuotaMonto, financiado, inicial } = _planAutoData;
-  const fecha = document.getElementById('fecha-primer-venc').value;
+  const fecha = fechaDirecta || document.getElementById('fecha-primer-venc')?.value;
   if (!fecha) { toast('Selecciona la fecha del primer vencimiento', 'err'); return; }
   setBtn('btn-crear-plan-auto', true, 'Creando...');
   try {
@@ -600,7 +612,7 @@ async function crearPlanAuto() {
       cuotas.push(c);
     }
     toast(`Plan de ${meses} cuotas creado ✓`);
-    closeModal('modal-fecha-plan');
+    if (!fechaDirecta) closeModal('modal-fecha-plan');
     renderVentas(); renderDashboard();
   } catch (e) { toast('Error: ' + e.message, 'err'); }
   setBtn('btn-crear-plan-auto', false, '📋 Crear plan');
