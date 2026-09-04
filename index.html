@@ -899,101 +899,96 @@
     <div class="modal-header">
       <div class="modal-title" id="modal-venta-title">💰 Nueva Venta</div>
       <button class="close-btn" onclick="closeModal('modal-venta')">×</button>
-    </div>
-    <div class="form-group"><label>Cliente *</label><input id="v-cli" placeholder="Nombre completo"></div>
-    <div class="form-row">
-      <div class="form-row">
-    <div class="form-group"><label>Teléfono / WhatsApp</label>
-        <input id="v-tel" placeholder="300 123 4567">
-      </div>
-      <div class="form-group"><label>Correo <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
-        <input type="email" id="v-email" placeholder="cliente@correo.com">
-      </div>
-      <div class="form-group"><label>Cédula expedida en</label>
-        <input id="v-ciudad-exp" placeholder="Villanueva">
-      </div>
-    </div>
-      <div class="form-group"><label>Color del equipo</label><input id="v-color" placeholder="Negro, Azul..."></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>IMEI 1</label><input id="v-imei" placeholder="15 dígitos"></div>
-      <div class="form-group"><label>IMEI 2 <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-imei2" placeholder="15 dígitos"></div>
-      <div class="form-group"><label>Inicial pagada (COP $)</label><input type="number" id="v-inicial" placeholder="0" oninput="previewFinV()"></div>
-    </div>
-    <div class="form-group"><label>Observaciones</label><input id="v-obs" placeholder="Notas adicionales..."></div>
-    <div class="form-group" id="v-prod-group">
-      <label>Producto *
-        <span style="float:right;font-size:11px;font-weight:400;color:var(--text3)">
-          <label style="cursor:pointer;margin:0">
-            <input type="checkbox" id="v-modo-libre" onchange="toggleModoLibre()" style="margin-right:4px">
-            Producto no catalogado
-          </label>
-        </span>
+</div>
+    
+<!-- ── Cliente ── -->
+<div style="font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;margin:4px 0 10px">CLIENTE</div>
+<div class="form-group"><label>Nombre completo *</label><input id="v-cli" placeholder="Nombre completo"></div>
+<div class="form-row">
+  <div class="form-group"><label>Teléfono / WhatsApp</label><input id="v-tel" placeholder="300 123 4567"></div>
+  <div class="form-group"><label>Correo <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input type="email" id="v-email" placeholder="cliente@correo.com"></div>
+</div>
+
+<!-- ── Equipo ── -->
+<div style="font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;margin:18px 0 10px;border-top:1px solid var(--border);padding-top:14px">EQUIPO</div>
+<div class="form-group" id="v-prod-group">
+  <label>Producto *
+    <span style="float:right;font-size:11px;font-weight:400;color:var(--text3)">
+      <label style="cursor:pointer;margin:0">
+        <input type="checkbox" id="v-modo-libre" onchange="toggleModoLibre()" style="margin-right:4px">
+        Producto no catalogado
       </label>
-      <select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar equipo...</option></select>
-      <input id="v-prod-txt" placeholder="Nombre del producto (escríbelo manualmente)" style="display:none;margin-top:6px">
-    </div>
-    <div class="form-row">
-  <div class="form-group"><label>Capacidad</label>
-    <input id="v-almacenamiento" placeholder="128 GB">
+    </span>
+  </label>
+  <select id="v-prod" onchange="fillVPrecio()"><option value="">Seleccionar equipo...</option></select>
+  <input id="v-prod-txt" placeholder="Nombre del producto (escríbelo manualmente)" style="display:none;margin-top:6px">
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Capacidad</label><input id="v-almacenamiento" placeholder="128 GB"></div>
+  <div class="form-group"><label>Color</label><input id="v-color" placeholder="Negro, Azul..."></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Condición</label>
+    <select id="v-estado-equipo"><option>Nuevo</option><option>Usado</option><option>Reacondicionado</option></select>
   </div>
-  <div class="form-group"><label>Estado del equipo</label>
-    <select id="v-estado-equipo">
-      <option>Nuevo</option>
-      <option>Usado</option>
-      <option>Reacondicionado</option>
-    </select>
-  </div>
-  <div class="form-group"><label>N° de serie <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
-    <input id="v-serie" placeholder="Serial del equipo">
+  <div class="form-group"><label>N° de serie <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-serie" placeholder="Serial del equipo"></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>IMEI 1</label><input id="v-imei" placeholder="15 dígitos"></div>
+  <div class="form-group"><label>IMEI 2 <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-imei2" placeholder="15 dígitos"></div>
+</div>
+<div class="form-row">
+  <div class="form-group"><label>Accesorios <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-accesorios" placeholder="Cargador, cable, estuche..."></div>
+  <div class="form-group"><label>Factura N° <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-factura" placeholder="Número de factura"></div>
+</div>
+
+<!-- ── Pago ── -->
+<div style="font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.5px;margin:18px 0 10px;border-top:1px solid var(--border);padding-top:14px">PAGO</div>
+<div class="form-row">
+  <div class="form-group"><label>Precio de venta (COP $) *</label><input type="number" id="v-precio" placeholder="0" oninput="previewFinV()"></div>
+  <div class="form-group"><label>Método de pago</label>
+    <select id="v-pago" onchange="toggleFechaPrimeraCuota()"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Financiado</option></select>
   </div>
 </div>
 <div class="form-row">
-  <div class="form-group"><label>Accesorios entregados <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
-    <input id="v-accesorios" placeholder="Cargador, cable, estuche...">
-  </div>
-  <div class="form-group"><label>Factura N° <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
-    <input id="v-factura" placeholder="Número de factura">
+  <div class="form-group"><label>Inicial pagada (COP $)</label><input type="number" id="v-inicial" placeholder="0" oninput="previewFinV()"></div>
+  <div class="form-group"><label>Estado de la venta</label>
+    <select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select>
   </div>
 </div>
-    <div class="form-row">
-      <div class="form-group"><label>Precio de venta (COP $) *</label><input type="number" id="v-precio" placeholder="0" oninput="previewFinV()"></div>
-      <div class="form-group"><label>Método de pago</label>
-      <select id="v-pago" onchange="toggleFechaPrimeraCuota()"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Financiado</option></select>      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Cuotas (financiado)</label>
-        <select id="v-cuotas" onchange="previewFinV();toggleFechaPrimeraCuota()">
-          <option value="0">No aplica</option><option value="2">2 meses</option>
-          <option value="3">3 meses</option><option value="4">4 meses</option>
-          <option value="5">5 meses</option><option value="6">6 meses</option>
-          <option value="7">7 meses</option><option value="8">8 meses</option>
-          <option value="9">9 meses</option><option value="10">10 meses</option>
-          <option value="11">11 meses</option><option value="12">12 meses</option>
-        </select>
-        <div id="v-plazo-info" style="display:none;font-size:11px;margin-top:6px;line-height:1.5"></div>
-      </div>
-      <div class="form-group"><label>Tasa <span style="font-weight:400;color:var(--text3)">(vacío = automática)</span></label>
-        <input type="number" id="v-tasa-manual" step="0.1" placeholder="Automática" oninput="previewFinV()">
-      </div>
-      <div class="form-group" id="v-fecha1-wrap" style="display:none">
-        <label>Fecha primera cuota</label>
-        <input type="date" id="v-fecha1">
-      </div>
-      <div class="form-group"><label>Estado</label>
-        <select id="v-estado"><option>Completada</option><option>Pendiente</option><option>Financiada</option><option>Cancelada</option></select>
-      </div>
-    </div>
-    <label id="v-permitir-extendido-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--amber);cursor:pointer;margin:-8px 0 12px">
-      <input type="checkbox" id="v-permitir-extendido" onchange="actualizarPlazoOpciones()">
-      Permitir plazo extendido manualmente (por encima del límite de gama)
-    </label>
-    <div id="v-inicial-info" style="display:none;font-size:11px;margin:-8px 0 8px;line-height:1.5"></div>
-    <label id="v-permitir-inicial-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--amber);cursor:pointer;margin:-4px 0 12px">
-      <input type="checkbox" id="v-permitir-inicial-baja" onchange="previewFinV()">
-      Vender con esta inicial de todas formas
-    </label>
-    <div id="v-fin-prev" style="display:none"></div>
+<div class="form-row">
+  <div class="form-group"><label>Cuotas (financiado)</label>
+    <select id="v-cuotas" onchange="previewFinV();toggleFechaPrimeraCuota()">
+      <option value="0">No aplica</option><option value="2">2 meses</option>
+      <option value="3">3 meses</option><option value="4">4 meses</option>
+      <option value="5">5 meses</option><option value="6">6 meses</option>
+      <option value="7">7 meses</option><option value="8">8 meses</option>
+      <option value="9">9 meses</option><option value="10">10 meses</option>
+      <option value="11">11 meses</option><option value="12">12 meses</option>
+    </select>
+    <div id="v-plazo-info" style="display:none;font-size:11px;margin-top:6px;line-height:1.5"></div>
+  </div>
+  <div class="form-group"><label>Tasa <span style="font-weight:400;color:var(--text3)">(vacío = automática)</span></label>
+    <input type="number" id="v-tasa-manual" step="0.1" placeholder="Automática" oninput="previewFinV()">
+  </div>
+</div>
+<div class="form-row">
+  <div class="form-group" id="v-fecha1-wrap" style="display:none">
+    <label>Fecha primera cuota</label>
+    <input type="date" id="v-fecha1">
+  </div>
+</div>
+<label id="v-permitir-extendido-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--amber);cursor:pointer;margin:-8px 0 12px">
+  <input type="checkbox" id="v-permitir-extendido" onchange="actualizarPlazoOpciones()">
+  Permitir plazo extendido manualmente (por encima del límite de gama)
+</label>
+<div id="v-inicial-info" style="display:none;font-size:11px;margin:-8px 0 8px;line-height:1.5"></div>
+<label id="v-permitir-inicial-wrap" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--amber);cursor:pointer;margin:-4px 0 12px">
+  <input type="checkbox" id="v-permitir-inicial-baja" onchange="previewFinV()">
+  Vender con esta inicial de todas formas
+</label>
+<div id="v-fin-prev" style="display:none"></div>
+<div class="form-group" style="margin-top:14px"><label>Observaciones</label><input id="v-obs" placeholder="Notas adicionales..."></div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-venta')">Cancelar</button>
       <button class="btn primary" id="btn-sv" onclick="guardarVenta()">Guardar venta</button>
@@ -1012,6 +1007,7 @@
     <div id="fin-tabs"></div>
     <div id="fin-tab-abono"></div>
     <div id="fin-tab-plan" style="display:none"></div>
+    
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-financiamiento')">Cerrar</button>
     </div>
