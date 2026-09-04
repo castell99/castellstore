@@ -32,7 +32,8 @@ async function abrirNuevaVenta() {
   if (document.getElementById('v-permitir-inicial-baja')) document.getElementById('v-permitir-inicial-baja').checked = false;
   actualizarPlazoOpciones();
   document.getElementById('v-obs').value     = '';
-    // Campos del contrato: se limpian igual que los demas para que
+  
+  // Campos del contrato: se limpian igual que los demas para que
   // no arrastren datos de la venta anterior.
   ['v-almacenamiento','v-serie','v-accesorios','v-factura','v-ciudad-exp','v-email','v-fecha1']
     .forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
@@ -618,7 +619,15 @@ function fillVPrecio() {
   if (o && o.dataset.p) {
     document.getElementById('v-precio').value = o.dataset.p;
     const eq = equiposFin.find(e => e.id == document.getElementById('v-prod').value);
-    if (eq) document.getElementById('v-prod').dataset.nombre = `${eq.marca} ${eq.modelo}`;
+    if (eq) {
+      document.getElementById('v-prod').dataset.nombre = `${eq.marca} ${eq.modelo}`;
+      // La capacidad se copia del catalogo pero queda editable: el
+      // equipo que se entrega manda sobre la ficha. Solo se
+      // sobreescribe si el campo esta vacio, para no borrar algo
+      // que el vendedor ya haya corregido a mano.
+      const cap = document.getElementById('v-almacenamiento');
+      if (cap && !cap.value.trim()) cap.value = eq.almacenamiento || '';
+    }
     actualizarPlazoOpciones();
   }
 }
