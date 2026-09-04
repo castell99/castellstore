@@ -56,9 +56,9 @@ var NEGOCIO = {
     suave  : '#8a9aa1',
     linea  : '#1e3347',
     verde  : '#a4d65e',
-    azul   : '#5ba3c9'
+    aazul   : '#5ba3c9'
   }
-
+};
 // Linea de contacto lista para usar en encabezados.
 function negocioContacto() {
   return NEGOCIO.direccion + ' · ' + NEGOCIO.ciudad + ' · Tel: ' + NEGOCIO.telefono;
