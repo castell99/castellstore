@@ -13,6 +13,7 @@ const VENDEDOR = {
 // Paleta monocroma — definida en negocio.js (fuente unica).
 // jsPDF trabaja con RGB en arreglos, no con hex, asi que se
 // convierte una sola vez aqui.
+}
 function hexRGB(h) {
   return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
 }
