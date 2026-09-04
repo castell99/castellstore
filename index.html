@@ -959,12 +959,11 @@
     <div class="form-row">
       <div class="form-group"><label>Precio de venta (COP $) *</label><input type="number" id="v-precio" placeholder="0" oninput="previewFinV()"></div>
       <div class="form-group"><label>Método de pago</label>
-        <select id="v-pago"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Financiado</option></select>
-      </div>
+      <select id="v-pago" onchange="toggleFechaPrimeraCuota()"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Financiado</option></select>      </div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Cuotas (financiado)</label>
-        <select id="v-cuotas" onchange="previewFinV()">
+        <select id="v-cuotas" onchange="previewFinV();toggleFechaPrimeraCuota()">
           <option value="0">No aplica</option><option value="2">2 meses</option>
           <option value="3">3 meses</option><option value="4">4 meses</option>
           <option value="5">5 meses</option><option value="6">6 meses</option>
