@@ -37,7 +37,19 @@ var NEGOCIO = {
   tiktok   : 'castelltechco',
   youtube  : 'castelltechco',
 
-  // Paleta compartida por todos los documentos
+    // Paleta de documentos — monocroma.
+  // La usan recibo.js, contrato.js y factura.js. Cambiar aqui
+  // cambia todos los documentos a la vez.
+  doc: {
+    tinta  : '#000000',   // texto principal, bordes, franjas
+    suave  : '#5a5a5a',   // etiquetas y texto secundario
+    linea  : '#d4d4d4',   // separadores finos
+    caja   : '#f6f6f6',   // relleno de cajas de datos
+    papel  : '#ffffff'
+  },
+
+  // Paleta anterior — la conservan pantallas y documentos que aun
+  // no se han pasado a monocromo. No usar en documentos nuevos.
   color: {
     fondo  : '#101f2b',
     texto  : '#e8f0f5',
@@ -46,7 +58,6 @@ var NEGOCIO = {
     verde  : '#a4d65e',
     azul   : '#5ba3c9'
   }
-};
 
 // Linea de contacto lista para usar en encabezados.
 function negocioContacto() {
