@@ -26,12 +26,16 @@ var NEGOCIO = {
   ciudad   : 'Villanueva, Bolivar',
   telefono : '304 601 9483',
   whatsapp : '573046019483',
-
+  correo   : 'carlosstrolle@gmail.com',
+  // Datos de recaudo — van impresos en el contrato (clausula CUARTA).
+  banco       : 'Davivienda',
+  llave       : '@davi3046019483',
+  titularPago : 'Carlos Castro Elles',
   // Redes
-  facebook : 'castellstore',
-  instagram: 'castellstore',
-  tiktok   : 'castellstore',
-  youtube  : 'CastellStore',
+  facebook : 'castelltechco',
+  instagram: 'castelltechco',
+  tiktok   : 'castelltechco',
+  youtube  : 'castelltechco',
 
   // Paleta compartida por todos los documentos
   color: {
