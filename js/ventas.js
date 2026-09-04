@@ -32,6 +32,14 @@ async function abrirNuevaVenta() {
   if (document.getElementById('v-permitir-inicial-baja')) document.getElementById('v-permitir-inicial-baja').checked = false;
   actualizarPlazoOpciones();
   document.getElementById('v-obs').value     = '';
+    // Campos del contrato: se limpian igual que los demas para que
+  // no arrastren datos de la venta anterior.
+  ['v-almacenamiento','v-serie','v-accesorios','v-factura','v-ciudad-exp','v-email','v-fecha1']
+    .forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+  var eeEl = document.getElementById('v-estado-equipo');
+  if (eeEl) eeEl.value = 'Nuevo';
+  var f1w = document.getElementById('v-fecha1-wrap');
+  if (f1w) f1w.style.display = 'none';
   document.getElementById('v-fin-prev').style.display  = 'none';
   document.getElementById('v-prod').style.display      = '';
   document.getElementById('v-prod-txt').style.display  = 'none';
