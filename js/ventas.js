@@ -126,8 +126,21 @@ async function guardarVenta() {
     imei2            : document.getElementById('v-imei2')?.value.trim() || '',
     inicial_pagada   : parseFloat(document.getElementById('v-inicial')?.value) || 0,
     observaciones    : document.getElementById('v-obs')?.value.trim() || '',
-  };
 
+    // Datos que exige el contrato de compraventa.
+    // precio_contado se congela aqui: es el precio que tecleo el
+    // vendedor, ANTES de aplicarle el interes. Si no se guardara,
+    // el contrato no podria decir cuanto fue el cargo financiero.
+    precio_contado    : precio,
+    almacenamiento    : document.getElementById('v-almacenamiento')?.value.trim() || '',
+    estado_equipo     : document.getElementById('v-estado-equipo')?.value || '',
+    numero_serie      : document.getElementById('v-serie')?.value.trim() || '',
+    accesorios        : document.getElementById('v-accesorios')?.value.trim() || '',
+    factura_num       : document.getElementById('v-factura')?.value.trim() || '',
+    ciudad_expedicion : document.getElementById('v-ciudad-exp')?.value.trim() || '',
+    email_cliente     : document.getElementById('v-email')?.value.trim() || '',
+    fecha_primera_cuota: document.getElementById('v-fecha1')?.value || null,
+  };
   setBtn('btn-sv', true, 'Guardando...');
   try {
     if (editVentaId) {
