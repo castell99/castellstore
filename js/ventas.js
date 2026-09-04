@@ -621,12 +621,11 @@ function fillVPrecio() {
     const eq = equiposFin.find(e => e.id == document.getElementById('v-prod').value);
     if (eq) {
       document.getElementById('v-prod').dataset.nombre = `${eq.marca} ${eq.modelo}`;
-      // La capacidad se copia del catalogo pero queda editable: el
-      // equipo que se entrega manda sobre la ficha. Solo se
-      // sobreescribe si el campo esta vacio, para no borrar algo
-      // que el vendedor ya haya corregido a mano.
+      // Siempre se sobreescribe con el dato del catalogo. Al cambiar
+      // de equipo, dejar el valor anterior es mas riesgoso que perder
+      // una edicion manual: el dato viejo se cuela sin que nadie lo note.
       const cap = document.getElementById('v-almacenamiento');
-      if (cap && !cap.value.trim()) cap.value = eq.almacenamiento || '';
+      if (cap) cap.value = eq.almacenamiento || '';
     }
     actualizarPlazoOpciones();
   }
