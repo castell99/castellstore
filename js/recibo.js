@@ -1,14 +1,16 @@
 // ═══════════════════════════════════════════
-//  recibo.js — Generador de Paz y Salvo
+//  recibo.js — ...
 // ═══════════════════════════════════════════
+
 // NEGOCIO vive ahora en js/negocio.js (fuente unica).
 
-// ── Paleta monocroma del Paz y Salvo ────────────────────────────
 // Paleta monocroma — definida en negocio.js (fuente unica).
 const TINTA       = NEGOCIO.doc.tinta;
 const TINTA_SUAVE = NEGOCIO.doc.suave;
 const LINEA       = NEGOCIO.doc.linea;
 const FONDO_CAJA  = NEGOCIO.doc.caja;
+
+const LOGO_BN_B64 = '...';
 
 // Logo en negro sobre transparente, 150px.
 // Si mas adelante lo usan otros documentos, conviene moverlo a negocio.js.
