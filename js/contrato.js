@@ -204,12 +204,18 @@ async function generarContrato() {
         fecha_entrega: v.fecha || today(),
         precio_contado: contado,
         precio_financiado:fin, inicial:ini, cuotas:cuotasN,
-        valor_cuota:cuotaVal, fecha_inicio:today(),
+        valor_cuota:cuotaVal, fecha_inicio:today(),       
+        plan: plan,
         firma_cliente:firmaCliImg, firma_vendedor:firmaVenImg,
         foto_cedula_front:urlFront, foto_cedula_back:urlBack, estado:'firmado',
       };
 
-    await sb('contratos','POST', datos);
+    // El plan solo sirve para dibujar el cuadro de cuotas del PDF.
+    // No se guarda en la tabla: esa informacion ya vive en 'cuotas'.
+    var datosBD = Object.assign({}, datos);
+    delete datosBD.plan;
+    await sb('contratos','POST', datosBD);
+
     await generarPDFContrato(datos, firmaCliImg, firmaVenImg);
 
     toast('Contrato generado ✓');
@@ -227,6 +233,7 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
   var mx   = 15;    // margen
   var cw   = W - mx*2; // ancho contenido
   var y    = 0;
+  var plan = datos.plan || [];
 
   // ── Encabezado ──
   // Sin franja oscura: dos paginas con fondo lleno consumen mucha
