@@ -169,7 +169,7 @@ async function guardarVenta() {
       } else {
         if (!pid) { toast('Selecciona un producto', 'err'); setBtn('btn-sv', false, 'Guardar venta'); return; }
         const eq = equiposFin.find(x => x.id == pid);
-        payload.producto = `${eq.marca} ${eq.modelo}`;
+        payload.producto = nombreEquipo(eq.marca, eq.modelo);
       }
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
@@ -622,7 +622,7 @@ function fillProdSel() {
   const s = document.getElementById('v-prod');
   s.innerHTML = '<option value="">Seleccionar equipo...</option>';
   equiposFin.filter(e => e.disponible !== false).forEach(e => {
-    s.innerHTML += `<option value="${e.id}" data-p="${e.precio_contado}">${e.marca} ${e.modelo} — ${fmt(e.precio_contado)}</option>`;
+    s.innerHTML += `<option value="${e.id}" data-p="${e.precio_contado}">${nombreEquipo(e.marca, e.modelo)} — ${fmt(e.precio_contado)}</option>`;
   });
 }
 
