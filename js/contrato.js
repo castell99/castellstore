@@ -604,8 +604,9 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
     '<div class="modal-footer">' +
     '<button class="btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">Cerrar</button>' +
     '</div></div>';
-  m.classList.add('open');
-  
+   m.classList.add('open');
+}
+
 function fileToBase64(file) {
   return new Promise(function(resolve, reject) {
     var reader = new FileReader();
