@@ -898,10 +898,16 @@ function abrirDocumentos(ventaId) {
       '<div style="font-size:11px;color:var(--text3)">Documento de compra con garantía y términos</div></div>' +
     '</button>' +
 
-    (esF ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');abrirContrato(' + ventaId + ')">' +
+        (esF ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');abrirContrato(' + ventaId + ')">' +
       '<span style="font-size:24px">📋</span>' +
-      '<div style="text-align:left"><div style="font-weight:600">Contrato de financiamiento</div>' +
-      '<div style="font-size:11px;color:var(--text3)">Contrato legal con firmas digitales y clausulas</div></div>' +
+      '<div style="text-align:left"><div style="font-weight:600">Firmar contrato</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Genera y archiva el contrato con las firmas de las partes</div></div>' +
+    '</button>' : '') +
+
+    (esF ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');verContrato(' + ventaId + ')">' +
+      '<span style="font-size:24px">📂</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Ver contrato firmado</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Abre el contrato ya archivado, sin volver a firmarlo</div></div>' +
     '</button>' : '') +
 
     (pS ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px;background:var(--green-bg);border-color:var(--green-bd)" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');generarRecibo(\'venta\',' + ventaId + ')">' +
