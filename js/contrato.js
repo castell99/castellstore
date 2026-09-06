@@ -571,12 +571,12 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
     y += 4;
     doc.text('Validez legal conforme al artículo 11 de la Ley 527 de 1999 (Comercio Electrónico — Colombia)', W/2, y, {align:'center'});
 
-    // ── Archivar y descargar ──
+    // ── Archivar ──
+  // El PDF no se descarga solo: queda archivado y el usuario decide
+  // si lo baja. Antes cada firma dejaba una copia en Descargas.
   var nombre = 'contrato-' + datos.cliente.replace(/\s+/g,'-') + '-' + datos.venta_id + '.pdf';
+  var archivado = false;
 
-  // Se archiva el PDF ya armado, no solo las firmas. Asi el contrato
-  // queda congelado tal como se firmo: si manana cambia la plantilla,
-  // este documento sigue diciendo lo que el cliente acepto.
   try {
     var blob = doc.output('blob');
     var ruta = 'contrato_' + datos.venta_id + '_' + Date.now() + '.pdf';
@@ -586,26 +586,30 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
     if (res.ok) {
       await sb('contratos', 'PATCH', { pdf_path: 'contratos-docs/' + ruta },
                '?venta_id=eq.' + datos.venta_id);
+      archivado = true;
     }
-  } catch(e) {
-    // Si falla el archivado no se pierde el contrato: igual se descarga.
-    toast('El contrato se descargó pero no se pudo archivar', 'err');
+  } catch(e) { /* se avisa abajo */ }
+
+  // Si no se pudo archivar, se descarga: es la unica copia que queda.
+  if (!archivado) {
+    doc.save(nombre);
+    toast('No se pudo archivar el contrato — se descargó una copia', 'err');
   }
 
-  doc.save(nombre);
-
-    // Aviso de descarga
+      // Aviso al terminar
+  window._ultimoContratoPDF = { doc: doc, nombre: nombre };
   var m = document.getElementById('modal-contrato-preview');
   if (!m) { m = document.createElement('div'); m.id = 'modal-contrato-preview'; m.className = 'overlay'; document.body.appendChild(m); }
   m.innerHTML = '<div class="modal" style="max-width:460px">' +
-    '<div class="modal-header"><div class="modal-title">📄 Contrato generado</div>' +
+    '<div class="modal-header"><div class="modal-title">📄 Contrato archivado</div>' +
     '<button class="close-btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">×</button></div>' +
-    '<div class="alert info" style="margin-bottom:14px">El PDF se descargó y quedó archivado. Puedes volver a abrirlo desde el menú de documentos de la venta.</div>' +
+    '<div class="alert info" style="margin-bottom:14px">El contrato quedó guardado. Puedes abrirlo cuando quieras desde el menú de documentos de la venta.</div>' +
     '<div class="modal-footer">' +
     '<button class="btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">Cerrar</button>' +
+    '<button class="btn primary" onclick="descargarUltimoContrato()">⬇️ Descargar copia</button>' +
     '</div></div>';
-   m.classList.add('open');
-}
+  m.classList.add('open');
+  }
 
 function fileToBase64(file) {
   return new Promise(function(resolve, reject) {
@@ -627,4 +631,11 @@ async function verContrato(ventaId) {
     if (urls[ruta]) window.open(urls[ruta], '_blank');
     else toast('No se pudo abrir el contrato', 'err');
   } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+// Descarga la copia del contrato que se acaba de generar.
+function descargarUltimoContrato() {
+  var u = window._ultimoContratoPDF;
+  if (!u) { toast('No hay contrato para descargar', 'err'); return; }
+  u.doc.save(u.nombre);
 }
