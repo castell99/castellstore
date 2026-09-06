@@ -571,34 +571,41 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
     y += 4;
     doc.text('Validez legal conforme al artículo 11 de la Ley 527 de 1999 (Comercio Electrónico — Colombia)', W/2, y, {align:'center'});
 
-  // ── Descargar PDF ──
-  var nombre = 'contrato-'+datos.cliente.replace(/\s+/g,'-')+'-'+datos.venta_id+'.pdf';
+    // ── Archivar y descargar ──
+  var nombre = 'contrato-' + datos.cliente.replace(/\s+/g,'-') + '-' + datos.venta_id + '.pdf';
+
+  // Se archiva el PDF ya armado, no solo las firmas. Asi el contrato
+  // queda congelado tal como se firmo: si manana cambia la plantilla,
+  // este documento sigue diciendo lo que el cliente acepto.
+  try {
+    var blob = doc.output('blob');
+    var ruta = 'contrato_' + datos.venta_id + '_' + Date.now() + '.pdf';
+    var res  = await fetch(SUPA + '/storage/v1/object/contratos-docs/' + ruta, {
+      method: 'POST', headers: uploadHeaders('application/pdf'), body: blob
+    });
+    if (res.ok) {
+      await sb('contratos', 'PATCH', { pdf_path: 'contratos-docs/' + ruta },
+               '?venta_id=eq.' + datos.venta_id);
+    }
+  } catch(e) {
+    // Si falla el archivado no se pierde el contrato: igual se descarga.
+    toast('El contrato se descargó pero no se pudo archivar', 'err');
+  }
+
   doc.save(nombre);
 
-  // Modal compartir
-  var msg = encodeURIComponent(
-    '📄 *CONTRATO DE FINANCIAMIENTO — '+VENDEDOR.negocio+'*\n\n'+
-    'Estimado/a *'+datos.cliente+'*,\n'+
-    'Adjunto su contrato de compraventa a crédito del equipo *'+datos.equipo+'*.\n\n'+
-    '💰 Valor financiado: *'+fmt(datos.precio_financiado)+'*\n'+
-    '📅 Cuotas: *'+datos.cuotas+' x '+fmt(datos.valor_cuota)+'/mes*\n\n'+
-    '📞 '+VENDEDOR.telefono+' | '+VENDEDOR.negocio
-  );
-
+    // Aviso de descarga
   var m = document.getElementById('modal-contrato-preview');
-  if (!m) { m=document.createElement('div');m.id='modal-contrato-preview';m.className='overlay';document.body.appendChild(m); }
-  m.innerHTML = '<div class="modal" style="max-width:500px">'+
-    '<div class="modal-header"><div class="modal-title">📄 Contrato generado</div>'+
-    '<button class="close-btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">×</button></div>'+
-    '<div class="alert info" style="margin-bottom:14px">El PDF se descargó automáticamente en tu dispositivo.</div>'+
-    '<div class="modal-footer">'+
-    '<button class="btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">Cerrar</button>'+
-    '<button class="btn" onclick="generarPDFContrato(_contratoData,\''+firmaCliImg+'\',\''+firmaVenImg+'\')">⬇️ Descargar de nuevo</button>'+
-    '<a href="https://wa.me/?text='+msg+'" target="_blank"><button class="btn" style="background:#25D366;border-color:#25D366;color:#fff">💬 WhatsApp</button></a>'+
+  if (!m) { m = document.createElement('div'); m.id = 'modal-contrato-preview'; m.className = 'overlay'; document.body.appendChild(m); }
+  m.innerHTML = '<div class="modal" style="max-width:460px">' +
+    '<div class="modal-header"><div class="modal-title">📄 Contrato generado</div>' +
+    '<button class="close-btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">×</button></div>' +
+    '<div class="alert info" style="margin-bottom:14px">El PDF se descargó y quedó archivado. Puedes volver a abrirlo desde el menú de documentos de la venta.</div>' +
+    '<div class="modal-footer">' +
+    '<button class="btn" onclick="document.getElementById(\'modal-contrato-preview\').classList.remove(\'open\')">Cerrar</button>' +
     '</div></div>';
   m.classList.add('open');
-}
-
+  
 function fileToBase64(file) {
   return new Promise(function(resolve, reject) {
     var reader = new FileReader();
@@ -606,4 +613,17 @@ function fileToBase64(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+// ── Abrir el contrato ya firmado ───────────
+// No regenera nada: trae el PDF archivado y lo abre en otra pestaña.
+async function verContrato(ventaId) {
+  try {
+    var filas = await sb('contratos', 'GET', null, '?venta_id=eq.' + ventaId + '&select=pdf_path');
+    var ruta  = filas && filas[0] && filas[0].pdf_path;
+    if (!ruta) { toast('Esta venta aún no tiene contrato archivado', 'err'); return; }
+    var urls = await firmarUrls([ruta], 3600);
+    if (urls[ruta]) window.open(urls[ruta], '_blank');
+    else toast('No se pudo abrir el contrato', 'err');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
 }
