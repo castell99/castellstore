@@ -73,3 +73,17 @@ var FACTURA_VENDEDOR = {
   negocio  : NEGOCIO.nombre,
   web      : NEGOCIO.web
 };
+
+// Arma el nombre del equipo sin repetir la marca.
+// En el catalogo hay filas donde el modelo ya la incluye
+// ('IPHONE' + 'IPHONE 15 PRO MAX') y otras donde no
+// ('SAMSUNG' + 'Galaxy S25 Ultra 5G'). Se compara sin
+// distinguir mayusculas porque tampoco son consistentes.
+function nombreEquipo(marca, modelo) {
+  var ma = (marca  || '').trim();
+  var mo = (modelo || '').trim();
+  if (!ma) return mo;
+  if (!mo) return ma;
+  if (mo.toUpperCase().indexOf(ma.toUpperCase()) === 0) return mo;
+  return ma + ' ' + mo;
+}
