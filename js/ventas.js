@@ -569,11 +569,11 @@ function nextMonth() {
   return d.toISOString().split('T')[0];
 }
 
-function addMonths(dateStr, months) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setMonth(d.getMonth() + months);
-  return d.toISOString().split('T')[0];
-}
+  function addMonths(dateStr, months) {
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setMonth(d.getMonth() + months);
+    return d.toISOString().split('T')[0];
+  }
 
 let _planAutoData = null;
 
@@ -861,7 +861,15 @@ function toggleFechaPrimeraCuota() {
               && (parseInt(document.getElementById('v-cuotas').value) || 0) > 0;
   wrap.style.display = esFin ? '' : 'none';
   var campo = document.getElementById('v-fecha1');
-  if (esFin && campo && !campo.value) campo.value = addMonths(today(), 1);
+  if (esFin && campo && !campo.value) {
+    // No se usa today(): devuelve d/m/aaaa y addMonths necesita
+    // aaaa-mm-dd. El input date tambien exige ese formato.
+    var d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    campo.value = d.getFullYear() + '-' +
+                  String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                  String(d.getDate()).padStart(2, '0');
+  }
 }
 
 function abrirDocumentos(ventaId) {
