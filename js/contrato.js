@@ -56,8 +56,15 @@ function abrirContrato(ventaId) {
     var p = document.getElementById('contrato-prev-' + s);
     if (p) { p.src = ''; p.style.display = 'none'; }
   });
+    // Si la venta ya trae cedula, el campo se oculta: el modal queda
+  // solo para firmar y adjuntar fotos. Si falta — ventas viejas o un
+  // registro apurado — reaparece para no dejar el contrato bloqueado.
   var cedEl = document.getElementById('contrato-cedula');
-  if (cedEl) cedEl.value = v.cedula_cliente || '';
+  if (cedEl) {
+    cedEl.value = v.cedula_cliente || '';
+    var grupo = cedEl.closest('.form-group');
+    if (grupo) grupo.style.display = v.cedula_cliente ? 'none' : '';
+  }
 
   // Por defecto se entrega en el local; si fue a domicilio se cambia.
   var lugEl = document.getElementById('contrato-lugar');
