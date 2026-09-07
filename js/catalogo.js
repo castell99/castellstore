@@ -191,6 +191,40 @@ function filterMarca(marca, btn) {
   }
   aplicarFiltrosCatalogo();
 }
+// El distintivo del grado. Nuevo va en verde y los usados en gris:
+// el color no debe sugerir que un grado es peor que otro, solo
+// distinguirlos de un vistazo.
+function badgeGrado(grado) {
+  if (!grado) return '';
+  var cls = grado === 'Nuevo' ? 'green' : 'muted';
+  return '<span class="badge ' + cls + '">' + grado + '</span>';
+}
+
+// Bloque de condicion para la ficha. El texto sale de negocio.js,
+// no de la fila del equipo: asi se corrige en un solo lugar.
+function bloqueGrado(eq) {
+  var g = (NEGOCIO.grados || {})[eq.grado];
+  var obs = (eq.obs_equipo || '').trim();
+  if (!g && !obs) return '';
+  var h = '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px">';
+  if (g) {
+    h += '<div style="font-weight:700;margin-bottom:4px">' + eq.grado + '</div>';
+    h += '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + g.resumen + '</div>';
+    if (g.puntos && g.puntos.length) {
+      h += '<ul style="margin:10px 0 0;padding-left:18px;font-size:12.5px;color:var(--text2);line-height:1.6">';
+      g.puntos.forEach(function(p) { h += '<li>' + p + '</li>'; });
+      h += '</ul>';
+    }
+  }
+  if (obs) {
+    h += '<div style="margin-top:' + (g ? '12px' : '0') + ';padding-top:' + (g ? '10px' : '0') +
+         ';border-top:' + (g ? '1px solid var(--border)' : 'none') + '">';
+    h += '<div style="font-size:11px;color:var(--text3)">Notas de este equipo</div>';
+    h += '<div style="font-size:13px;color:var(--text2);line-height:1.5">' + obs + '</div>';
+    h += '</div>';
+  }
+  return h + '</div>';
+}
 
 function renderTarjetaEquipo(eq) {
   var tags = [];
@@ -219,6 +253,7 @@ function renderTarjetaEquipo(eq) {
   // ya aparece abajo entre las especificaciones.
   html += '<div style="position:absolute;top:8px;left:8px;right:8px;z-index:10;display:flex;gap:4px;flex-wrap:wrap;align-items:flex-start">';
   html += '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>';
+  html += badgeGrado(eq.grado);
   html += masVendido;
   html += '</div>';
   html += '</div>';
@@ -469,10 +504,12 @@ function abrirDetalleEquipo(id) {
     imgHtml +
     '<div style="margin:14px 0 10px;display:flex;gap:6px;flex-wrap:wrap">' +
     '<span class="badge ' + (gamaColor[eq.gama]||'muted') + '">' + (eq.gama||'') + '</span>' +
+    badgeGrado(eq.grado) +
     (eq.g5 ? '<span class="badge blue">5G</span>' : '') +
     (tags.indexOf('Más vendido')!==-1 ? '<span class="badge amber">⭐ Más vendido</span>' : '') +
     '</div>' +
     (specs ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:14px">' + specs + '</div>' : '') +
+    bloqueGrado(eq) +
     '<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:14px;margin-bottom:14px">' +
     '<div style="font-size:11px;color:var(--text3)">Precio contado</div>' +
     '<div style="font-size:26px;font-weight:800;color:var(--green)">' + fmt(eq.precio_contado) + '</div>' +
