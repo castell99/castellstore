@@ -148,6 +148,8 @@ async function guardarEquipoFin() {
     almacenamiento   : document.getElementById('ef-alm').value.trim(),
     g5               : document.getElementById('ef-5g').checked,
     gama             : document.getElementById('ef-gama').value,
+    grado            : document.getElementById('ef-grado').value,
+    obs_equipo       : document.getElementById('ef-obs').value.trim(),
     disponible       : document.getElementById('ef-disp').checked,
     etiquetas        : JSON.stringify(efTagsSelected),
     imagen1          : img1 || null,
