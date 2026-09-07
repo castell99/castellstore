@@ -50,7 +50,7 @@ var NEGOCIO = {
       puntos : [
         'Estética: marcas de uso mínimas o casi imperceptibles. Sin golpes profundos, rajaduras ni rayones notables.',
         'Funcionamiento: cámara, Face ID, botones y altavoces operan al 100%.',
-        'Liberado para cualquier operador.'
+        'Disponible para cualquier operador.'
       ]
     },
     'Grado B': {
@@ -58,7 +58,7 @@ var NEGOCIO = {
       puntos : [
         'Estética: rayones y rasguños leves en carcasa, bordes o pantalla, visibles al detallarlos. Sin trizaduras ni golpes graves.',
         'Funcionamiento: sistema, cámara, sensores y todas las funciones operan correctamente.',
-        'Liberado para cualquier operador.'
+        'Disponible para cualquier operador.'
       ]
     }
   },
