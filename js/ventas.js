@@ -35,8 +35,8 @@ async function abrirNuevaVenta() {
   
   // Campos del contrato: se limpian igual que los demas para que
   // no arrastren datos de la venta anterior.
-  ['v-almacenamiento','v-serie','v-accesorios','v-factura','v-ciudad-exp','v-email','v-fecha1']
-    .forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+  ['v-almacenamiento','v-serie','v-accesorios','v-factura','v-ciudad-exp','v-email','v-fecha1','v-cedula']  
+  .forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
   var eeEl = document.getElementById('v-estado-equipo');
   if (eeEl) eeEl.value = 'Nuevo';
   var f1w = document.getElementById('v-fecha1-wrap');
@@ -130,6 +130,7 @@ async function guardarVenta() {
     cuotas           : cuotasNum,
     estado           : document.getElementById('v-estado').value,
     telefono_cliente : document.getElementById('v-tel')?.value.trim() || '',
+    cedula_cliente    : document.getElementById('v-cedula')?.value.trim() || '',
     color            : document.getElementById('v-color')?.value.trim() || '',
     imei             : document.getElementById('v-imei')?.value.trim() || '',
     imei2            : document.getElementById('v-imei2')?.value.trim() || '',
@@ -860,6 +861,12 @@ function toggleFechaPrimeraCuota() {
   var esFin = document.getElementById('v-pago').value === 'Financiado'
               && (parseInt(document.getElementById('v-cuotas').value) || 0) > 0;
   wrap.style.display = esFin ? '' : 'none';
+  // Los datos de cedula solo se piden en ventas financiadas: son
+  // para el contrato, y en una venta de contado no hay contrato.
+  ['v-cedula-wrap','v-ciudad-wrap'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = esFin ? '' : 'none';
+  });
   var campo = document.getElementById('v-fecha1');
   if (esFin && campo && !campo.value) {
     // No se usa today(): devuelve d/m/aaaa y addMonths necesita
