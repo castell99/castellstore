@@ -248,6 +248,8 @@ function editarEquipoFin(id) {
   document.getElementById('ef-5g').checked   = !!eq.g5;
   document.getElementById('ef-disp').checked = eq.disponible !== false;
   document.querySelectorAll('.ef-tag').forEach(b => b.classList.toggle('active', efTagsSelected.includes(b.dataset.tag)));
+  document.getElementById('ef-grado').value = eq.grado || 'Nuevo';
+  document.getElementById('ef-obs').value   = eq.obs_equipo || '';
   ['1','2'].forEach(n => {
     const prev = document.getElementById(`ef-prev${n}`); const url = eq[`imagen${n}`];
     if (prev && url) { prev.src=url; prev.style.display='block'; }
