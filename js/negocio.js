@@ -37,7 +37,33 @@ var NEGOCIO = {
   tiktok   : 'castelltechco',
   youtube  : 'castelltechco',
 
-    // Paleta de documentos — monocroma.
+    // Grados de condicion del equipo. El texto vive aqui, no en cada
+  // fila del catalogo: si hay que corregir una palabra se corrige
+  // una vez y cambia en todos los equipos.
+  grados: {
+    'Nuevo': {
+      resumen: 'Equipo nuevo, sellado de fábrica.',
+      puntos : []
+    },
+    'Grado A': {
+      resumen: 'Seminuevo en excelente estado estético y funcional.',
+      puntos : [
+        'Estética: marcas de uso mínimas o casi imperceptibles. Sin golpes profundos, rajaduras ni rayones notables.',
+        'Funcionamiento: cámara, Face ID, botones y altavoces operan al 100%.',
+        'Liberado para cualquier operador.'
+      ]
+    },
+    'Grado B': {
+      resumen: 'Usado, funciona al 100%, con marcas estéticas visibles.',
+      puntos : [
+        'Estética: rayones y rasguños leves en carcasa, bordes o pantalla, visibles al detallarlos. Sin trizaduras ni golpes graves.',
+        'Funcionamiento: sistema, cámara, sensores y todas las funciones operan correctamente.',
+        'Liberado para cualquier operador.'
+      ]
+    }
+  },
+  
+  // Paleta de documentos — monocroma.
   // La usan recibo.js, contrato.js y factura.js. Cambiar aqui
   // cambia todos los documentos a la vez.
   doc: {
