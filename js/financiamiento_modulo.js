@@ -225,6 +225,8 @@ function abrirNuevoEquipo() {
   document.getElementById('ef-gama').value = 'Baja';
   document.getElementById('ef-5g').checked = false; document.getElementById('ef-disp').checked = true;
   document.querySelectorAll('.ef-tag').forEach(b => b.classList.remove('active'));
+  document.getElementById('ef-grado').value = 'Nuevo';
+  document.getElementById('ef-obs').value   = '';
   ['ef-prev1','ef-prev2'].forEach(id => { const el = document.getElementById(id); if (el) { el.src=''; el.style.display='none'; } });
   openModal('modal-equipo-fin');
 }
