@@ -861,12 +861,7 @@ function toggleFechaPrimeraCuota() {
   var esFin = document.getElementById('v-pago').value === 'Financiado'
               && (parseInt(document.getElementById('v-cuotas').value) || 0) > 0;
   wrap.style.display = esFin ? '' : 'none';
-  // Los datos de cedula solo se piden en ventas financiadas: son
-  // para el contrato, y en una venta de contado no hay contrato.
-  ['v-cedula-wrap','v-ciudad-wrap'].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.display = esFin ? '' : 'none';
-  });
+  
   var campo = document.getElementById('v-fecha1');
   if (esFin && campo && !campo.value) {
     // No se usa today(): devuelve d/m/aaaa y addMonths necesita
