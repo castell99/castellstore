@@ -57,6 +57,7 @@
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Oswald:wght@500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 
   <!-- Google Analytics -->
@@ -222,6 +223,64 @@
   #sec-home > .page-grid,
   #sec-home > .page-floor{position:fixed;z-index:0}
   @media(prefers-reduced-motion:reduce){.page-grid,.page-floor{animation:none}}
+
+      /* ── Tarjetas de servicio ── */
+  .svc-card{background:#0d1f2d;border:1px solid #1e3347;border-radius:14px;overflow:hidden;
+    display:flex;flex-direction:column;transition:transform .25s ease,border-color .25s ease}
+  .svc-card:hover{transform:translateY(-3px);border-color:#a4d65e}
+  .svc-ico{width:44px;height:44px;border-radius:10px;background:#1a3a6b;display:flex;
+    align-items:center;justify-content:center;flex-shrink:0;
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+  .svc-ico i{font-size:22px;color:#a4d65e}
+  .svc-card:hover .svc-ico{transform:scale(1.12) rotate(-6deg)}
+
+  /* Cada item: la fila completa reacciona, no solo el icono */
+  .svc-item{display:flex;align-items:flex-start;gap:9px;padding:6px 8px;border-radius:8px;
+    transition:background .2s ease}
+  .svc-item:hover{background:#12283a}
+  .svc-item .ib{width:26px;height:26px;border-radius:7px;background:#12283a;display:flex;
+    align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+  .svc-item .ib i{font-size:14px;color:#a4d65e;display:block}
+
+  /* El pie queda abajo aunque una tarjeta tenga menos items */
+  .svc-foot{margin-top:auto;padding:12px 16px 16px}
+  .svc-btn{width:100%;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:inherit;transition:filter .2s ease}
+  .svc-btn.p{background:#a4d65e;color:#0d1f2d;border:none}
+  .svc-btn.s{background:transparent;color:#e8f0f5;border:1px solid #1e3347}
+  .svc-btn:hover{filter:brightness(1.1)}
+  .svc-btn.s:hover{border-color:#a4d65e}
+
+  /* Movimiento propio de cada icono, segun lo que representa */
+  @keyframes svcScan  {0%,100%{transform:translateX(0) rotate(0)}30%{transform:translateX(-3px) rotate(-12deg)}65%{transform:translateX(3px) rotate(12deg)}}
+  @keyframes svcFlip  {to{transform:rotateY(360deg)}}
+  @keyframes svcCarga {0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.65}}
+  @keyframes svcTorni {0%{transform:rotate(0)}60%{transform:rotate(140deg)}100%{transform:rotate(120deg)}}
+  @keyframes svcBarre {0%,100%{transform:translateX(0) rotate(0)}25%{transform:translateX(-4px) rotate(-14deg)}75%{transform:translateX(4px) rotate(14deg)}}
+  @keyframes svcGira  {to{transform:rotate(360deg)}}
+  @keyframes svcAtras {to{transform:rotate(-360deg)}}
+  @keyframes svcRayo  {0%,100%{transform:scale(1);opacity:1}20%{opacity:.2}40%{transform:scale(1.25);opacity:1}60%{opacity:.3}}
+  @keyframes svcSlider{0%,100%{transform:translateX(0)}35%{transform:translateX(-3px)}70%{transform:translateX(3px)}}
+  @keyframes svcEnchu {0%,100%{transform:translateX(0)}45%{transform:translateX(5px)}}
+  @keyframes svcSube  {0%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+
+  .a-scan:hover   .ib i{animation:svcScan .6s ease}
+  .a-flip:hover   .ib i{animation:svcFlip .7s ease}
+  .a-carga:hover  .ib i{animation:svcCarga .9s ease infinite}
+  .a-torni:hover  .ib i{animation:svcTorni .7s ease}
+  .a-barre:hover  .ib i{animation:svcBarre .7s ease}
+  .a-gira:hover   .ib i{animation:svcGira .8s ease}
+  .a-atras:hover  .ib i{animation:svcAtras .9s ease}
+  .a-rayo:hover   .ib i{animation:svcRayo .7s ease}
+  .a-slider:hover .ib i{animation:svcSlider .6s ease}
+  .a-enchu:hover  .ib i{animation:svcEnchu .5s ease}
+  .a-sube:hover   .ib i{animation:svcSube .5s ease}
+
+  @media(prefers-reduced-motion:reduce){
+    .svc-card,.svc-ico,.svc-item{transition:none}
+    .svc-card:hover{transform:none}
+    .svc-item .ib i{animation:none!important}
+  }
   </style>
 
   <div class="hero-fx">
