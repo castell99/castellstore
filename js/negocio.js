@@ -26,7 +26,7 @@ var NEGOCIO = {
   ciudad   : 'Villanueva, Bolivar',
   telefono : '304 601 9483',
   whatsapp : '573046019483',
-  correo   : 'carlosstrolle@gmail.com',
+  correo   : 'carlosstroller@gmail.com',
   // Datos de recaudo — van impresos en el contrato (clausula CUARTA).
   banco       : 'Davivienda',
   llave       : '@davi3046019483',
