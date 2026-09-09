@@ -349,21 +349,21 @@
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:0 16px 24px">
 
     <!-- Celulares -->
-    <div style="background:#0d1f2d;border:1px solid #1e3347;border-radius:14px;overflow:hidden">
+        <div class="svc-card">
       <div style="padding:16px 16px 8px;display:flex;align-items:center;gap:10px">
-        <div style="width:44px;height:44px;border-radius:10px;background:#1a3a6b;display:flex;align-items:center;justify-content:center;font-size:22px">📱</div>
+        <div class="svc-ico"><i class="ti ti-device-mobile"></i></div>
         <div><div style="font-size:16px;font-weight:700;color:#e8f0f5">CELULARES</div>
         <div style="font-size:11px;color:#8a9aa1">Reparamos y optimizamos tu celular para que vuelva a rendir al 100%.</div></div>
       </div>
-      <div style="padding:8px 16px;display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#a4d65e;font-size:14px;flex-shrink:0">⚙️</span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Diagnóstico y reparación</div><div style="font-size:11px;color:#8a9aa1">Detectamos y solucionamos fallas de hardware y software.</div></div></div>
-        <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#a4d65e;font-size:14px;flex-shrink:0">📲</span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Cambio de pantalla</div><div style="font-size:11px;color:#8a9aa1">Reemplazo de pantallas dañadas con garantía.</div></div></div>
-        <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#a4d65e;font-size:14px;flex-shrink:0">🔋</span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Cambio de batería</div><div style="font-size:11px;color:#8a9aa1">Baterías nuevas de alta calidad para mayor duración.</div></div></div>
-        <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#a4d65e;font-size:14px;flex-shrink:0">🔧</span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Cambio de componentes</div><div style="font-size:11px;color:#8a9aa1">Reemplazo de cámaras, micrófonos, altavoces y más.</div></div></div>
-        <div style="display:flex;align-items:flex-start;gap:8px"><span style="color:#a4d65e;font-size:14px;flex-shrink:0">🧹</span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Mantenimiento y limpieza</div><div style="font-size:11px;color:#8a9aa1">Limpieza interna para mejorar el rendimiento del equipo.</div></div></div>
+      <div style="padding:8px 10px;display:flex;flex-direction:column;gap:2px">
+        <div class="svc-item a-scan"><span class="ib"><i class="ti ti-stethoscope"></i></span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Diagnóstico y reparación</div><div style="font-size:11px;color:#8a9aa1">Detectamos y solucionamos fallas de hardware y software.</div></div></div>
+        <div class="svc-item a-flip"><span class="ib"><i class="ti ti-device-mobile"></i></span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Cambio de pantalla</div><div style="font-size:11px;color:#8a9aa1">Reemplazo de pantallas dañadas con garantía.</div></div></div>
+        <div class="svc-item a-carga"><span class="ib"><i class="ti ti-battery-charging"></i></span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Cambio de batería</div><div style="font-size:11px;color:#8a9aa1">Baterías nuevas de alta calidad para mayor duración.</div></div></div>
+        <div class="svc-item a-torni"><span class="ib"><i class="ti ti-screwdriver"></i></span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Cambio de componentes</div><div style="font-size:11px;color:#8a9aa1">Reemplazo de cámaras, micrófonos, altavoces y más.</div></div></div>
+        <div class="svc-item a-barre"><span class="ib"><i class="ti ti-spray"></i></span><div><div style="font-size:12px;font-weight:600;color:#e8f0f5">Mantenimiento y limpieza</div><div style="font-size:11px;color:#8a9aa1">Limpieza interna para mejorar el rendimiento del equipo.</div></div></div>
       </div>
-      <div style="padding:12px 16px 16px">
-        <button onclick="verCatalogo()" style="width:100%;background:#a4d65e;color:#0d1f2d;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer">VER EQUIPOS EN VENTA →</button>
+      <div class="svc-foot">
+        <button class="svc-btn p" onclick="verCatalogo()">VER EQUIPOS EN VENTA →</button>
       </div>
     </div>
 
