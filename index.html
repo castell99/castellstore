@@ -228,12 +228,54 @@
     <div class="hero-inner">
       <div class="hero-txt">
         <h1>SERVICIOS <span>CASTELL</span> TECH</h1>
-          <div style="display:flex;align-items:stretch;gap:14px;margin:14px 0 18px">
-          <div style="width:3px;background:#a4d65e;border-radius:2px;flex-shrink:0"></div>
-          <p style="margin:0;font-family:'Oswald',system-ui,sans-serif;font-weight:500;font-size:22px;line-height:1.3;text-transform:uppercase;letter-spacing:1.5px;color:#e8f0f5">
-            Sin sacrificio<br>no hay victoria
-          </p>
+                  <div style="text-align:center">
+          <div id="lema-wrap" style="display:inline-flex;align-items:stretch;gap:14px;margin:14px 0 18px;text-align:left">
+            <div id="lema-bar" style="width:3px;background:#a4d65e;border-radius:2px;flex-shrink:0;height:0;transition:height .45s cubic-bezier(.4,0,.2,1)"></div>
+            <p id="lema-txt" style="margin:0;font-family:'Oswald',system-ui,sans-serif;font-weight:500;font-size:22px;line-height:1.3;text-transform:uppercase;letter-spacing:1.5px;color:#e8f0f5;min-height:2.6em"></p>
+          </div>
         </div>
+
+        <style>
+          @keyframes lemaParpadeo { 50% { opacity:0 } }
+          #lema-cursor { display:inline-block;width:2px;height:.95em;background:#a4d65e;vertical-align:-2px;margin-left:3px;animation:lemaParpadeo .7s step-end infinite }
+          @media (prefers-reduced-motion: reduce) { #lema-cursor { animation:none } }
+        </style>
+
+        <script>
+        (function(){
+          // La barra crece primero y el texto sale de ella. Corre una
+          // sola vez por carga: repetirlo cada vez que el usuario
+          // vuelve al inicio termina cansando.
+          var bar = document.getElementById('lema-bar');
+          var txt = document.getElementById('lema-txt');
+          var lineas = 'SIN SACRIFICIO\nNO HAY VICTORIA';
+
+          // Con movimiento reducido se muestra completo, sin animar.
+          if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            bar.style.height = 'auto'; bar.style.alignSelf = 'stretch';
+            txt.innerHTML = lineas.replace('\n','<br>');
+            return;
+          }
+
+          setTimeout(function(){
+            bar.style.height = 'auto';
+            bar.style.alignSelf = 'stretch';
+
+            var cuerpo = document.createElement('span');
+            var cursor = document.createElement('span');
+            cursor.id = 'lema-cursor';
+            txt.appendChild(cuerpo);
+            txt.appendChild(cursor);
+
+            var i = 0;
+            var reloj = setInterval(function(){
+              if (i >= lineas.length) { clearInterval(reloj); return; }
+              var c = lineas[i++];
+              cuerpo.innerHTML += (c === '\n' ? '<br>' : c);
+            }, 60);
+          }, 250);
+        })();
+        </script>
         <p style="font-size:13px">Diagnosticamos, reparamos, actualizamos y optimizamos tus dispositivos.</p>
         <button class="hero-cta" onclick="verCatalogo()">VER EQUIPOS EN VENTA →</button>
       </div>
