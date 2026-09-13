@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Condiciones de garantía — Castell Tech</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0a1721;color:#e8f0f5;font-family:'Outfit',system-ui,sans-serif;
+       font-size:15px;line-height:1.6;padding:0 0 40px}
+  .wrap{max-width:620px;margin:0 auto;padding:0 16px}
+  .top{background:#101f2b;border-bottom:1px solid #1e3347;padding:18px 0;margin-bottom:22px}
+  .top .wrap{display:flex;align-items:center;gap:12px}
+  .logo{width:38px;height:38px;border:2px solid #a4d65e;border-radius:50%;display:flex;
+        align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#a4d65e}
+  h1{font-size:19px;margin:0}
+  .sub{font-size:12px;color:#8a9aa1;margin:2px 0 0}
+  .card{background:#101f2b;border:1px solid #1e3347;border-radius:12px;padding:18px;margin-bottom:16px}
+  .fila{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:14px}
+  .fila span:first-child{color:#8a9aa1;flex-shrink:0}
+  .fila span:last-child{text-align:right;font-weight:500}
+  h2{font-size:15px;margin:0 0 10px;color:#a4d65e}
+  h3{font-size:14px;margin:16px 0 5px}
+  p,li{font-size:13.5px;color:#c3d0d8;margin:0 0 8px}
+  ul{padding-left:18px;margin:6px 0 0}
+  li{margin-bottom:6px}
+  label{display:block;font-size:13px;color:#8a9aa1;margin:0 0 6px}
+  input[type=text]{width:100%;background:#0a1721;border:1px solid #1e3347;border-radius:8px;
+       padding:11px 12px;color:#e8f0f5;font-family:inherit;font-size:15px}
+  input[type=text]:focus{outline:none;border-color:#a4d65e}
+  canvas{width:100%;height:150px;background:#fff;border-radius:8px;display:block;
+         touch-action:none;cursor:crosshair}
+  .btn{width:100%;border:none;border-radius:8px;padding:14px;font-family:inherit;
+       font-size:15px;font-weight:700;cursor:pointer}
+  .btn.p{background:#a4d65e;color:#0a1721}
+  .btn.p:disabled{opacity:.45;cursor:not-allowed}
+  .btn.s{background:transparent;color:#8a9aa1;border:1px solid #1e3347;font-weight:400;
+         font-size:13px;padding:8px;width:auto}
+  .aviso{border-radius:8px;padding:12px 14px;font-size:13.5px;margin-bottom:16px}
+  .aviso.ok{background:rgba(164,214,94,.12);border:1px solid rgba(164,214,94,.35);color:#cbe89a}
+  .aviso.err{background:rgba(240,107,107,.12);border:1px solid rgba(240,107,107,.35);color:#f5a9a9}
+  .cargando{text-align:center;color:#8a9aa1;padding:50px 0}
+  .pie{text-align:center;font-size:12px;color:#5f707a;margin-top:24px}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="wrap">
+  <div class="logo">C</div>
+  <div><h1>Castell Tech</h1><p class="sub">Condiciones de garantía</p></div>
+</div></div>
+
+<div class="wrap">
+  <div id="cargando" class="cargando">Cargando…</div>
+  <div id="contenido" style="display:none"></div>
+</div>
+
+<!-- NEGOCIO y las condiciones viven en negocio.js: una sola fuente
+     para el sistema, los documentos y esta pagina. -->
+<script src="js/negocio.js"></script>
+<script src="js/config.js"></script>
+<script>
+(function(){
+  var token = new URLSearchParams(location.search).get('t');
+  var cargando = document.getElementById('cargando');
+  var cont     = document.getElementById('contenido');
+  var datos    = null;
+  var firmado  = false;
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function pesos(n){
+    return new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',minimumFractionDigits:0}).format(n||0);
+  }
+
+  function error(msg){
+    cargando.style.display = 'none';
+    cont.style.display = '';
+    cont.innerHTML = '<div class="aviso err">' + esc(msg) + '</div>' +
+      '<p>Si crees que es un error, escríbenos al ' + esc(NEGOCIO.telefono) + '.</p>';
+  }
+
+  // La pagina no consulta la tabla: llama a una funcion que solo
+  // responde si se conoce el token. Asi nadie puede listar las ventas.
+  async function rpc(nombre, params){
+    var r = await fetch(SUPA + '/rest/v1/rpc/' + nombre, {
+      method : 'POST',
+      headers: { 'Content-Type':'application/json', 'apikey': KEY },
+      body   : JSON.stringify(params)
+    });
+    if (!r.ok) throw new Error('No se pudo conectar');
+    return r.json();
+  }
+
+  function bloqueCondiciones(){
+    var g     = NEGOCIO.garantia;
+    var meses = g.meses[datos.condicion] || g.meses['Nuevo'];
+    var h = '<div class="card"><h2>Condiciones de garantía</h2>';
+
+    h += '<h3>1. Vigencia</h3><p>El equipo cuenta con garantía de <b>' + meses +
+         ' meses</b> contados desde la fecha de entrega, conforme a la Ley 1480 de 2011.</p>';
+
+    h += '<h3>2. Qué cubre</h3><p>Defectos de fabricación que afecten la calidad, idoneidad o el ' +
+         'funcionamiento normal del equipo en condiciones de uso ordinario.</p>';
+
+    h += '<h3>3. Qué no cubre</h3><p>Conforme al artículo 16 de la Ley 1480, la garantía no aplica cuando el daño proviene de:</p><ul>';
+    g.exclusiones.forEach(function(e){ h += '<li>' + esc(e) + '</li>'; });
+    h += '</ul>';
+
+    h += '<h3>4. Cómo hacerla efectiva</h3><p>Presenta el equipo con tu recibo en ' +
+         esc(NEGOCIO.direccion) + ', ' + esc(NEGOCIO.ciudad) + ', o escribe a ' + esc(NEGOCIO.correo) +
+         '. El equipo pasa por diagnóstico técnico. Si el daño corresponde a una causal de exclusión, ' +
+         'te lo informamos y recibes una cotización antes de intervenir el equipo.</p>';
+
+    h += '<h3>5. Plazos</h3><p>La reparación se efectúa dentro de los treinta (30) días hábiles ' +
+         'siguientes a la solicitud. Si el defecto persiste, puedes solicitar la devolución del dinero ' +
+         'o el cambio del equipo, conforme a la ley.</p>';
+
+    h += '<h3>6. Respaldo de información</h3><p>Respalda tu información antes de entregar el equipo. ' +
+         'Castell Tech no responde por pérdida de datos durante el diagnóstico o la reparación.</p>';
+
+    return h + '</div>';
+  }
+
+  function bloqueVenta(){
+    var h = '<div class="card">';
+    h += '<div class="fila"><span>Cliente</span><span>' + esc(datos.cliente) + '</span></div>';
+    h += '<div class="fila"><span>Equipo</span><span>' + esc(datos.equipo) + '</span></div>';
+    if (datos.imei)      h += '<div class="fila"><span>IMEI</span><span>' + esc(datos.imei) + '</span></div>';
+    if (datos.condicion) h += '<div class="fila"><span>Condición</span><span>' + esc(datos.condicion) + '</span></div>';
+    h += '<div class="fila"><span>Fecha</span><span>' + esc(datos.fecha_venta) + '</span></div>';
+    h += '<div class="fila"><span>Valor</span><span>' + pesos(datos.total) + '</span></div>';
+    return h + '</div>';
+  }
+
+  function vistaYaAceptada(){
+    var f = new Date(datos.aceptado_en);
+    cont.innerHTML =
+      '<div class="aviso ok">Ya aceptaste estas condiciones el ' +
+      f.toLocaleDateString('es-CO') + ' a las ' +
+      f.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}) + '.</div>' +
+      bloqueVenta() + bloqueCondiciones() +
+      '<p class="pie">Guarda este enlace. Puedes volver a consultarlo cuando lo necesites.</p>';
+  }
+
+  function vistaFirma(){
+    cont.innerHTML =
+      bloqueVenta() + bloqueCondiciones() +
+      '<div class="card">' +
+        '<h2>Aceptación</h2>' +
+        '<p>Al firmar declaras haber leído y aceptado estas condiciones.</p>' +
+        '<label for="nom">Escribe tu nombre completo</label>' +
+        '<input type="text" id="nom" autocomplete="name" placeholder="Nombre y apellido">' +
+        '<label style="margin-top:14px">Firma con el dedo</label>' +
+        '<canvas id="fir" width="560" height="150"></canvas>' +
+        '<button class="btn s" id="limpiar" style="margin-top:8px">Borrar firma</button>' +
+        '<button class="btn p" id="aceptar" style="margin-top:14px" disabled>Aceptar condiciones</button>' +
+        '<p id="msg" style="margin-top:10px"></p>' +
+      '</div>';
+
+    var cv  = document.getElementById('fir');
+    var ctx = cv.getContext('2d');
+    var pintando = false;
+
+    function limpiar(){
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cv.width,cv.height);
+      firmado = false; revisar();
+    }
+    limpiar();
+
+    function pos(e){
+      var r = cv.getBoundingClientRect();
+      var p = e.touches ? e.touches[0] : e;
+      return { x:(p.clientX-r.left)*(cv.width/r.width), y:(p.clientY-r.top)*(cv.height/r.height) };
+    }
+    function ini(e){
+      e.preventDefault(); pintando = true; firmado = true; revisar();
+      var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y);
+    }
+    function mover(e){
+      if(!pintando) return; e.preventDefault();
+      var p = pos(e);
+      ctx.lineWidth = 2.2; ctx.lineCap = 'round'; ctx.strokeStyle = '#111';
+      ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x,p.y);
+    }
+    function fin(){ pintando = false; ctx.beginPath(); }
+
+    cv.addEventListener('mousedown',ini);   cv.addEventListener('touchstart',ini,{passive:false});
+    cv.addEventListener('mousemove',mover); cv.addEventListener('touchmove',mover,{passive:false});
+    cv.addEventListener('mouseup',fin);     cv.addEventListener('touchend',fin);
+    cv.addEventListener('mouseleave',fin);
+
+    var nom = document.getElementById('nom');
+    var btn = document.getElementById('aceptar');
+    function revisar(){ btn.disabled = !(firmado && nom.value.trim().length >= 3); }
+    nom.addEventListener('input', revisar);
+    document.getElementById('limpiar').addEventListener('click', limpiar);
+
+    btn.addEventListener('click', async function(){
+      btn.disabled = true; btn.textContent = 'Registrando…';
+      var msg = document.getElementById('msg');
+      try {
+        var ok = await rpc('registrar_aceptacion', {
+          p_token : token,
+          p_firma : cv.toDataURL('image/png'),
+          p_nombre: nom.value.trim()
+        });
+        if (ok) {
+          datos.aceptado_en = new Date().toISOString();
+          vistaYaAceptada();
+          window.scrollTo(0,0);
+        } else {
+          msg.innerHTML = '<span style="color:#f5a9a9">Estas condiciones ya habían sido aceptadas.</span>';
+          btn.style.display = 'none';
+        }
+      } catch(e) {
+        msg.innerHTML = '<span style="color:#f5a9a9">No se pudo registrar. Revisa tu conexión e intenta de nuevo.</span>';
+        btn.disabled = false; btn.textContent = 'Aceptar condiciones';
+      }
+    });
+  }
+
+  (async function(){
+    if (!token) { error('Enlace incompleto. Pide a Castell Tech que te lo reenvíe.'); return; }
+    try {
+      var filas = await rpc('aceptacion_por_token', { p_token: token });
+      if (!filas || !filas.length) { error('Este enlace no es válido o ya no está disponible.'); return; }
+      datos = filas[0];
+      cargando.style.display = 'none';
+      cont.style.display = '';
+      if (datos.aceptado_en) vistaYaAceptada(); else vistaFirma();
+    } catch(e) {
+      error('No se pudo cargar la información. Revisa tu conexión.');
+    }
+  })();
+})();
+</script>
+</body>
+</html>
