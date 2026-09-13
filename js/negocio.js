@@ -62,6 +62,25 @@ var NEGOCIO = {
       ]
     }
   },
+
+    // Terminos de garantia. Los plazos van aqui para poder ajustarlos
+  // sin tocar codigo. Antes de fijarlos conviene revisarlos con un
+  // abogado: la Ley 1480 hace solidarios al productor y al proveedor,
+  // y anunciar un plazo menor al del fabricante puede acarrear
+  // sancion en lugar de proteger.
+  garantia: {
+    version : '2026-09',        // queda registrada en cada aceptacion
+    meses   : { 'Nuevo': 6, 'Grado A': 6, 'Grado B': 6 },
+    exclusiones: [
+      'Golpes, caídas o presión, aunque el vidrio no presente rotura visible.',
+      'Contacto con líquidos o humedad, verificable por los indicadores internos.',
+      'Apertura, reparación o manipulación por personal ajeno a Castell Tech.',
+      'Uso de cargadores o accesorios no compatibles.',
+      'Modificación del software de fábrica o instalación de sistemas no oficiales.',
+      'Desgaste normal por uso, incluida la disminución de capacidad de la batería.',
+      'Fuerza mayor, caso fortuito o hecho de un tercero.'
+    ]
+  },
   
   // Paleta de documentos — monocroma.
   // La usan recibo.js, contrato.js y factura.js. Cambiar aqui
