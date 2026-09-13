@@ -934,6 +934,12 @@ function abrirDocumentos(ventaId) {
       '<div style="font-size:11px;color:var(--text3)">Abre el contrato ya archivado, sin volver a firmarlo</div></div>' +
     '</button>' : '') +
 
+    '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');enlaceGarantia(' + ventaId + ')">' +
+      '<span style="font-size:24px">🛡️</span>' +
+      '<div style="text-align:left"><div style="font-weight:600">Condiciones de garantía</div>' +
+      '<div style="font-size:11px;color:var(--text3)">Enlace para que el cliente lea y firme</div></div>' +
+    '</button>' +
+    
     (pS ? '<button class="btn" style="justify-content:flex-start;gap:12px;padding:12px 16px;background:var(--green-bg);border-color:var(--green-bd)" onclick="document.getElementById(\'modal-documentos\').classList.remove(\'open\');generarRecibo(\'venta\',' + ventaId + ')">' +
       '<span style="font-size:24px">✅</span>' +
       '<div style="text-align:left"><div style="font-weight:600;color:var(--green)">Paz y Salvo</div>' +
@@ -945,4 +951,61 @@ function abrirDocumentos(ventaId) {
     '</div>';
 
   m.classList.add('open');
+  
+}
+
+// ── Enlace de aceptación de condiciones ────
+// Trae el token de la venta y abre un panel con el enlace listo
+// para copiar, abrir o enviar por WhatsApp.
+async function enlaceGarantia(ventaId) {
+  try {
+    var filas = await sb('aceptaciones', 'GET', null,
+      '?venta_id=eq.' + ventaId + '&select=token,aceptado_en');
+    if (!filas || !filas.length) {
+      toast('Esta venta no tiene enlace de condiciones', 'err');
+      return;
+    }
+    var f = filas[0];
+    var v = ventas.find(function(x){ return x.id === ventaId; });
+    var base = location.origin + location.pathname.replace(/[^/]*$/, '');
+    var url  = base + 'garantia.html?t=' + f.token;
+
+    var estado = f.aceptado_en
+      ? '<div class="alert" style="background:rgba(164,214,94,.12);border:1px solid rgba(164,214,94,.35);color:#cbe89a;margin-bottom:14px">' +
+        'Aceptado el ' + new Date(f.aceptado_en).toLocaleString('es-CO') + '</div>'
+      : '<div class="alert info" style="margin-bottom:14px">Pendiente de aceptación.</div>';
+
+    var msg = encodeURIComponent(
+      'Hola ' + (v ? v.cliente : '') + ', aquí están las condiciones de garantía de tu compra en ' +
+      NEGOCIO.nombre + '. Por favor léelas y fírmalas en este enlace:\n\n' + url
+    );
+    var tel = v && v.telefono_cliente ? v.telefono_cliente.replace(/\D/g,'') : '';
+    var wa  = 'https://wa.me/' + (tel ? '57' + tel.replace(/^57/,'') : '') + '?text=' + msg;
+
+    var m = document.getElementById('modal-enlace-garantia');
+    if (!m) { m = document.createElement('div'); m.id = 'modal-enlace-garantia'; m.className = 'overlay'; document.body.appendChild(m); }
+    m.innerHTML =
+      '<div class="modal" style="max-width:480px">' +
+      '<div class="modal-header"><div class="modal-title">Condiciones de garantía</div>' +
+      '<button class="close-btn" onclick="closeModal(\'modal-enlace-garantia\')">×</button></div>' +
+      estado +
+      '<div class="form-group"><label>Enlace</label>' +
+      '<input id="eg-url" readonly value="' + url + '" onclick="this.select()"></div>' +
+      '<div class="modal-footer" style="flex-wrap:wrap;gap:8px">' +
+      '<button class="btn" onclick="closeModal(\'modal-enlace-garantia\')">Cerrar</button>' +
+      '<button class="btn" onclick="copiarEnlaceGarantia()">Copiar enlace</button>' +
+      '<button class="btn" onclick="window.open(\'' + url + '\',\'_blank\')">Abrir aquí</button>' +
+      '<a href="' + wa + '" target="_blank"><button class="btn primary">Enviar por WhatsApp</button></a>' +
+      '</div></div>';
+    openModal('modal-enlace-garantia');
+  } catch(e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function copiarEnlaceGarantia() {
+  var el = document.getElementById('eg-url');
+  if (!el) return;
+  el.select();
+  navigator.clipboard.writeText(el.value)
+    .then(function(){ toast('Enlace copiado ✓'); })
+    .catch(function(){ toast('Copia el enlace manualmente', 'inf'); });
 }
