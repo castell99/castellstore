@@ -181,10 +181,16 @@ async function guardarVenta() {
       // sus condiciones sin poder ver las de nadie mas.
       try {
         var token = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
-        await sb('aceptaciones', 'POST', {
+          await sb('aceptaciones', 'POST', {
           venta_id    : v.id,
           token       : token,
-          version_txt : NEGOCIO.garantia.version
+          version_txt : NEGOCIO.garantia.version,
+          cliente     : payload.cliente,
+          equipo      : payload.producto,
+          imei        : payload.imei,
+          condicion   : payload.estado_equipo,
+          fecha_venta : payload.fecha,
+          total       : payload.precio
         });
       } catch(e) {
         // Si falla, la venta ya quedo guardada. El enlace se puede
