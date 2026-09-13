@@ -175,7 +175,23 @@ async function guardarVenta() {
       payload.fecha    = today();
       const [v] = await sb('ventas', 'POST', payload);
       ventas.unshift(v);
-
+      
+      // Se crea la fila de aceptacion con un token aleatorio. El token
+      // va en el enlace y en el QR: es lo que permite al cliente abrir
+      // sus condiciones sin poder ver las de nadie mas.
+      try {
+        var token = crypto.randomUUID().replace(/-/g, '').slice(0, 16);
+        await sb('aceptaciones', 'POST', {
+          venta_id    : v.id,
+          token       : token,
+          version_txt : NEGOCIO.garantia.version
+        });
+      } catch(e) {
+        // Si falla, la venta ya quedo guardada. El enlace se puede
+        // generar despues desde el menu de documentos.
+        console.warn('No se creó la fila de aceptación:', e.message);
+      }
+      
       const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
       if (inicialVal > 0 && v?.id) {
         const [a] = await sb('abonos', 'POST', {
