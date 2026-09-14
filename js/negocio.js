@@ -70,7 +70,11 @@ var NEGOCIO = {
   // sancion en lugar de proteger.
   garantia: {
     version : '2026-09',        // queda registrada en cada aceptacion
-    meses   : { 'Nuevo': 6, 'Grado A': 6, 'Grado B': 6 },
+        // Nuevos: 10 meses. Usados (Grado A y B): 3 meses.
+    // OJO: la garantia del fabricante sigue vigente aunque aqui se
+    // anuncie un plazo menor — el proveedor responde solidariamente
+    // (Ley 1480, art. 10). Revisar con abogado antes de fijarlo.
+    meses   : { 'Nuevo': 10, 'Grado A': 6, 'Grado B': 3, 'Usado': 3, 'Reacondicionado': 3 },
     exclusiones: [
       'Golpes, caídas o presión, aunque el vidrio no presente rotura visible.',
       'Contacto con líquidos o humedad, verificable por los indicadores internos.',
