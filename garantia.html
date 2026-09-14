@@ -230,6 +230,11 @@
     try {
       var filas = await rpc('aceptacion_por_token', { p_token: token });
       if (!filas || !filas.length) { error('Este enlace no es válido o ya no está disponible.'); return; }
+      // Ventas anteriores a este flujo pueden no tener los datos
+      // copiados. La pagina igual debe poder mostrarse y firmarse.
+      filas[0].cliente   = filas[0].cliente   || 'Cliente';
+      filas[0].equipo    = filas[0].equipo    || 'Equipo adquirido';
+      filas[0].condicion = filas[0].condicion || 'Nuevo';
       datos = filas[0];
       cargando.style.display = 'none';
       cont.style.display = '';
