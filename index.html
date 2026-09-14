@@ -1040,11 +1040,31 @@
       <option>Reacondicionado</option>
     </select>
   </div>
-  <div class="form-group"><label>N° de serie <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-serie" placeholder="Serial del equipo"></div>
+    <div class="form-group"><label>N° de serie <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+    <div style="position:relative">
+      <input id="v-serie" placeholder="Serial del equipo" style="padding-right:38px">
+      <button type="button" onclick="escanearCodigo('v-serie')" title="Escanear con la cámara"
+        style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:var(--green);font-size:17px">📷</button>
+    </div>
+  </div>
 </div>
 <div class="form-row">
-  <div class="form-group"><label>IMEI 1</label><input id="v-imei" placeholder="15 dígitos"></div>
-  <div class="form-group"><label>IMEI 2 <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-imei2" placeholder="15 dígitos"></div>
+  <div class="form-group"><label>IMEI 1</label>
+    <div style="position:relative">
+      <input id="v-imei" inputmode="numeric" placeholder="15 dígitos" style="padding-right:38px">
+      <button type="button" onclick="escanearCodigo('v-imei')" title="Escanear con la cámara"
+        style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:var(--green);font-size:17px">📷</button>
+    </div>
+    <div id="v-imei-msg" style="font-size:11px;margin-top:4px;min-height:14px"></div>
+  </div>
+  <div class="form-group"><label>IMEI 2 <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
+    <div style="position:relative">
+      <input id="v-imei2" inputmode="numeric" placeholder="15 dígitos" style="padding-right:38px">
+      <button type="button" onclick="escanearCodigo('v-imei2')" title="Escanear con la cámara"
+        style="position:absolute;right:4px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:var(--green);font-size:17px">📷</button>
+    </div>
+    <div id="v-imei2-msg" style="font-size:11px;margin-top:4px;min-height:14px"></div>
+  </div>
 </div>
 <div class="form-row">
   <div class="form-group"><label>Accesorios <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-accesorios" placeholder="Cargador, cable, estuche..."></div>
