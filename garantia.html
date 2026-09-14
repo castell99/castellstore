@@ -218,10 +218,10 @@
           msg.innerHTML = '<span style="color:#f5a9a9">Estas condiciones ya habían sido aceptadas.</span>';
           btn.style.display = 'none';
         }
-      } catch(e) {
-        msg.innerHTML = '<span style="color:#f5a9a9">No se pudo registrar. Revisa tu conexión e intenta de nuevo.</span>';
-        btn.disabled = false; btn.textContent = 'Aceptar condiciones';
-      }
+          } catch(e) {
+      console.error('Fallo al cargar:', e);
+      error('No se pudo cargar la información. Revisa tu conexión.');
+    }
     });
   }
 
