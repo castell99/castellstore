@@ -104,11 +104,10 @@
     h += '<h3>1. Vigencia</h3><p>El equipo cuenta con garantía de <b>' + meses +
          ' meses</b> contados desde la fecha de entrega, conforme a la Ley 1480 de 2011.</p>';
 
-    h += '<h3>2. Qué cubre</h3><p>Defectos de fabricación que afecten la calidad, idoneidad o el ' +
-         'funcionamiento normal del equipo en condiciones de uso ordinario.</p>';
+     h += '<h3>2. Qué cubre</h3><p>' + esc(g.cubre) + '</p>';
 
     h += '<h3>3. Qué no cubre</h3><p>Conforme al artículo 16 de la Ley 1480, la garantía no aplica cuando el daño proviene de:</p><ul>';
-    g.exclusiones.forEach(function(e){ h += '<li>' + esc(e) + '</li>'; });
+    g.exclusiones.forEach(function(e){ h += '<li>' + esc(e.largo) + '</li>'; });
     h += '</ul>';
 
     h += '<h3>4. Cómo hacerla efectiva</h3><p>Presenta el equipo con tu recibo en ' +
