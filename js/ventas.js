@@ -38,7 +38,7 @@ async function abrirNuevaVenta() {
   ['v-almacenamiento','v-serie','v-accesorios','v-factura','v-ciudad-exp','v-email','v-fecha1','v-cedula']  
   .forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
   var eeEl = document.getElementById('v-estado-equipo');
-  if (eeEl) eeEl.value = 'Nuevo';
+  if (eeEl) eeEl.value = '';
   var f1w = document.getElementById('v-fecha1-wrap');
   if (f1w) f1w.style.display = 'none';
   document.getElementById('v-fin-prev').style.display  = 'none';
@@ -84,6 +84,12 @@ async function guardarVenta() {
   const precio = parseFloat(document.getElementById('v-precio').value) || 0;
   if (!cli || !precio) { toast('Completa los campos requeridos', 'err'); return; }
 
+  // La condicion define los meses de garantia que se imprimen en la
+  // tirilla y en el contrato. Sin ella, un equipo de segunda saldria
+  // con el plazo de uno nuevo.
+  var condEq = document.getElementById('v-estado-equipo')?.value;
+  if (!condEq) { toast('Selecciona la condición del equipo', 'err'); return; }
+  
   const metodoPago = document.getElementById('v-pago').value;
   const cuotasNum  = parseInt(document.getElementById('v-cuotas').value) || 0;
   const pid        = document.getElementById('v-prod').value;
