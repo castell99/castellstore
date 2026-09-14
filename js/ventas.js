@@ -35,7 +35,7 @@ async function abrirNuevaVenta() {
   
   // Campos del contrato: se limpian igual que los demas para que
   // no arrastren datos de la venta anterior.
-  ['v-almacenamiento','v-serie','v-accesorios','v-factura','v-ciudad-exp','v-email','v-fecha1','v-cedula']  
+  ['v-almacenamiento','v-serie','v-accesorios','v-ciudad-exp','v-email','v-fecha1','v-cedula']  
   .forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
   var eeEl = document.getElementById('v-estado-equipo');
   if (eeEl) eeEl.value = '';
@@ -152,7 +152,6 @@ async function guardarVenta() {
     estado_equipo     : document.getElementById('v-estado-equipo')?.value || '',
     numero_serie      : document.getElementById('v-serie')?.value.trim() || '',
     accesorios        : document.getElementById('v-accesorios')?.value.trim() || '',
-    factura_num       : document.getElementById('v-factura')?.value.trim() || '',
     ciudad_expedicion : document.getElementById('v-ciudad-exp')?.value.trim() || '',
     email_cliente     : document.getElementById('v-email')?.value.trim() || '',
     fecha_primera_cuota: document.getElementById('v-fecha1')?.value || null,
