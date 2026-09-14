@@ -386,7 +386,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
 //
 // Ancho de rollo 58 mm · área imprimible ~48 mm.
 
-function _tirillaPintar(doc, v, firmaImg) {
+function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   var W = 58, mx = 4.5, cw = W - mx*2;   // 49 mm utiles
   var y = 6;
 
@@ -470,6 +470,18 @@ function _tirillaPintar(doc, v, firmaImg) {
   n(5.8); doc.text('Firma comprador', mx, y); y+=3;
   b(6);   doc.text(v.cliente||'', mx, y); y+=4;
 
+    // QR de condiciones — el cliente escanea del papel y firma.
+  if (qrDataURL) {
+    separador();
+    b(6); doc.text('CONDICIONES DE GARANTÍA', W/2, y, {align:'center'}); y += 3;
+    var qs = 22;
+    try { doc.addImage(qrDataURL, 'PNG', (W-qs)/2, y, qs, qs); } catch(e){}
+    y += qs + 2.5;
+    n(5.5);
+    centro('Escanea, lee y firma la aceptación', 5.5);
+    y += 0.5;
+  }
+  
   separador();
   centro('¡Gracias por su compra!', 7, true);
   y += 0.5;
@@ -482,13 +494,27 @@ function _tirillaPintar(doc, v, firmaImg) {
 async function construirTirillaPDF(v, firmaImg) {
   var {jsPDF} = window.jspdf;
 
+  // El QR lleva al cliente a leer y firmar las condiciones. El token
+  // se trae aqui porque _tirillaPintar es sincrona y no puede esperar.
+  var qrDataURL = null;
+  try {
+    var filas = await sb('aceptaciones','GET',null,'?venta_id=eq.'+v.id+'&select=token');
+    if (filas && filas.length && typeof qrcode === 'function') {
+      var base = location.origin + location.pathname.replace(/[^/]*$/, '');
+      var qr = qrcode(0, 'M');
+      qr.addData(base + 'garantia.html?t=' + filas[0].token);
+      qr.make();
+      qrDataURL = qr.createDataURL(8, 0);
+    }
+  } catch(e) { /* sin QR, la tirilla igual se genera */ }
+
   // Pasada 1: medir sobre un lienzo alto y desechable.
   var tmp = new jsPDF({orientation:'portrait',unit:'mm',format:[58,800]});
-  var alto = _tirillaPintar(tmp, v, firmaImg) + 8;
+  var alto = _tirillaPintar(tmp, v, firmaImg, qrDataURL) + 8;
 
   // Pasada 2: el documento real, con la altura justa.
   var doc = new jsPDF({orientation:'portrait',unit:'mm',format:[58,alto]});
-  _tirillaPintar(doc, v, firmaImg);
+  _tirillaPintar(doc, v, firmaImg, qrDataURL);
 
   doc.save('tirilla-'+(v.cliente||'').replace(/\s+/g,'-')+'-'+v.id+'.pdf');
   toast('Tirilla generada ✓');
