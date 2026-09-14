@@ -238,6 +238,7 @@
       datos = filas[0];
       cargando.style.display = 'none';
       cont.style.display = '';
+     
       if (datos.aceptado_en) vistaYaAceptada(); else vistaFirma();
     } catch(e) {
       error('No se pudo cargar la información. Revisa tu conexión.');
