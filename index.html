@@ -1032,8 +1032,13 @@
   <div class="form-group"><label>Color</label><input id="v-color" placeholder="Negro, Azul..."></div>
 </div>
 <div class="form-row">
-  <div class="form-group"><label>Condición</label>
-    <select id="v-estado-equipo"><option>Nuevo</option><option>Usado</option><option>Reacondicionado</option></select>
+    <div class="form-group"><label>Condición</label>
+    <select id="v-estado-equipo">
+      <option value="">Seleccionar...</option>
+      <option>Nuevo</option>
+      <option>Usado</option>
+      <option>Reacondicionado</option>
+    </select>
   </div>
   <div class="form-group"><label>N° de serie <span style="font-weight:400;color:var(--text3)">(opcional)</span></label><input id="v-serie" placeholder="Serial del equipo"></div>
 </div>
@@ -1387,13 +1392,13 @@
       <div class="form-group"><label>Almacenamiento</label><input id="ef-alm" placeholder="256GB"></div>
     </div>
         <div class="form-row">
-      <div class="form-group"><label>Condición</label>
-    <select id="v-estado-equipo">
-        <option value="">Seleccionar...</option>
-        <option>Nuevo</option>
-        <option>Usado</option>
-        <option>Reacondicionado</option>
-    </select>
+        <div class="form-group"><label>Condición</label>
+        <select id="ef-grado">
+          <option>Nuevo</option>
+          <option>Grado A</option>
+          <option>Grado B</option>
+        </select>
+      </div>
       </div>
       <div class="form-group"><label>Notas de este equipo <span style="font-weight:400;color:var(--text3)">(opcional)</span></label>
         <input id="ef-obs" placeholder="Incluye caja original, leve marca...">
