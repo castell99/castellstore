@@ -167,9 +167,12 @@
     var ctx = cv.getContext('2d');
     var pintando = false;
 
-    function limpiar(){
+        function limpiar(){
       ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cv.width,cv.height);
-      firmado = false; revisar();
+      firmado = false;
+      // revisar() se llama solo si el boton ya existe: limpiar()
+      // tambien corre al preparar el canvas, antes de definirlo.
+      if (typeof revisar === 'function') revisar();
     }
     limpiar();
 
@@ -197,7 +200,10 @@
 
     var nom = document.getElementById('nom');
     var btn = document.getElementById('aceptar');
-    function revisar(){ btn.disabled = !(firmado && nom.value.trim().length >= 3); }
+    function revisar(){
+      var b = document.getElementById('aceptar');
+      if (b) b.disabled = !(firmado && nom.value.trim().length >= 3);
+    }
     nom.addEventListener('input', revisar);
     document.getElementById('limpiar').addEventListener('click', limpiar);
 
