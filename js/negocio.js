@@ -68,21 +68,38 @@ var NEGOCIO = {
   // abogado: la Ley 1480 hace solidarios al productor y al proveedor,
   // y anunciar un plazo menor al del fabricante puede acarrear
   // sancion en lugar de proteger.
-  garantia: {
+    garantia: {
     version : '2026-09',        // queda registrada en cada aceptacion
-        // Nuevos: 10 meses. Usados (Grado A y B): 3 meses.
+
+    // Nuevos: 10 meses. Usados: 3 meses.
     // OJO: la garantia del fabricante sigue vigente aunque aqui se
     // anuncie un plazo menor — el proveedor responde solidariamente
     // (Ley 1480, art. 10). Revisar con abogado antes de fijarlo.
     meses   : { 'Nuevo': 10, 'Grado A': 6, 'Grado B': 3, 'Usado': 3, 'Reacondicionado': 3 },
+
+    cubre: 'Mal funcionamiento por defecto de fábrica que afecte la ' +
+           'calidad, idoneidad o el funcionamiento normal del equipo.',
+
+    // corto → tirilla de 58mm · largo → pagina de aceptacion.
+    // Una sola lista: la tirilla y lo que firma el cliente nunca
+    // pueden decir cosas distintas.
     exclusiones: [
-      'Golpes, caídas o presión, aunque el vidrio no presente rotura visible.',
-      'Contacto con líquidos o humedad, verificable por los indicadores internos.',
-      'Apertura, reparación o manipulación por personal ajeno a Castell Tech.',
-      'Uso de cargadores o accesorios no compatibles.',
-      'Modificación del software de fábrica o instalación de sistemas no oficiales.',
-      'Desgaste normal por uso, incluida la disminución de capacidad de la batería.',
-      'Fuerza mayor, caso fortuito o hecho de un tercero.'
+      { corto: 'Golpes, caídas o presión',
+        largo: 'Golpes, caídas o presión sobre el equipo, aunque el vidrio no presente rotura visible.' },
+      { corto: 'Humedad o líquidos',
+        largo: 'Contacto con líquidos o humedad, verificable por los indicadores internos del equipo.' },
+      { corto: 'Equipos abiertos por terceros',
+        largo: 'Apertura, reparación o manipulación por personal ajeno a Castell Tech.' },
+      { corto: 'Cargadores no compatibles',
+        largo: 'Uso de cargadores o accesorios no compatibles con el equipo.' },
+      { corto: 'Software modificado',
+        largo: 'Modificación del software de fábrica o instalación de sistemas no oficiales.' },
+      { corto: 'Desgaste normal y batería',
+        largo: 'Desgaste normal por uso, incluida la disminución progresiva de la capacidad de la batería.' },
+      { corto: 'Bloqueo por IMEI no registrado',
+        largo: 'Bloqueo del equipo por falta de registro del IMEI ante el operador, trámite que corresponde al comprador.' },
+      { corto: 'Fuerza mayor',
+        largo: 'Fuerza mayor, caso fortuito o hecho de un tercero.' }
     ]
   },
   
