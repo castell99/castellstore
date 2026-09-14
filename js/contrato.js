@@ -205,7 +205,7 @@ async function generarContrato() {
         equipo: v.producto,
         almacenamiento: v.almacenamiento || '', color: v.color || '',
         estado_equipo: v.estado_equipo || '', numero_serie: v.numero_serie || '',
-        accesorios: v.accesorios || '', factura_num: v.factura_num || '',
+        accesorios: v.accesorios || '',
         imei: v.imei || '', imei2: v.imei2 || '',
         lugar_entrega: document.getElementById('contrato-lugar')?.value.trim() || '',
         fecha_entrega: v.fecha || today(),
@@ -339,7 +339,6 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
       ['IMEI 2',         datos.imei2],
       ['Número de serie',datos.numero_serie],
       ['Accesorios entregados', datos.accesorios],
-      ['Factura o documento equivalente No.', datos.factura_num],
     ];
     ficha.forEach(function(f) {
       if (!f[1]) return;   // los opcionales vacios no imprimen renglon
