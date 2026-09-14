@@ -443,11 +443,14 @@ async function generarPDFContrato(datos, firmaCliImg, firmaVenImg) {
       'Una vez pagado el total, el VENDEDOR entregará constancia de adquisición de la propiedad.'
     );
   
-    addSection('SÉPTIMA. GARANTÍA LEGAL',
-      'El equipo cuenta con la garantía legal que corresponda conforme a la Ley 1480 de 2011 y las condiciones ' +
-      'informadas por el productor o proveedor. La garantía cubre la calidad, idoneidad, seguridad y funcionamiento ' +
-      'del producto en los términos legales. La presente cláusula no limita los derechos legales del COMPRADOR.'
-    );
+  var _mesesGar = NEGOCIO.garantia.meses[datos.estado_equipo] || NEGOCIO.garantia.meses['Nuevo'];
+  addSection('SÉPTIMA. GARANTÍA',
+    'El equipo cuenta con garantía de ' + _mesesGar + ' meses contados desde la fecha de entrega, ' +
+    'conforme a la Ley 1480 de 2011. La garantía cubre la calidad, idoneidad, seguridad y ' +
+    'funcionamiento del producto en los términos legales, y no aplica cuando el daño provenga de las ' +
+    'causales de exclusión informadas al COMPRADOR. La presente cláusula no limita los derechos ' +
+    'legales del COMPRADOR.'
+  );
   
     addSection('OCTAVA. OBLIGACIONES DEL COMPRADOR',
       'El COMPRADOR se obliga a: (i) pagar las cuotas en las fechas pactadas; (ii) usar el equipo de manera ordinaria ' +
