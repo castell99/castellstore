@@ -454,13 +454,15 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   y += 1; separador();
 
   // Garantía
-  b(6.5); doc.text('GARANTÍA: 2 meses', mx, y); y+=3;
-  n(5.8);
-  izq('· Mal funcionamiento por defecto de fábrica', 5.8);
-  izq('· No aplica para equipos no registrados', 5.8);
+  // Garantía — plazo y exclusiones salen de negocio.js, la misma
+  // fuente que usa la pagina que el cliente firma con el QR.
+  var _g     = NEGOCIO.garantia;
+  var _meses = _g.meses[v.estado_equipo] || _g.meses['Nuevo'];
+  b(6.5); doc.text('GARANTÍA: ' + _meses + ' meses', mx, y); y += 3;
+  izq('· ' + _g.cubre, 5.8);
   y += 1;
-  b(6); doc.text('NO APLICA POR:', mx, y); y+=2.8;
-  GARANTIA_NO_APLICA.forEach(function(it){ izq('· '+it, 5.8); });
+  b(6); doc.text('NO APLICA POR:', mx, y); y += 2.8;
+  _g.exclusiones.forEach(function(it){ izq('· ' + it.corto, 5.8); });
   y += 1; separador();
 
   // Firma
