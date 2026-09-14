@@ -959,8 +959,8 @@ function abrirDocumentos(ventaId) {
 // para copiar, abrir o enviar por WhatsApp.
 async function enlaceGarantia(ventaId) {
   try {
-    var filas = await sb('aceptaciones', 'GET', null,
-      '?venta_id=eq.' + ventaId + '&select=token,aceptado_en');
+        var filas = await sb('aceptaciones', 'GET', null,
+        '?venta_id=eq.' + ventaId + '&select=token,aceptado_en,firma,nombre_conf');
     if (!filas || !filas.length) {
       toast('Esta venta no tiene enlace de condiciones', 'err');
       return;
@@ -970,10 +970,24 @@ async function enlaceGarantia(ventaId) {
     var base = location.origin + location.pathname.replace(/[^/]*$/, '');
     var url  = base + 'garantia.html?t=' + f.token;
 
-    var estado = f.aceptado_en
-      ? '<div class="alert" style="background:rgba(164,214,94,.12);border:1px solid rgba(164,214,94,.35);color:#cbe89a;margin-bottom:14px">' +
-        'Aceptado el ' + new Date(f.aceptado_en).toLocaleString('es-CO') + '</div>'
-      : '<div class="alert info" style="margin-bottom:14px">Pendiente de aceptación.</div>';
+    var estado;
+    if (f.aceptado_en) {
+      // La firma es la evidencia: se muestra aqui para poder
+      // consultarla sin entrar a la base de datos.
+      estado =
+        '<div class="alert" style="background:rgba(164,214,94,.12);border:1px solid rgba(164,214,94,.35);color:#cbe89a;margin-bottom:14px">' +
+        'Aceptado el ' + new Date(f.aceptado_en).toLocaleString('es-CO') + '</div>' +
+        (f.firma
+          ? '<div style="background:#fff;border-radius:8px;padding:6px;margin-bottom:8px">' +
+            '<img src="' + f.firma + '" alt="Firma del cliente" style="width:100%;display:block">' +
+            '</div>'
+          : '') +
+        (f.nombre_conf
+          ? '<div style="font-size:12px;color:var(--text3);margin-bottom:14px">Firmado como: <b style="color:var(--text2)">' + f.nombre_conf + '</b></div>'
+          : '');
+    } else {
+      estado = '<div class="alert info" style="margin-bottom:14px">Pendiente de aceptación.</div>';
+    }
 
     var msg = encodeURIComponent(
       'Hola ' + (v ? v.cliente : '') + ', aquí están las condiciones de garantía de tu compra en ' +
