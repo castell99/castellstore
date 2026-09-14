@@ -241,6 +241,7 @@
      
       if (datos.aceptado_en) vistaYaAceptada(); else vistaFirma();
     } catch(e) {
+      console.error('FALLO REAL:', e);
       error('No se pudo cargar la información. Revisa tu conexión.');
     }
   })();
