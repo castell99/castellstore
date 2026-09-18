@@ -208,7 +208,9 @@ async function generarContrato() {
         accesorios: v.accesorios || '',
         imei: v.imei || '', imei2: v.imei2 || '',
         lugar_entrega: document.getElementById('contrato-lugar')?.value.trim() || '',
-        fecha_entrega: v.fecha || today(),
+        // v.fecha viene como d/m/aaaa. La columna es de tipo date y
+        // Postgres espera aaaa-mm-dd, asi que se convierte aqui.
+        fecha_entrega: aFechaISO(v.fecha) || aFechaISO(today()),
         precio_contado: contado,
         precio_financiado:fin, inicial:ini, cuotas:cuotasN,
         valor_cuota:cuotaVal, fecha_inicio:today(),       
@@ -647,4 +649,18 @@ function descargarUltimoContrato() {
   var u = window._ultimoContratoPDF;
   if (!u) { toast('No hay contrato para descargar', 'err'); return; }
   u.doc.save(u.nombre);
+}
+
+// Convierte d/m/aaaa a aaaa-mm-dd. Si ya viene en ese formato,
+// lo deja igual. Devuelve null si no logra interpretarlo, para no
+// mandar basura a una columna de tipo date.
+function aFechaISO(f) {
+  if (!f) return null;
+  var s = String(f).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  var p = s.split('/');
+  if (p.length !== 3) return null;
+  var d = p[0].padStart(2,'0'), m = p[1].padStart(2,'0'), a = p[2];
+  if (a.length !== 4) return null;
+  return a + '-' + m + '-' + d;
 }
