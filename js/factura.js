@@ -392,7 +392,7 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
 
   function b(s){ doc.setFont('helvetica','bold');   doc.setFontSize(s||6.5); }
   function n(s){ doc.setFont('helvetica','normal'); doc.setFontSize(s||6.5); }
-  function centro(t,s,neg){ (neg?b:n)(s); doc.text(t, W/2, y, {align:'center'}); y+=(s||6.5)*0.42+0.6; }
+  function centro(t,s,neg,lh){ (neg?b:n)(s); doc.text(t, W/2, y, {align:'center'}); y+=(lh!==undefined?lh:(s||6.5)*0.42+0.6); }
   function izq(t,s){ n(s); doc.splitTextToSize(t,cw).forEach(function(l){ doc.text(l,mx,y); y+=(s||6.5)*0.42+0.5; }); }
   function separador(){ doc.setLineWidth(0.15); doc.setDrawColor(0);
     doc.setLineDashPattern([0.6,0.6],0); doc.line(mx,y,W-mx,y);
@@ -408,11 +408,11 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   // Encabezado
   centro(NEGOCIO.nombre.toUpperCase(), 11, true);
   y += 0.5;
-  centro(NEGOCIO.titular, 6);
-  centro('C.C. '+NEGOCIO.cedula, 6);
-  centro(NEGOCIO.direccion, 6);
-  centro(NEGOCIO.ciudad, 6);
-  centro('Tel: '+NEGOCIO.telefono, 6);
+  centro(NEGOCIO.titular, 6, false, 2.4);
+  centro('C.C. '+NEGOCIO.cedula, 6, false, 2.4);
+  centro(NEGOCIO.direccion, 6, false, 2.4);
+  centro(NEGOCIO.ciudad, 6, false, 2.4);
+  centro('Tel: '+NEGOCIO.telefono, 6, false, 2.4);
   y += 1.5; regla();
 
   centro('FACTURA DE VENTA', 8, true);
@@ -464,13 +464,6 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   b(6); doc.text('NO APLICA POR:', mx, y); y += 2.8;
   _g.exclusiones.forEach(function(it){ izq('· ' + it.corto, 5.8); });
   y += 1; separador();
-
-  // Firma
-  if (firmaImg) { try { doc.addImage(firmaImg,'PNG',mx,y,cw*0.7,9); y+=9.5; } catch(e){ y+=9; } }
-  else y += 9;
-  doc.setLineWidth(0.2); doc.line(mx,y,mx+cw*0.75,y); y+=3;
-  n(5.8); doc.text('Firma comprador', mx, y); y+=3;
-  b(6);   doc.text(v.cliente||'', mx, y); y+=4;
 
     // QR de condiciones — el cliente escanea del papel y firma.
   if (qrDataURL) {
