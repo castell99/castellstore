@@ -298,10 +298,15 @@ select option { background: var(--bg3); color: var(--text); }
 
 /* Efecto hover imágenes catálogo */
 .cat-img-wrap { position:relative; height:200px; overflow:hidden; }
-.cat-img-main  { position:absolute; top:0; left:0; width:100%; height:200px; object-fit:cover; opacity:1; transition:opacity 0.35s; z-index:1; }
-.cat-img-hover { position:absolute; top:0; left:0; width:100%; height:200px; object-fit:cover; opacity:0; transition:opacity 0.35s; z-index:2; }
+/* contain en vez de cover: las fotos vienen de fuentes distintas y
+   con proporciones muy dispares. Con cover, una imagen ancha que ya
+   trae dos vistas del equipo entraba casi completa y parecia una
+   tarjeta partida. El fondo blanco disimula las franjas. */
+.cat-img-main  { position:absolute; top:0; left:0; width:100%; height:200px; object-fit:contain; background:#fff; opacity:1; transition:opacity 0.35s; z-index:1; }
+.cat-img-hover { position:absolute; top:0; left:0; width:100%; height:200px; object-fit:contain; background:#fff; opacity:0; transition:opacity 0.35s; z-index:2; }
 .cat-img-wrap:hover .cat-img-main  { opacity:0; }
 .cat-img-wrap:hover .cat-img-hover { opacity:1; }
+.cat-img-wrap { position:relative; height:200px; overflow:hidden; background:#fff; }
 
 /* En móvil solo la imagen principal. Se mantiene absolute y solo se
    oculta la segunda: al ponerla relative salía del flujo absoluto y
