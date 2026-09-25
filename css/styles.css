@@ -275,7 +275,7 @@ select option { background: var(--bg3); color: var(--text); }
   .nav-btn::before { font-size: 16px; }
   #btn-pub::before  { content: '🛍'; font-size: 18px; }
   #btn-adm::before  { content: '⚙️'; font-size: 18px; }
-  #btn-login::before { content: '🔒'; font-size: 18px; }
+
 
    /* Tablas → ocultar en móvil */
   .table-wrap table { display: none; }
