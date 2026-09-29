@@ -451,6 +451,28 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   izq('PAGO: '+(v.pago||'No especificado'), 6);
   // Las observaciones son uso interno: no se imprimen en la
   // tirilla que se lleva el cliente.
+    // Historial de pagos — solo en ventas ya saldadas. Sirve de
+  // constancia de que la deuda quedo cancelada, que es lo que antes
+  // hacia el paz y salvo por separado.
+  var _saldada = v.estado === 'Completada';
+  var _misAbonos = (typeof abonos !== 'undefined' ? abonos : [])
+        .filter(function(a){ return a.tipo === 'venta' && a.ref_id === v.id; })
+        .sort(function(a,b2){ return a.id - b2.id; });
+
+  if (_saldada && _misAbonos.length) {
+    y += 1; separador();
+    b(6.5); doc.text('HISTORIAL DE PAGOS', mx, y); y += 3;
+    _misAbonos.forEach(function(a){
+      var et = (a.obs || 'Abono') + ' · ' + (a.fecha || '');
+      n(5.6); doc.text(doc.splitTextToSize(et, cw - 16)[0], mx, y);
+      b(5.6); doc.text(fmt(parseFloat(a.monto)||0), W-mx, y, {align:'right'});
+      y += 3;
+    });
+    y += 0.5;
+    b(6.5); doc.text('CANCELADO', mx, y);
+    b(6.5); doc.text(_misAbonos[_misAbonos.length-1].fecha || '', W-mx, y, {align:'right'});
+    y += 3;
+  }
   y += 1; separador();
 
   // Garantía
@@ -510,6 +532,7 @@ async function construirTirillaPDF(v, firmaImg) {
   // Pasada 2: el documento real, con la altura justa.
   var doc = new jsPDF({orientation:'portrait',unit:'mm',format:[58,alto]});
   _tirillaPintar(doc, v, firmaImg, qrDataURL);
+  _tirillaSello(doc, v, alto);
 
   doc.save('tirilla-'+(v.cliente||'').replace(/\s+/g,'-')+'-'+v.id+'.pdf');
   toast('Tirilla generada ✓');
@@ -812,4 +835,31 @@ async function construirPazSalvoPDF(ventaId, tamano) {
   var nombre='paz-y-salvo-'+(v.cliente||'').replace(/\s+/g,'-')+'-'+v.id+'.pdf';
   doc.save(nombre);
   toast('Paz y Salvo generado ✓');
+}
+
+// Sello de paz y salvo en diagonal sobre la tirilla. Se pinta al
+// final, cuando ya se conoce el alto real del documento, en gris
+// claro para que el texto de encima siga leyendose.
+function _tirillaSello(doc, v, alto) {
+  if (v.estado !== 'Completada') return;
+  var W = 58;
+  var fecha = '';
+  try {
+    var lista = abonos.filter(function(a){ return a.tipo==='venta' && a.ref_id===v.id; })
+                      .sort(function(a,b2){ return a.id - b2.id; });
+    if (lista.length) fecha = lista[lista.length-1].fecha || '';
+  } catch(e) {}
+
+  doc.saveGraphicsState();
+  doc.setTextColor(205, 205, 205);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(20);
+  doc.text('PAZ Y SALVO', W/2, alto*0.46, {align:'center', angle:18});
+  if (fecha) {
+    doc.setFontSize(7);
+    doc.setFont('helvetica','normal');
+    doc.text('Cancelado '+fecha, W/2, alto*0.46+7, {align:'center', angle:18});
+  }
+  doc.restoreGraphicsState();
+  doc.setTextColor(0,0,0);
 }
