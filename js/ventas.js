@@ -203,12 +203,27 @@ async function guardarVenta() {
         console.warn('No se creó la fila de aceptación:', e.message);
       }
       
-      const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
+            const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
       if (inicialVal > 0 && v?.id) {
         const [a] = await sb('abonos', 'POST', {
           tipo: 'venta', ref_id: v.id, monto: inicialVal, obs: 'Cuota inicial', fecha: today()
         });
         abonos.push(a);
+      }
+
+      // Venta de contado: se registra el pago completo como abono. La
+      // columna Saldo se calcula desde la tabla abonos, no desde el
+      // estado, asi que sin esta fila la venta aparecia como
+      // "Completada" pero debiendo todo.
+      if (metodoPago !== 'Financiado' && payload.estado === 'Completada' && v?.id) {
+        const saldoReal = precio - inicialVal;
+        if (saldoReal > 0) {
+          const [ac] = await sb('abonos', 'POST', {
+            tipo: 'venta', ref_id: v.id, monto: saldoReal,
+            obs: 'Pago de contado · ' + metodoPago, fecha: today()
+          });
+          abonos.push(ac);
+        }
       }
 
       // Contado: entra precio contado. Financiado: entra solo la inicial
