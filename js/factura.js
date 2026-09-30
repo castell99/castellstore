@@ -413,11 +413,11 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   centro(NEGOCIO.direccion, 6, false, 2.4);
   centro(NEGOCIO.ciudad, 6, false, 2.4);
   centro('Tel: '+NEGOCIO.telefono, 6, false, 2.4);
-  y += 1.5; regla();
+  y += 0.6; regla();
 
-  centro('FACTURA DE VENTA', 8, true);
-  centro('No. '+String(v.id).padStart(6,'0')+'  ·  '+today(), 6);
-  y += 1; separador();
+  centro('FACTURA DE VENTA', 8, true, 3.2);
+  centro('No. '+String(v.id).padStart(6,'0')+'  ·  '+today(), 6, false, 2.4);
+  y += 0.2; separador();
 
   // Cliente
   b(6.5); doc.text('CLIENTE', mx, y); y+=3;
@@ -485,13 +485,14 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   y += 1;
   b(6); doc.text('NO APLICA POR:', mx, y); y += 2.8;
   _g.exclusiones.forEach(function(it){ izq('· ' + it.corto, 5.8); });
-  y += 1; separador();
+  y += 1;
 
-    // QR de condiciones — el cliente escanea del papel y firma.
+  // QR de condiciones. Antes habia dos separadores seguidos: el que
+  // cerraba la garantia y el que abria este bloque. Quedo uno solo.
   if (qrDataURL) {
     separador();
-    b(6); doc.text('CONDICIONES DE GARANTÍA', W/2, y, {align:'center'}); y += 3;
-    var qs = 22;
+    b(6); doc.text('CONDICIONES DE GARANTÍA', W/2, y, {align:'center'}); y += 2.2;
+    var qs = 19;
     try { doc.addImage(qrDataURL, 'PNG', (W-qs)/2, y, qs, qs); } catch(e){}
     y += qs + 2.5;
     n(5.5);
