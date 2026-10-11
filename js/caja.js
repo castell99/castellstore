@@ -275,6 +275,7 @@ async function recalcularGanancias() {
 }
 
 // ── Desglose por tarjeta ──
+// ── Desglose por tarjeta ──
 function abrirDesglose(tipo) {
   const filtroMes = document.getElementById('caja-mes')?.value || '';
   let movs = cajaMovs;
@@ -305,19 +306,15 @@ function abrirDesglose(tipo) {
           ${m.tipo === 'ingreso' ? '+' : '-'}${fmt(m.monto)}
         </div>
       </div>`).join('');
-              <div style="font-family:var(--mono);font-weight:700;color:${m.tipo === 'ingreso' ? 'var(--green)' : 'var(--red)'}">
-          ${m.tipo === 'ingreso' ? '+' : '-'}${fmt(m.monto)}
-        </div>
-      </div>`).join('');
 
     // El costo de los equipos se resta del saldo pero no es un
     // movimiento de caja, asi que sin esta linea la lista no sumaba
-    // lo que decia la tarjeta.
+    // lo que mostraba la tarjeta.
     if (tipo === 'saldo') {
       const capV = vts.reduce((s, v) => s + (parseFloat(v.costo_proveedor) || 0), 0);
       if (capV > 0) {
         rows += `
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:2px solid var(--border)">
         <div>
           <div style="font-size:13px;font-weight:600">Capital invertido en equipos</div>
           <div style="font-size:11px;color:var(--text3)">No entra como egreso en caja, pero sale de tu bolsillo</div>
