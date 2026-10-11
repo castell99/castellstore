@@ -280,8 +280,15 @@ async function guardarVenta() {
 async function delVenta(id) {
   if (!confirm('¿Eliminar esta venta? También se eliminarán abonos y cuotas.')) return;
   try {
-    await sb('ventas', 'DELETE', null, `?id=eq.${id}`);
+        await sb('ventas', 'DELETE', null, `?id=eq.${id}`);
     await sb('abonos', 'DELETE', null, `?tipo=eq.venta&ref_id=eq.${id}`);
+    // Sin esto el ingreso seguia contando en caja para siempre,
+    // aunque la venta ya no existiera.
+    await sb('caja_movimientos', 'DELETE', null, `?origen=eq.venta&ref_id=eq.${id}`);
+    if (typeof cajaMovs !== 'undefined') {
+      cajaMovs = cajaMovs.filter(m => !(m.origen === 'venta' && m.ref_id === id));
+      if (typeof renderCaja === 'function') renderCaja();
+    }
     await sb('cuotas', 'DELETE', null, `?venta_id=eq.${id}`);
     ventas = ventas.filter(v => v.id !== id);
     abonos = abonos.filter(a => !(a.tipo === 'venta' && a.ref_id === id));
