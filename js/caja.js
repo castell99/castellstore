@@ -365,3 +365,57 @@ function abrirDesglose(tipo) {
   document.getElementById('desglose-body').innerHTML = rows;
   openModal('modal-desglose');
 }
+
+// ── Recalcular caja desde ventas y servicios ──
+// Borra SOLO los movimientos automaticos y los vuelve a crear desde
+// los abonos registrados, que son el dinero que de verdad entro.
+// Los movimientos manuales quedan intactos. Sirve para cuadrar la
+// caja despues de que un pago no se registrara en su momento.
+async function recalcularCaja() {
+  var manuales = cajaMovs.filter(function(m){ return m.origen === 'manual'; }).length;
+  if (!confirm(
+    'Se borrarán los movimientos automáticos de caja (ventas y servicios) y se ' +
+    'volverán a crear desde los abonos registrados.\n\n' +
+    'Los ' + manuales + ' movimiento(s) manual(es) NO se tocan.\n\n¿Continuar?')) return;
+
+  try {
+    await sb('caja_movimientos', 'DELETE', null, '?origen=in.(venta,tecnico)');
+
+    var nuevos = [];
+
+    abonos.filter(function(a){ return a.tipo === 'venta'; }).forEach(function(a) {
+      var v = ventas.find(function(x){ return x.id === a.ref_id; });
+      nuevos.push({
+        tipo: 'ingreso',
+        concepto: 'Venta: ' + (v ? v.producto + ' — ' + v.cliente : '#' + a.ref_id) + (a.obs ? ' · ' + a.obs : ''),
+        monto: parseFloat(a.monto) || 0,
+        origen: 'venta', ref_id: a.ref_id, fecha: a.fecha || today()
+      });
+    });
+
+    abonos.filter(function(a){ return a.tipo === 'tecnico'; }).forEach(function(a) {
+      var t = tecnicos.find(function(x){ return x.id === a.ref_id; });
+      nuevos.push({
+        tipo: 'ingreso',
+        concepto: 'Abono servicio — ' + (t ? t.cliente + ' · ' + t.equipo : '#' + a.ref_id) + (a.obs ? ' · ' + a.obs : ''),
+        monto: parseFloat(a.monto) || 0,
+        origen: 'tecnico', ref_id: a.ref_id, fecha: a.fecha || today()
+      });
+    });
+
+    tecnicos.filter(function(t){ return (parseFloat(t.costo_repuestos) || 0) > 0; }).forEach(function(t) {
+      nuevos.push({
+        tipo: 'egreso',
+        concepto: 'Repuestos: ' + t.equipo + ' - ' + t.cliente,
+        monto: parseFloat(t.costo_repuestos) || 0,
+        origen: 'tecnico', ref_id: t.id, fecha: t.fecha || today()
+      });
+    });
+
+    if (nuevos.length) await sb('caja_movimientos', 'POST', nuevos);
+    await loadCaja();
+    toast(nuevos.length + ' movimiento(s) recalculados ✓');
+  } catch (e) {
+    toast('Error: ' + e.message, 'err');
+  }
+}
