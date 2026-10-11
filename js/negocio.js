@@ -153,3 +153,26 @@ function nombreEquipo(marca, modelo) {
   if (mo.toUpperCase().indexOf(ma.toUpperCase()) === 0) return mo;
   return ma + ' ' + mo;
 }
+
+// Encuentra el equipo del catalogo que corresponde a una venta.
+// El nombre guardado en la venta pasa por nombreEquipo(), que cambia
+// mayusculas y evita repetir la marca, asi que compararlo contra
+// marca+' '+modelo tal cual fallaba en silencio: la tirilla salia
+// sin capacidad y la ganancia no se podia recalcular.
+function _normNombre(s) {
+  return String(s || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase().replace(/\s+/g, ' ').trim();
+}
+
+function equipoDeVenta(producto) {
+  if (!producto || typeof equiposFin === 'undefined') return null;
+  var obj = _normNombre(producto);
+  return equiposFin.find(function(e) {
+    if (_normNombre(e.marca + ' ' + e.modelo) === obj) return true;
+    if (_normNombre(e.modelo) === obj) return true;
+    if (typeof nombreEquipo === 'function' &&
+        _normNombre(nombreEquipo(e.marca, e.modelo)) === obj) return true;
+    return false;
+  }) || null;
+}
