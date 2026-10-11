@@ -256,7 +256,7 @@ async function recalcularGanancias() {
   let sinEquipo = 0;
 
   for (const v of ventas) {
-    const eq = equiposFin.find(e => `${e.marca} ${e.modelo}` === v.producto);
+    const eq = equipoDeVenta(v.producto);
     if (!eq) { sinEquipo++; continue; }
 
     const costoProveedor = parseFloat(eq.precio_proveedor) || 0;
