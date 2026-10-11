@@ -226,7 +226,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   doc.text('FACTURA DE VENTA', W-mx, isSmall?10:11, {align:'right'});
   norm(isSmall?5.5:7.5); doc.setTextColor(200,215,222);
   doc.text('No. '+String(v.id).padStart(6,'0'), W-mx, isSmall?14:16, {align:'right'});
-  doc.text('Fecha: '+today(), W-mx, isSmall?17.5:20, {align:'right'});
+  doc.text('Fecha: '+(v.fecha || today()), W-mx, isSmall?17.5:20, {align:'right'});
 
   var y = hb+9;
   tinta([25,35,45]);
@@ -416,7 +416,9 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   y += 0.6; regla();
 
   centro('FACTURA DE VENTA', 8, true, 3.2);
-  centro('No. '+String(v.id).padStart(6,'0')+'  ·  '+today(), 6, false, 2.4);
+  // La fecha de la venta, no la de hoy: reimprimir una factura vieja
+  // no puede cambiarle la fecha al documento.
+  centro('No. '+String(v.id).padStart(6,'0')+'  ·  '+(v.fecha || today()), 6, false, 2.4);
   y += 0.2; separador();
 
   // Cliente
