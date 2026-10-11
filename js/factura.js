@@ -163,7 +163,7 @@ async function construirFacturaPDF(ventaId, tamano, firmaCliImg, firmaVenImg) {
   // La tirilla termica es otro documento, no la factura reducida.
   if (tamano === 'tirilla') return construirTirillaPDF(v, firmaCliImg);
 
-  var eq = equiposFin.find(function(e){return e.marca+' '+e.modelo===v.producto;});
+  var eq = equipoDeVenta(v.producto);
   var misCuotas = cuotas.filter(function(c){return c.venta_id===v.id;}).sort(function(a,b){return a.numero-b.numero;});
   var ini      = parseFloat(v.inicial_pagada)||0;
   var cuotaVal = misCuotas.length>0 ? parseFloat(misCuotas[0].monto) : 0;
@@ -401,7 +401,7 @@ function _tirillaPintar(doc, v, firmaImg, qrDataURL) {
   function fila(et,val,s){ n(s||6.5); doc.text(et,mx,y);
     b(s||6.5); doc.text(val, W-mx, y, {align:'right'}); y+=(s||6.5)*0.42+0.8; }
 
-  var eq = equiposFin.find(function(e){return e.marca+' '+e.modelo===v.producto;});
+  var eq = equipoDeVenta(v.producto);
   var misCuotas = cuotas.filter(function(c){return c.venta_id===v.id;}).sort(function(a,b2){return a.numero-b2.numero;});
   var iniPag = parseFloat(v.inicial_pagada)||0;
 
