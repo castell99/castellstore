@@ -144,12 +144,14 @@ function renderTecnicos() {
           (parseFloat(t.costo || 0) > 0 ? '<div class="progress-bar" style="width:70px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' : '') +
         '</td>' +
         '<td style="font-family:var(--mono);color:' + (sal > 0 ? 'var(--amber)' : 'var(--green)') + '">' + fmt(sal) + '</td>' +
-        '<td><select class="status-sel" onchange="updateTecEst(' + t.id + ', this.value)">' +
+          '<td onclick="event.stopPropagation()"><select class="status-sel" onchange="updateTecEst(' + t.id + ', this.value)">' +
           ['Recibido','En diagnostico','En reparacion','Listo para entrega','Entregado'].map(function(s) {
             return '<option' + (s === t.estado ? ' selected' : '') + '>' + s + '</option>';
           }).join('') +
         '</select></td>' +
-        '<td style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
+        // stopPropagation: sin esto el clic en un boton subia hasta la
+        // fila y abria tambien el detalle del servicio por detras.
+        '<td onclick="event.stopPropagation()" style="white-space:nowrap;display:flex;gap:4px;align-items:center;flex-wrap:wrap">' +
           (parseFloat(t.costo||0) > 0 ? '<button class="btn sm" onclick="openAbonoT(' + t.id + ')">💳 Abono</button>' : '') +
           '<button class="btn sm" onclick="abrirDocumentosServicio(' + t.id + ')" style="background:rgba(91,163,201,0.1);border-color:#5ba3c9;color:#5ba3c9">📄 Docs</button>' +
           '<button class="btn sm" onclick="abrirGaleriaServicio(' + t.id + ')">📸 Fotos</button>' +
