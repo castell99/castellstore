@@ -112,8 +112,15 @@ async function updateTecEst(id, val) {
 async function delTec(id) {
   if (!confirm('Eliminar este servicio?')) return;
   try {
-    await sb('tecnicos', 'DELETE', null, '?id=eq.' + id);
+        await sb('tecnicos', 'DELETE', null, '?id=eq.' + id);
     await sb('abonos',   'DELETE', null, '?tipo=eq.tecnico&ref_id=eq.' + id);
+    // Los repuestos entran a caja como egreso al crear el servicio,
+    // asi que al borrarlo hay que sacarlos tambien.
+    await sb('caja_movimientos', 'DELETE', null, '?origen=eq.tecnico&ref_id=eq.' + id);
+    if (typeof cajaMovs !== 'undefined') {
+      cajaMovs = cajaMovs.filter(function(m) { return !(m.origen === 'tecnico' && m.ref_id === id); });
+      if (typeof renderCaja === 'function') renderCaja();
+    }
     tecnicos = tecnicos.filter(function(t) { return t.id !== id; });
     abonos   = abonos.filter(function(a) { return !(a.tipo === 'tecnico' && a.ref_id === id); });
     renderTecnicos();
