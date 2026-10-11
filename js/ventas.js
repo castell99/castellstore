@@ -92,9 +92,17 @@ async function guardarVenta() {
   
   const metodoPago = document.getElementById('v-pago').value;
   const cuotasNum  = parseInt(document.getElementById('v-cuotas').value) || 0;
+  const estadoVta  = document.getElementById('v-estado').value;
   const pid        = document.getElementById('v-prod').value;
   const eqSel      = equiposFin.find(x => x.id == pid);
   let precioFinal  = precio;
+
+  // Coherencia entre metodo de pago, estado y cuotas. Sin esto se
+  // podia guardar "Efectivo" con estado "Financiada": todo el codigo
+  // decide por el metodo de pago, asi que no aplicaba interes ni
+  // creaba el plan, y la venta quedaba descuadrada en silencio.
+  const errCoh = incoherenciaVenta(metodoPago, estadoVta, cuotasNum, !editVentaId);
+  if (errCoh) { toast(errCoh, 'err'); return; }
 
   // Inicial minima: no deja guardar por debajo del recomendado a
   // menos que se haya marcado el permiso a proposito. Es la
@@ -1047,3 +1055,57 @@ function copiarEnlaceGarantia() {
     .then(function(){ toast('Enlace copiado ✓'); })
     .catch(function(){ toast('Copia el enlace manualmente', 'inf'); });
 }
+
+// ── Coherencia del formulario de venta ────
+// Devuelve el mensaje de error, o null si la combinacion cuadra.
+// 'Cancelada' queda exenta: una venta anulada pudo ser cualquier cosa.
+function incoherenciaVenta(pago, estado, cuotas, esNueva) {
+  if (estado === 'Cancelada') return null;
+
+  if (estado === 'Financiada' && pago !== 'Financiado')
+    return 'Con estado "Financiada" el método de pago debe ser "Financiado".';
+
+  if (pago !== 'Financiado' && cuotas > 0)
+    return 'Las cuotas solo aplican a ventas financiadas. Pon "No aplica" o cambia el método de pago.';
+
+  if (pago === 'Financiado') {
+    if (cuotas === 0)
+      return 'Elige el número de cuotas para una venta financiada.';
+    // Una financiada ya saldada queda en "Completada": eso es valido
+    // al editarla, pero no al crearla.
+    if (esNueva && estado !== 'Financiada')
+      return 'Una venta financiada nueva debe quedar con estado "Financiada".';
+  }
+  return null;
+}
+
+// Ajusta el estado y las cuotas al cambiar el metodo de pago, para
+// que la combinacion imposible ni siquiera se pueda armar.
+function sincronizarEstadoPago() {
+  var pago = document.getElementById('v-pago');
+  var est  = document.getElementById('v-estado');
+  var cuo  = document.getElementById('v-cuotas');
+  if (!pago || !est) return;
+
+  if (pago.value === 'Financiado') {
+    if (est.value !== 'Cancelada') est.value = 'Financiada';
+  } else {
+    if (est.value === 'Financiada') est.value = 'Completada';
+    if (cuo && cuo.value !== '0') {
+      cuo.value = '0';
+      if (typeof previewFinV === 'function') previewFinV();
+    }
+  }
+  if (typeof toggleFechaPrimeraCuota === 'function') toggleFechaPrimeraCuota();
+}
+
+// Se engancha por codigo para no tener que tocar el onchange del
+// index.html, donde ya hay dos funciones encadenadas.
+(function() {
+  function enlazar() {
+    var p = document.getElementById('v-pago');
+    if (p) p.addEventListener('change', sincronizarEstadoPago);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enlazar);
+  else enlazar();
+})();
