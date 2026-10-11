@@ -211,14 +211,18 @@ async function guardarVenta() {
         console.warn('No se creó la fila de aceptación:', e.message);
       }
       
-            const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
+      const inicialVal = parseFloat(document.getElementById('v-inicial')?.value) || 0;
       if (inicialVal > 0 && v?.id) {
+        // "Cuota inicial" solo tiene sentido si hay cuotas despues.
+        // En una venta de contado ese mismo campo es el pago completo.
+        const obsIni = metodoPago === 'Financiado'
+          ? 'Cuota inicial'
+          : 'Pago de contado · ' + metodoPago;
         const [a] = await sb('abonos', 'POST', {
-          tipo: 'venta', ref_id: v.id, monto: inicialVal, obs: 'Cuota inicial', fecha: today()
+          tipo: 'venta', ref_id: v.id, monto: inicialVal, obs: obsIni, fecha: today()
         });
         abonos.push(a);
       }
-
       // Venta de contado: se registra el pago completo como abono. La
       // columna Saldo se calcula desde la tabla abonos, no desde el
       // estado, asi que sin esta fila la venta aparecia como
