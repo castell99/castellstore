@@ -357,64 +357,105 @@ function truncate(str, max) {
   return str && str.length > max ? str.substring(0,max)+'...' : str||'';
 }
 
-async function generarComprobanteAbono(tipo, refId, monto, obs) {
-  const W=800, H=520;
-  const canvas=document.createElement('canvas');
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#101f2b'; ctx.fillRect(0,0,W,H);
-  const grad=ctx.createLinearGradient(0,0,W,0);
-  grad.addColorStop(0,'#a4d65e'); grad.addColorStop(1,'#5ba3c9');
-  ctx.fillStyle=grad; ctx.fillRect(0,0,W,8);
-  const logo=new Image(); logo.src=LOGO_B64;
-  await new Promise(r=>{logo.onload=r;logo.onerror=r;});
-  ctx.drawImage(logo,40,28,80,80);
-  ctx.fillStyle='#e8f0f5'; ctx.font='bold 26px Outfit, sans-serif'; ctx.fillText(NEGOCIO.nombre,138,58);
-  ctx.fillStyle='#8a9aa1'; ctx.font='14px Outfit, sans-serif'; ctx.fillText(NEGOCIO.ciudad,138,80); ctx.fillText('📞 '+NEGOCIO.telefono,138,100);
-  ctx.fillStyle='#5ba3c9'; ctx.font='bold 18px Outfit, sans-serif'; ctx.textAlign='right'; ctx.fillText('COMPROBANTE DE PAGO',W-40,58);
-  ctx.fillStyle='#8a9aa1'; ctx.font='12px Outfit, sans-serif'; ctx.fillText('Emitido: '+today(),W-40,78); ctx.textAlign='left';
-  dibujarLinea(ctx,40,124,W-40);
-  let cliente='',detalle='',total=0,ab=0,sal=0;
-  if (tipo==='venta') { const v=ventas.find(x=>x.id===refId); cliente=v?.cliente||''; detalle=v?.producto||''; total=parseFloat(v?.precio)||0; ab=abonadoPor('venta',refId); sal=saldoPendiente('venta',refId,total); }
-  else { const t=tecnicos.find(x=>x.id===refId); cliente=t?.cliente||''; detalle=t?.equipo||''; total=parseFloat(t?.costo)||0; ab=abonadoPor('tecnico',refId); sal=saldoPendiente('tecnico',refId,total); }
-  const pct=Math.min(100,Math.round((ab/(total||1))*100));
-  let y=140;
-  ctx.fillStyle='#152535'; roundRect(ctx,40,y,W-80,80,10); ctx.fill();
-  ctx.strokeStyle='#1e3347'; ctx.lineWidth=1; roundRect(ctx,40,y,W-80,80,10); ctx.stroke();
-  ctx.fillStyle='#8a9aa1'; ctx.font='11px Outfit, sans-serif'; ctx.fillText('CLIENTE',60,y+20);
-  ctx.fillStyle='#e8f0f5'; ctx.font='bold 15px Outfit, sans-serif'; ctx.fillText(cliente,60,y+40);
-  ctx.fillStyle='#8a9aa1'; ctx.font='12px Outfit, sans-serif'; ctx.fillText(truncate(detalle,60),60,y+62);
-  y+=100;
-  const gradMonto=ctx.createLinearGradient(40,y,W-40,y);
-  gradMonto.addColorStop(0,'rgba(164,214,94,0.15)'); gradMonto.addColorStop(1,'rgba(91,163,201,0.08)');
-  ctx.fillStyle=gradMonto; roundRect(ctx,40,y,W-80,80,10); ctx.fill();
-  ctx.strokeStyle='rgba(164,214,94,0.3)'; ctx.lineWidth=1; roundRect(ctx,40,y,W-80,80,10); ctx.stroke();
-  ctx.fillStyle='#8a9aa1'; ctx.font='11px Outfit, sans-serif'; ctx.fillText('ABONO RECIBIDO',60,y+20);
-  ctx.fillStyle='#a4d65e'; ctx.font='bold 30px Outfit, sans-serif'; ctx.fillText(fmt(monto),60,y+56);
-  if (obs) { ctx.fillStyle='#8a9aa1'; ctx.font='12px Outfit, sans-serif'; ctx.textAlign='right'; ctx.fillText(obs,W-60,y+56); ctx.textAlign='left'; }
-  y+=100;
-  const colW=(W-80)/3;
-  [{label:'TOTAL',value:fmt(total),color:'#e8f0f5'},{label:'TOTAL ABONADO',value:fmt(ab),color:'#a4d65e'},{label:'SALDO PENDIENTE',value:fmt(sal),color:sal>0?'#f5b847':'#a4d65e'}].forEach((item,i)=>{
-    const cx=40+colW*i;
-    ctx.fillStyle='#152535'; roundRect(ctx,cx+(i>0?6:0),y,colW-(i>0?6:0),70,8); ctx.fill();
-    ctx.fillStyle='#8a9aa1'; ctx.font='10px Outfit, sans-serif'; ctx.fillText(item.label,cx+(i>0?16:10),y+20);
-    ctx.fillStyle=item.color; ctx.font='bold 16px Outfit, sans-serif'; ctx.fillText(item.value,cx+(i>0?16:10),y+50);
-  });
-  y+=90;
-  ctx.fillStyle='#1e3347'; roundRect(ctx,40,y,W-80,14,7); ctx.fill();
-  ctx.fillStyle='#a4d65e'; roundRect(ctx,40,y,Math.max(14,(W-80)*pct/100),14,7); ctx.fill();
-  ctx.fillStyle='#8a9aa1'; ctx.font='11px Outfit, sans-serif'; ctx.textAlign='right'; ctx.fillText(pct+'% pagado',W-40,y-4); ctx.textAlign='left';
-  y+=30; dibujarLinea(ctx,40,y,W-40); y+=18;
-  ctx.fillStyle='#e8f0f5'; ctx.font='bold 13px Outfit, sans-serif'; ctx.textAlign='center'; ctx.fillText('¡Gracias por tu abono!',W/2,y+8);
-  ctx.fillStyle='#8a9aa1'; ctx.font='11px Outfit, sans-serif'; ctx.fillText(NEGOCIO.nombre+' · '+NEGOCIO.telefono,W/2,y+26); ctx.textAlign='left';
-  const gradBot=ctx.createLinearGradient(0,H-8,W,H-8); gradBot.addColorStop(0,'#a4d65e'); gradBot.addColorStop(1,'#5ba3c9');
-  ctx.fillStyle=gradBot; ctx.fillRect(0,H-8,W,8);
-  const dataURL=canvas.toDataURL('image/png');
-  const nombreArchivo='abono-'+cliente.replace(/\s+/g,'-')+'-'+refId+'.png';
-  const link=document.createElement('a'); link.href=dataURL; link.download=nombreArchivo; link.click();
-  const msg=encodeURIComponent('💳 *COMPROBANTE DE ABONO — '+NEGOCIO.nombre+'*\n\nEstimado/a *'+cliente+'*, hemos recibido su abono de *'+fmt(monto)+'*.\nSaldo pendiente: *'+fmt(sal)+'* ('+pct+'% pagado)\n\n📞 '+NEGOCIO.telefono+' | '+NEGOCIO.nombre);
-  let m=document.getElementById('modal-comprobante');
-  if (!m){m=document.createElement('div');m.id='modal-comprobante';m.className='overlay';document.body.appendChild(m);}
-  m.innerHTML='<div class="modal" style="max-width:500px"><div class="modal-header"><div class="modal-title">💳 Comprobante de Abono</div><button class="close-btn" onclick="document.getElementById(\'modal-comprobante\').classList.remove(\'open\')">×</button></div><img src="'+dataURL+'" style="width:100%;border-radius:var(--radius);border:1px solid var(--border);margin-bottom:14px"><div class="modal-footer"><button class="btn" onclick="document.getElementById(\'modal-comprobante\').classList.remove(\'open\')">Cerrar</button><a href="'+dataURL+'" download="'+nombreArchivo+'"><button class="btn">⬇️ Descargar</button></a><a href="https://wa.me/?text='+msg+'" target="_blank"><button class="btn" style="background:#25D366;border-color:#25D366;color:#fff">💬 WhatsApp</button></a></div></div>';
-  m.classList.add('open');
+// ── Comprobante de abono — tirilla 58 mm ──
+// Mismo formato que la factura: una columna, blanco y negro puro
+// (la termica no imprime color) y alto variable. Antes era una
+// imagen ancha a color que no cabia en el rollo.
+//
+// Se le pasa el id del abono, no el monto: asi el acumulado y el
+// saldo se calculan hasta ESE abono, y un comprobante viejo sigue
+// diciendo lo mismo que el dia que se emitio.
+function generarComprobanteAbono(tipo, refId, abonoId) {
+  var lista = abonos.filter(function(a){ return a.tipo === tipo && a.ref_id === refId; })
+                    .sort(function(a, b){ return a.id - b.id; });
+  var ab = lista.find(function(a){ return a.id === abonoId; });
+  if (!ab) { toast('No se encontró el abono', 'err'); return; }
+
+  var cliente = '', detalle = '', total = 0;
+  if (tipo === 'venta') {
+    var v = ventas.find(function(x){ return x.id === refId; });
+    cliente = v ? v.cliente  : '';
+    detalle = v ? v.producto : '';
+    total   = v ? parseFloat(v.precio) || 0 : 0;
+  } else {
+    var t = tecnicos.find(function(x){ return x.id === refId; });
+    cliente = t ? t.cliente : '';
+    detalle = t ? t.equipo  : '';
+    total   = t ? parseFloat(t.costo) || 0 : 0;
+  }
+
+  var acum = lista.filter(function(a){ return a.id <= abonoId; })
+                  .reduce(function(s, a){ return s + (parseFloat(a.monto) || 0); }, 0);
+
+  var datos = {
+    abonoId : abonoId,
+    fecha   : ab.fecha || today(),
+    cliente : cliente,
+    detalle : detalle,
+    monto   : parseFloat(ab.monto) || 0,
+    obs     : ab.obs || '',
+    total   : total,
+    acum    : acum,
+    saldo   : Math.max(0, total - acum)
+  };
+
+  var jsPDF = window.jspdf.jsPDF;
+  var tmp   = new jsPDF({ orientation:'portrait', unit:'mm', format:[58, 600] });
+  var alto  = _abonoPintar(tmp, datos) + 6;
+  var doc   = new jsPDF({ orientation:'portrait', unit:'mm', format:[58, alto] });
+  _abonoPintar(doc, datos);
+  doc.save('abono-' + (cliente || '').replace(/\s+/g, '-') + '-' + abonoId + '.pdf');
+  toast('Comprobante generado ✓');
+}
+
+function _abonoPintar(doc, d) {
+  var W = 58, mx = 4.5, cw = W - mx * 2;
+  var y = 6;
+
+  function b(s){ doc.setFont('helvetica','bold');   doc.setFontSize(s || 6.5); }
+  function n(s){ doc.setFont('helvetica','normal'); doc.setFontSize(s || 6.5); }
+  function centro(t, s, neg, lh){ (neg ? b : n)(s); doc.text(t, W/2, y, {align:'center'}); y += (lh || (s||6.5)*0.42 + 0.6); }
+  function izq(t, s){ n(s); doc.splitTextToSize(t, cw).forEach(function(l){ doc.text(l, mx, y); y += (s||6.5)*0.42 + 0.5; }); }
+  function separador(){ doc.setLineWidth(0.15); doc.setDrawColor(0);
+    doc.setLineDashPattern([0.6, 0.6], 0); doc.line(mx, y, W-mx, y);
+    doc.setLineDashPattern([], 0); y += 3; }
+  function regla(){ doc.setLineWidth(0.4); doc.setDrawColor(0); doc.line(mx, y, W-mx, y); y += 3; }
+  function fila(et, val, s){ n(s || 6.5); doc.text(et, mx, y);
+    b(s || 6.5); doc.text(val, W-mx, y, {align:'right'}); y += (s||6.5)*0.42 + 0.8; }
+
+  centro(NEGOCIO.nombre.toUpperCase(), 11, true);
+  y += 0.5;
+  centro(NEGOCIO.ciudad, 6, false, 2.4);
+  centro('Tel: ' + NEGOCIO.telefono, 6, false, 2.4);
+  y += 0.6; regla();
+
+  centro('COMPROBANTE DE ABONO', 8, true, 3.2);
+  centro('No. ' + String(d.abonoId).padStart(6,'0') + '  ·  ' + d.fecha, 6, false, 2.4);
+  y += 0.2; separador();
+
+  b(6.5); doc.text('CLIENTE', mx, y); y += 3;
+  izq(d.cliente || '—');
+  if (d.detalle) izq(d.detalle, 6);
+  y += 1; separador();
+
+  b(6.5); doc.text('ABONO RECIBIDO', mx, y); y += 4.5;
+  b(14);  doc.text(fmt(d.monto), mx, y); y += 4.5;
+  if (d.obs) izq(d.obs, 6);
+  y += 1; separador();
+
+  fila('Total',         fmt(d.total), 6.5);
+  fila('Total abonado', fmt(d.acum),  6.5);
+  y += 0.5; regla();
+  b(9); doc.text('SALDO PENDIENTE', mx, y);
+  b(9); doc.text(fmt(d.saldo), W-mx, y, {align:'right'});
+  y += 4.6;
+  if (d.saldo <= 0) { b(6.5); doc.text('PAGADO EN SU TOTALIDAD', mx, y); y += 3.5; }
+  separador();
+
+  centro('¡Gracias por su abono!', 7, true);
+  y += 0.5;
+  centro(NEGOCIO.web, 5.5);
+  centro('Conserve este comprobante', 5.5);
+
+  return y;
 }
