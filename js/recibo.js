@@ -21,7 +21,7 @@ async function generarRecibo(tipo, id) {
     const v     = ventas.find(x => x.id === id);
     const misAb = abonos.filter(a => a.tipo === 'venta' && a.ref_id === id).sort((a,b) => a.id - b.id);
     const misCu = cuotas.filter(c => c.venta_id === id).sort((a,b) => a.numero - b.numero);
-    const eq    = equiposFin.find(e => `${e.marca} ${e.modelo}` === v.producto);
+    const eq    = equipoDeVenta(v.producto);
     datos = {
       tipo          : 'VENTA',
       cliente       : v.cliente,
