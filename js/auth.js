@@ -134,7 +134,7 @@ function showSec(s, el) {
 // ── Cierre de sesión por inactividad ──────
 // La sesion se renovaba sola mientras la pestaña siguiera abierta.
 // Esto la corta si nadie toca nada en un rato.
-var INACTIVIDAD_MIN = 0.5;   // minutos sin actividad antes de cerrar
+var INACTIVIDAD_MIN = 15;   // minutos sin actividad antes de cerrar
 var AVISO_SEG       = 60;   // aviso previo, en segundos
 
 var _ultimaActividad = Date.now();
