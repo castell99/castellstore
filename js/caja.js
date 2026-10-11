@@ -50,7 +50,14 @@ async function guardarMovCaja() {
 
 async function delMovCaja(id) {
   if (!confirm('¿Eliminar este movimiento?')) return;
-  try { await sb('caja_movimientos', 'DELETE', null, `?id=eq.${id}`); } catch (_) {}
+  try {
+    await sb('caja_movimientos', 'DELETE', null, `?id=eq.${id}`);
+  } catch (e) {
+    // Antes el error se tragaba y la fila desaparecia en pantalla
+    // aunque siguiera en la base. Al recargar reaparecia.
+    toast('No se pudo eliminar: ' + e.message, 'err');
+    return;
+  }
   cajaMovs = cajaMovs.filter(m => m.id !== id);
   renderCaja();
   toast('Movimiento eliminado');
@@ -99,39 +106,37 @@ function renderCaja() {
 
   const ingresos = movsFiltrados.filter(m => m.tipo === 'ingreso').reduce((s, m) => s + parseFloat(m.monto || 0), 0);
   const egresos  = movsFiltrados.filter(m => m.tipo === 'egreso').reduce((s, m) => s + parseFloat(m.monto || 0), 0);
-  const capitalVentasTotal = (typeof ventas !== 'undefined') ? ventas.reduce(function(s,v){ return s + (parseFloat(v.costo_proveedor)||0); }, 0) : 0;
-  const saldo = ingresos - egresos - capitalVentasTotal;
 
-  const el = id => document.getElementById(id);
-  if (el('caja-saldo'))    el('caja-saldo').textContent    = fmt(saldo);
-  if (el('caja-ingresos')) el('caja-ingresos').textContent = fmt(ingresos);
-  if (el('caja-egresos'))  el('caja-egresos').textContent  = fmt(egresos);
-  if (el('caja-total'))    el('caja-total').textContent    = movsFiltrados.length;
-
-  // Ganancia neta de ventas (filtrada por mes si aplica)
-  let ventasFiltradas = (typeof ventas !== 'undefined') ? ventas : [];
-  if (filtroMes) {
-    ventasFiltradas = ventasFiltradas.filter(v => {
-      const d = parseFechaCaja(v.fecha);
-      return d && ymKey(d) === filtroMes;
-    });
-  }
-  const gananciaTotal = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.ganancia) || 0), 0);
-  if (el('caja-ganancia')) el('caja-ganancia').textContent = fmt(gananciaTotal);
-
-  // Capital invertido en equipos (ventas)
-  const capitalVentas = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.costo_proveedor) || 0), 0);
-  if (el('caja-capital-ventas')) el('caja-capital-ventas').textContent = fmt(capitalVentas);
-
-  // Capital invertido en repuestos (servicios técnicos)
+  // Ventas y servicios del MISMO periodo que los movimientos. Antes el
+  // capital se sumaba sobre todas las ventas aunque hubiera filtro de
+  // mes, y el saldo del mes quedaba sin sentido.
+  let ventasFiltradas   = (typeof ventas   !== 'undefined') ? ventas   : [];
   let tecnicosFiltrados = (typeof tecnicos !== 'undefined') ? tecnicos : [];
   if (filtroMes) {
+    ventasFiltradas = ventasFiltradas.filter(v => {
+      const d = parseFechaCaja(v.fecha); return d && ymKey(d) === filtroMes;
+    });
     tecnicosFiltrados = tecnicosFiltrados.filter(t => {
-      const d = parseFechaCaja(t.fecha);
-      return d && ymKey(d) === filtroMes;
+      const d = parseFechaCaja(t.fecha); return d && ymKey(d) === filtroMes;
     });
   }
+
+  const capitalVentas    = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.costo_proveedor) || 0), 0);
   const capitalServicios = tecnicosFiltrados.reduce((s, t) => s + (parseFloat(t.costo_repuestos) || 0), 0);
+  const gananciaTotal    = ventasFiltradas.reduce((s, v) => s + (parseFloat(v.ganancia) || 0), 0);
+
+  // El costo de los equipos nunca entra como egreso en caja, a
+  // diferencia de los repuestos, que si se registran solos desde
+  // servicios. Por eso aqui se resta el de equipos y no el de ambos.
+  const saldo = ingresos - egresos - capitalVentas;
+
+  const el = id => document.getElementById(id);
+  if (el('caja-saldo'))             el('caja-saldo').textContent             = fmt(saldo);
+  if (el('caja-ingresos'))          el('caja-ingresos').textContent          = fmt(ingresos);
+  if (el('caja-egresos'))           el('caja-egresos').textContent           = fmt(egresos);
+  if (el('caja-total'))             el('caja-total').textContent             = movsFiltrados.length;
+  if (el('caja-ganancia'))          el('caja-ganancia').textContent          = fmt(gananciaTotal);
+  if (el('caja-capital-ventas'))    el('caja-capital-ventas').textContent    = fmt(capitalVentas);
   if (el('caja-capital-servicios')) el('caja-capital-servicios').textContent = fmt(capitalServicios);
   
   const tb = document.getElementById('tb-caja');
