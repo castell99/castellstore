@@ -47,6 +47,7 @@ async function abrirNuevaVenta() {
   const modoLibreChk = document.getElementById('v-modo-libre');
   if (modoLibreChk) modoLibreChk.checked = false;
   fillProdSel();
+  ajustarCamposPago();
   openModal('modal-venta');
 }
 
@@ -76,6 +77,7 @@ function editarVenta(id) {
   sel = document.getElementById('v-cuotas'); if (sel) sel.value = v.cuotas || '0';
   document.getElementById('v-obs').value     = v.observaciones || '';
   document.getElementById('v-fin-prev').style.display = 'none';
+  ajustarCamposPago();
   openModal('modal-venta');
 }
 
@@ -1089,6 +1091,7 @@ function sincronizarEstadoPago() {
   var pago = document.getElementById('v-pago');
   var est  = document.getElementById('v-estado');
   var cuo  = document.getElementById('v-cuotas');
+  var ini  = document.getElementById('v-inicial');
   if (!pago || !est) return;
 
   if (pago.value === 'Financiado') {
@@ -1099,7 +1102,11 @@ function sincronizarEstadoPago() {
       cuo.value = '0';
       if (typeof previewFinV === 'function') previewFinV();
     }
+    // En contado la inicial no significa nada: se limpia para que no
+    // quede un valor escondido en un campo que ya no se ve.
+    if (ini && ini.value) { ini.value = ''; if (typeof previewFinV === 'function') previewFinV(); }
   }
+  ajustarCamposPago();
   if (typeof toggleFechaPrimeraCuota === 'function') toggleFechaPrimeraCuota();
 }
 
@@ -1113,3 +1120,15 @@ function sincronizarEstadoPago() {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enlazar);
   else enlazar();
 })();
+
+
+// Muestra u oculta la inicial segun el metodo de pago. No toca el
+// valor, asi que se puede llamar al abrir el modal sin pisar los
+// datos de una venta que se esta editando.
+function ajustarCamposPago() {
+  var pago = document.getElementById('v-pago');
+  var ini  = document.getElementById('v-inicial');
+  if (!pago || !ini) return;
+  var caja = ini.closest ? ini.closest('.form-group') : null;
+  if (caja) caja.style.display = (pago.value === 'Financiado') ? '' : 'none';
+}
