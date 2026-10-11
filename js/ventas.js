@@ -395,9 +395,12 @@ function renderModalFin(v) {
   if (misAbonos.length) {
     abonoHtml += `<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px">
       <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Historial de abonos</div>
-      ${misAbonos.map(a => `<div class="abono-item">
+            ${misAbonos.map(a => `<div class="abono-item">
         <div><strong style="font-family:var(--mono);color:var(--green)">${fmt(a.monto)}</strong>${a.obs ? `<span style="color:var(--text3)"> · ${a.obs}</span>` : ''}</div>
-        <div class="abono-fecha">${a.fecha}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="abono-fecha">${a.fecha}</span>
+          <button class="btn sm" title="Descargar comprobante" onclick="generarComprobanteAbono('venta', ${v.id}, ${a.id})">🧾</button>
+        </div>
       </div>`).join('')}</div>`;
   }
 
@@ -801,11 +804,13 @@ function renderAbonoLista(tipo, id, elId) {
   if (!list.length) { el.innerHTML = '<p style="color:var(--text3);font-size:12px;margin-top:8px">No hay abonos registrados aún.</p>'; return; }
   el.innerHTML = `<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
     <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Historial de abonos</div>
-    ${list.map(a => `<div class="abono-item">
+        ${list.map(a => `<div class="abono-item">
       <div><strong style="font-family:var(--mono);color:var(--green)">${fmt(a.monto)}</strong>${a.obs ? ` <span style="color:var(--text3)">· ${a.obs}</span>` : ''}</div>
-      <div class="abono-fecha">${a.fecha}</div>
-    </div>`).join('')}
-  </div>`;
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="abono-fecha">${a.fecha}</span>
+        <button class="btn sm" title="Descargar comprobante" onclick="generarComprobanteAbono('${tipo}', ${id}, ${a.id})">🧾</button>
+      </div>
+    </div>`).join('')}  </div>`;
 }
 
 function toggleModoLibre() {
