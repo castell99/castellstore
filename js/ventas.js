@@ -585,6 +585,8 @@ async function crearPlan() {
     if (ini > 0) {
       const [a] = await sb('abonos', 'POST', { tipo: 'venta', ref_id: finVentaId, monto: ini, obs: 'Cuota inicial', fecha: today() });
       abonos.push(a);
+      await registrarMovCajaAuto('ingreso',
+        `Venta: ${v.producto} — ${v.cliente} · Cuota inicial`, ini, 'venta', finVentaId);
     }
     for (let i = 0; i < nc; i++) {
       const [c] = await sb('cuotas', 'POST', { venta_id: finVentaId, numero: i+1, monto: Math.round(cuota), fecha_venc: addMonths(fecha, i), estado: 'Pendiente' });
@@ -602,8 +604,14 @@ async function marcarCuotaPagada(cuotaId) {
   try {
     await sb('cuotas', 'PATCH', { estado: 'Pagada', fecha_pago: today() }, `?id=eq.${cuotaId}`);
     c.estado = 'Pagada'; c.fecha_pago = today();
-    const [a] = await sb('abonos', 'POST', { tipo: 'venta', ref_id: finVentaId, monto: c.monto, obs: `Cuota ${c.numero} pagada`, fecha: today() });
+        const [a] = await sb('abonos', 'POST', { tipo: 'venta', ref_id: finVentaId, monto: c.monto, obs: `Cuota ${c.numero} pagada`, fecha: today() });
     abonos.push(a);
+    // Sin esto, cobrar una cuota bajaba el saldo de la venta pero el
+    // dinero nunca aparecia en caja. Era el hueco principal.
+    const vC = ventas.find(x => x.id === finVentaId);
+    await registrarMovCajaAuto('ingreso',
+      `Abono venta — ${vC ? vC.cliente + ' · ' + vC.producto : '#' + finVentaId} · Cuota ${c.numero}`,
+      c.monto, 'venta', finVentaId);
     const pendientes = cuotas.filter(x => x.venta_id === finVentaId && x.estado !== 'Pagada');
     if (pendientes.length === 0) {
       await sb('ventas', 'PATCH', { estado: 'Completada' }, `?id=eq.${finVentaId}`);
