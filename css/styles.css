@@ -478,57 +478,34 @@ select option { background: var(--bg3); color: var(--text); }
   box-shadow: 4px 0 20px rgba(0,0,0,0.4);
 }
 
+/* ── Tarjeta del catálogo (diseño A) ──────
+   Las tres piezas que igualan el alto: la tarjeta es una columna
+   flexible, el cuerpo crece para llenarla, y el pie se empuja al
+   fondo. Asi el precio y el boton quedan alineados entre vecinas
+   aunque una tenga mas texto que otra. */
+.cat-card { display:flex; flex-direction:column; height:100%; padding:0; overflow:hidden; cursor:pointer; }
+.cat-card .cat-foto { padding:10px 10px 0; }
+.cat-card .prod-body { display:flex; flex-direction:column; flex:1; padding:10px 14px 14px; }
+.cat-card .cat-pie { margin-top:auto; }
 
-function renderTarjetaEquipo(eq) {
-  var tags = [];
-  try { tags = typeof eq.etiquetas === 'string' ? JSON.parse(eq.etiquetas || '[]') : (eq.etiquetas || []); } catch(e) {}
-  var gamaColor = { 'Baja':'green', 'Media':'blue', 'Alta':'amber' };
+/* Panel de la foto: un gris apenas mas claro que la tarjeta, no
+   blanco. Las fotos recortadas flotan y las que traen fondo claro
+   se disimulan mejor. */
+.cat-card .cat-img-wrap { height:150px; border-radius:10px; background:rgba(255,255,255,.04); }
+.cat-card .cat-img-main,
+.cat-card .cat-img-hover { height:100%; }
 
-  // La foto va sobre un panel apenas mas claro que la tarjeta. Sin
-  // fondo blanco: las fotos recortadas quedaban metidas en un bloque.
-  var imgHtml;
-  if (eq.imagen1 && eq.imagen2) {
-    imgHtml = '<div class="cat-img-wrap"><img src="' + eq.imagen1 + '" class="cat-img-main"><img src="' + eq.imagen2 + '" class="cat-img-hover"></div>';
-  } else if (eq.imagen1) {
-    imgHtml = '<div class="cat-img-wrap"><img src="' + eq.imagen1 + '" class="cat-img-main"></div>';
-  } else {
-    imgHtml = '<div class="cat-img-wrap" style="display:flex;align-items:center;justify-content:center;font-size:46px">📱</div>';
-  }
+.cat-chips { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
 
-  // Especificaciones en una sola linea de texto. Antes eran pastillas:
-  // con tres o cuatro saltaban de renglon y descuadraban el alto de la
-  // tarjeta respecto a sus vecinas.
-  var specs = [];
-  if (eq.ram)            specs.push(eq.ram);
-  if (eq.almacenamiento) specs.push(eq.almacenamiento);
-  if (eq.g5)             specs.push('5G');
-  var specsTxt = specs.join(' · ');
-
-  var chips = '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">' + (eq.gama || '') + '</span>' + badgeGrado(eq.grado);
-  if (tags.indexOf('Más vendido') !== -1) chips += '<span class="badge amber">⭐ Más vendido</span>';
-
-  var precio   = parseFloat(eq.precio_contado) || 0;
-  var nombreWA = (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g, '');
-
-  var h = '';
-  h += '<div class="prod-card cat-card" onclick="abrirDetalleEquipo(' + eq.id + ')">';
-  h +=   '<div class="cat-foto">' + imgHtml + '</div>';
-  h +=   '<div class="prod-body">';
-  h +=     '<div class="cat-chips">' + chips + '</div>';
-  h +=     '<div style="font-size:11px;color:var(--text3);letter-spacing:.3px">' + (eq.marca || '') + '</div>';
-  h +=     '<div class="prod-name" style="font-size:16px;margin:1px 0 6px">' + (eq.modelo || '') + '</div>';
-  if (specsTxt) {
-    h +=   '<div style="font-size:12px;color:var(--text2)">' + specsTxt + '</div>';
-  }
-  // Todo lo de abajo se empuja al fondo: asi el precio y el boton
-  // quedan alineados entre tarjetas aunque el texto de arriba varie.
-  h +=     '<div class="cat-pie">';
-  h +=       '<div class="prod-price" style="margin:10px 0 9px">' + fmt(precio) + '</div>';
-  h +=       '<button class="cat-btn-wa" onclick="event.stopPropagation();consultarEquipo(\'' + nombreWA + '\')">';
-  h +=         '<span style="font-size:15px">💬</span> Consultar';
-  h +=       '</button>';
-  h +=     '</div>';
-  h +=   '</div>';
-  h += '</div>';
-  return h;
+/* El selector lleva .cat-card y button a proposito, para que le gane
+   a cualquier estilo general de boton del archivo. */
+.cat-card button.cat-btn-wa {
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; box-sizing:border-box;
+  border:1.5px solid #25D366; background:transparent;
+  color:#25D366; border-radius:10px; padding:9px 0;
+  font-size:13px; font-weight:600; font-family:var(--font);
+  cursor:pointer; transition:background .2s, color .2s;
 }
+.cat-card button.cat-btn-wa:hover { background:#25D366; color:#0b2616; }
+.cat-card button.cat-btn-wa:active { transform:scale(.98); }
