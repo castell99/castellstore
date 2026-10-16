@@ -482,57 +482,132 @@ function detenerCarruselDetalle() {
   if (_detImgTimer) { clearInterval(_detImgTimer); _detImgTimer = null; }
 }
 
+// Cuota mensual mas baja con la que se puede ofrecer el equipo.
+// Usa la MISMA formula que guardarVenta y previewFinV: la inicial se
+// resta antes de aplicar el interes. Si se calculara aparte, el
+// catalogo prometeria una cuota distinta a la que luego se cobra.
+function cuotaDesde(eq) {
+  if (typeof FIN_TASAS === 'undefined') return null;
+  var tabla = FIN_TASAS[eq.gama];
+  if (!tabla) return null;
+
+  // El plazo mas largo permitido para esa gama es el que da la cuota
+  // mas baja, que es lo que significa "desde".
+  var plazos = Object.keys(tabla).map(Number).filter(function(n) { return n > 1; });
+  if (!plazos.length) return null;
+  var meses = Math.max.apply(null, plazos);
+  var tasa  = parseFloat(tabla[meses]);
+  if (isNaN(tasa)) return null;
+
+  var precio = parseFloat(eq.precio_contado) || 0;
+  if (!precio) return null;
+
+  var pctIni  = (typeof iniMinima === 'function') ? (parseFloat(iniMinima(eq.gama, meses)) || 0) : 0;
+  var inicial = Math.round(precio * pctIni / 100);
+  var base    = Math.max(0, precio - inicial);
+  var fin     = Math.round(base * (1 + tasa / 100));
+
+  return { meses: meses, inicial: inicial, cuota: Math.round(fin / meses) };
+}
+
 function abrirDetalleEquipo(id) {
   var eq = equiposCatalogo.find(function(e) { return e.id === id; });
   if (!eq) return;
+
   var tags = [];
-  try { tags = typeof eq.etiquetas==='string' ? JSON.parse(eq.etiquetas||'[]') : (eq.etiquetas||[]); } catch(e){}
-  var gamaColor = { 'Baja':'green','Media':'blue','Alta':'amber' };
+  try { tags = typeof eq.etiquetas === 'string' ? JSON.parse(eq.etiquetas || '[]') : (eq.etiquetas || []); } catch(e) {}
+  var gamaColor = { 'Baja':'green', 'Media':'blue', 'Alta':'amber' };
+
+  // ── Foto ──
   var imgHtml = '';
   if (eq.imagen1 && eq.imagen2) {
-    imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" onclick="toggleDetImg()">' +
-      '<img src="' + eq.imagen1 + '" id="det-img-main" style="max-height:280px;max-width:100%;object-fit:contain;transition:opacity .4s">' +
-      '<img src="' + eq.imagen2 + '" id="det-img-hover" style="max-height:280px;max-width:100%;object-fit:contain;position:absolute;opacity:0;transition:opacity .4s">' +
-      '<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:6px">' +
-        '<div id="det-dot-1" style="width:20px;height:6px;border-radius:3px;background:#fff;transition:all .3s"></div>' +
-        '<div id="det-dot-2" style="width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,0.5);transition:all .3s"></div>' +
+    imgHtml = '<div class="det-foto" onclick="toggleDetImg()">' +
+      '<img src="' + eq.imagen1 + '" id="det-img-main">' +
+      '<img src="' + eq.imagen2 + '" id="det-img-hover">' +
+      '<div class="det-dots">' +
+        '<div id="det-dot-1" class="det-dot activo"></div>' +
+        '<div id="det-dot-2" class="det-dot"></div>' +
       '</div></div>';
   } else if (eq.imagen1) {
-    imgHtml = '<div style="height:280px;overflow:hidden;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center">' +
-      '<img src="' + eq.imagen1 + '" style="max-height:280px;max-width:100%;object-fit:contain"></div>';
+    imgHtml = '<div class="det-foto"><img src="' + eq.imagen1 + '" id="det-img-main"></div>';
   } else {
-    imgHtml = '<div style="height:200px;display:flex;align-items:center;justify-content:center;font-size:72px;background:var(--bg3);border-radius:var(--radius)">📱</div>';
+    imgHtml = '<div class="det-foto" style="font-size:64px">📱</div>';
   }
+
+  // ── Distintivos ──
+  // El 5G se quito de aqui: ya aparece abajo en las especificaciones
+  // y en el nombre del equipo. Salia tres veces.
+  var meses = (typeof NEGOCIO !== 'undefined' && NEGOCIO.garantia && NEGOCIO.garantia.meses)
+            ? NEGOCIO.garantia.meses[eq.grado] : null;
+  var chips = '<span class="badge ' + (gamaColor[eq.gama] || 'muted') + '">Gama ' + (eq.gama || '') + '</span>' +
+              badgeGrado(eq.grado) +
+              (meses ? '<span class="badge muted">' + meses + ' meses de garantía</span>' : '') +
+              (tags.indexOf('Más vendido') !== -1 ? '<span class="badge amber">⭐ Más vendido</span>' : '');
+
+  // ── Especificaciones en una sola fila dividida ──
+  var cel = [];
+  if (eq.ram)            cel.push(['RAM', eq.ram]);
+  if (eq.almacenamiento) cel.push(['ALMACENAMIENTO', eq.almacenamiento]);
+  if (eq.g5)             cel.push(['RED', '5G']);
   var specs = '';
-  if (eq.ram)            specs += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px"><div style="font-size:10px;color:var(--text3)">RAM</div><div style="font-weight:600">' + eq.ram + '</div></div>';
-  if (eq.almacenamiento) specs += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px"><div style="font-size:10px;color:var(--text3)">Almacenamiento</div><div style="font-weight:600">' + eq.almacenamiento + '</div></div>';
-  if (eq.g5)             specs += '<div style="background:var(--bg3);border-radius:8px;padding:8px 12px"><div style="font-size:10px;color:var(--text3)">Conectividad</div><div style="font-weight:600;color:var(--blue)">5G</div></div>';
+  if (cel.length) {
+    specs = '<div class="det-specs">';
+    cel.forEach(function(c) {
+      specs += '<div class="det-spec"><div class="det-spec-lbl">' + c[0] + '</div>' +
+               '<div class="det-spec-val">' + c[1] + '</div></div>';
+    });
+    specs += '</div>';
+  }
+
+  // ── Precio y cuota ──
+  var fin = cuotaDesde(eq);
+  var bloquePrecio =
+    '<div class="det-precio">' +
+      '<span class="det-precio-num">' + fmt(eq.precio_contado) + '</span>' +
+      '<span class="det-precio-lbl">de contado</span>' +
+    '</div>';
+  if (fin) {
+    bloquePrecio +=
+      '<div class="det-cuota">' +
+        '<div class="det-cuota-lbl">o desde</div>' +
+        '<div class="det-cuota-num">' + fmt(fin.cuota) +
+          '<span class="det-cuota-plazo"> al mes · ' + fin.meses + ' cuotas</span></div>' +
+        '<div class="det-cuota-pie">' +
+          (fin.inicial > 0 ? 'Inicial desde ' + fmt(fin.inicial) + ' · ' : '') +
+          'sujeto a aprobación' +
+        '</div>' +
+      '</div>';
+  }
 
   var m = document.getElementById('modal-detalle-equipo');
-  if (!m) { m=document.createElement('div'); m.id='modal-detalle-equipo'; m.className='overlay'; document.body.appendChild(m); }
+  if (!m) { m = document.createElement('div'); m.id = 'modal-detalle-equipo'; m.className = 'overlay'; document.body.appendChild(m); }
 
-  m.innerHTML = '<div class="modal" style="max-width:500px" onclick="event.stopPropagation()">' +
-    '<div class="modal-header"><div class="modal-title">' + eq.marca + ' ' + eq.modelo + '</div>' +
-    '<button class="close-btn" onclick="detenerCarruselDetalle();document.getElementById(\'modal-detalle-equipo\').classList.remove(\'open\')">×</button></div>' +
+  var cerrar = "detenerCarruselDetalle();document.getElementById('modal-detalle-equipo').classList.remove('open')";
+
+  m.innerHTML = '<div class="modal det-modal" onclick="event.stopPropagation()">' +
+    '<div class="det-head">' +
+      '<div>' +
+        '<div class="det-marca">' + (eq.marca || '') + '</div>' +
+        '<div class="det-modelo">' + (eq.modelo || '') + '</div>' +
+      '</div>' +
+      '<button class="close-btn" onclick="' + cerrar + '">×</button>' +
+    '</div>' +
     imgHtml +
-    '<div style="margin:14px 0 10px;display:flex;gap:6px;flex-wrap:wrap">' +
-    '<span class="badge ' + (gamaColor[eq.gama]||'muted') + '">' + (eq.gama||'') + '</span>' +
-    badgeGrado(eq.grado) +
-    (eq.g5 ? '<span class="badge blue">5G</span>' : '') +
-    (tags.indexOf('Más vendido')!==-1 ? '<span class="badge amber">⭐ Más vendido</span>' : '') +
-    '</div>' +
-    (specs ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:14px">' + specs + '</div>' : '') +
-    bloqueGrado(eq) +
-    '<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:10px;padding:14px;margin-bottom:14px">' +
-    '<div style="font-size:11px;color:var(--text3)">Precio contado</div>' +
-    '<div style="font-size:26px;font-weight:800;color:var(--green)">' + fmt(eq.precio_contado) + '</div>' +
-    '</div>' +
-    '<div class="modal-footer" style="padding:0">' +
-    '<button class="btn" onclick="detenerCarruselDetalle();document.getElementById(\'modal-detalle-equipo\').classList.remove(\'open\')">Cerrar</button>' +
-    '<button class="consultar-btn" style="flex:1;margin:0" onclick="consultarEquipo(\'' + (eq.marca+' '+eq.modelo).replace(/[^a-zA-Z0-9 ]/g,'') + '\')">💬 Consultar / Comprar</button>' +
+    '<div class="det-chips">' + chips + '</div>' +
+    specs +
+    // La descripcion del grado solo aparece en equipos que no son
+    // nuevos: ahi si aporta, porque explica el estado real.
+    (eq.grado && eq.grado !== 'Nuevo' ? bloqueGrado(eq) : '') +
+    (eq.obs_equipo ? '<div class="det-obs">' + eq.obs_equipo + '</div>' : '') +
+    bloquePrecio +
+    '<div class="det-acciones">' +
+      '<button class="btn" onclick="' + cerrar + '">Cerrar</button>' +
+      '<button class="det-btn-wa" onclick="consultarEquipo(\'' + (eq.marca + ' ' + eq.modelo).replace(/[^a-zA-Z0-9 ]/g, '') + '\')">' +
+        '<span style="font-size:16px">💬</span> Lo quiero' +
+      '</button>' +
     '</div></div>';
 
-  m.onclick = function(e) { if(e.target===m){ detenerCarruselDetalle(); m.classList.remove('open'); } };
+  m.onclick = function(e) { if (e.target === m) { detenerCarruselDetalle(); m.classList.remove('open'); } };
   detenerCarruselDetalle();
   if (eq.imagen1 && eq.imagen2) setTimeout(iniciarCarruselDetalle, 500);
   m.classList.add('open');
