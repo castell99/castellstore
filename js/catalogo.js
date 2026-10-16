@@ -566,16 +566,13 @@ function abrirDetalleEquipo(id) {
       '<span class="det-precio-num">' + fmt(eq.precio_contado) + '</span>' +
       '<span class="det-precio-lbl">de contado</span>' +
     '</div>';
-  if (fin) {
+    if (fin) {
+    // Sin cifras: el plan se arma con cada cliente. Publicar una
+    // cuota exacta comprometeria un plazo y una inicial fijos.
     bloquePrecio +=
       '<div class="det-cuota">' +
-        '<div class="det-cuota-lbl">o desde</div>' +
-        '<div class="det-cuota-num">' + fmt(fin.cuota) +
-          '<span class="det-cuota-plazo"> al mes · ' + fin.meses + ' cuotas</span></div>' +
-        '<div class="det-cuota-pie">' +
-          (fin.inicial > 0 ? 'Inicial desde ' + fmt(fin.inicial) + ' · ' : '') +
-          'sujeto a aprobación' +
-        '</div>' +
+        '<div class="det-cuota-num">Llévalo financiado</div>' +
+        '<div class="det-cuota-pie"> Escríbenos y armamos tu plan</div>' +
       '</div>';
   }
 
