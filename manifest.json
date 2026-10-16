@@ -1,0 +1,15 @@
+{
+  "name": "Castell Tech",
+  "short_name": "Castell Tech",
+  "description": "Celulares, computadores y reparación — Villanueva, Bolívar",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#101f2b",
+  "theme_color": "#101f2b",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
